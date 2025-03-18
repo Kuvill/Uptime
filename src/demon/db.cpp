@@ -3,6 +3,10 @@
 #include <sqlite3.h>
 #include <stdexcept>
 
+#include <ctime>
+
+// does move Tables name to defines - good idea?
+
 const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS Users (" \
 							"user_id INTEGER PRIMARY KEY," \
 							"user_name TEXT);" \
@@ -12,11 +16,11 @@ const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS Users (" \
 							"app_name TEXT);" \
 
 							"CREATE TABLE IF NOT EXISTS Records (" \
-									"rec_id INTEGER PRIMARY KEY," \
+									/*"rec_id INTEGER PRIMARY KEY," \ */
 									"user_id INTEGER," \
 									"app_id INTEGER," \
 									"rec_time DATETIME," \
-									"uptime INTEGER," \
+									"uptime INTEGER64," \
 									"FOREIGN KEY(user_id) REFERENCES Users(user_id)," \
 									"FOREIGN KEY(app_id) REFERENCES Applications(app_id) );";
 
@@ -31,6 +35,9 @@ void checkTables( sqlite3* db ) {
 		throw std::runtime_error(zErrMsg);
 }
 
+// sqlite3_config befor any connection.
+// in GUI version, i have to use v2 and set flag read_only
+// mb i need here NOMUTEX for correct communication
 Database::Database( const char* dbName ) {
 	if( sqlite3_open( dbName, &_db ) )
 		throw std::runtime_error("Error while starting sqlite3");
@@ -40,5 +47,72 @@ Database::Database( const char* dbName ) {
 
 Database::~Database() {
 	if( _db )
-		sqlite3_close_v2( _db );
+		sqlite3_close( _db );
+}
+
+#define USER_ID 1
+// in future i have to pass user id. not it just 1
+void Database::insertUptimeRecord( const ProcessInfo& info ) {
+	time_t recTime;
+	time(&recTime);
+
+	int appId = getAppId( info );
+
+	if( appId == -1 ) 
+		insertApp( info.name.c_str() );
+
+	const char sql[] = "INSERT INTO Records (" \
+			    "user_id, app_id, rec_time, uptime) " \
+			    "VALUES (USER_ID, ?1, ?2, ?3);";
+
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2( _db, sql, sizeof(sql), &stmt, nullptr );
+
+	if( rc == SQLITE_OK ) {
+		sqlite3_bind_int( stmt , 1, appId );
+		sqlite3_bind_int( stmt , 2, recTime );
+		sqlite3_bind_int64( stmt , 3, info.uptime );
+	} else throw std::runtime_error("can't record");
+
+}
+
+int Database::getAppId( const ProcessInfo& info ) {
+	int toReturn = -1;
+
+	const char getAppIdSQL[] = "SELECT app_id FROM Applications WHERE name = ?1;";
+	// when i will be optimize code, i have to: merge requests and save stmt
+	sqlite3_stmt* stmt;
+	int rc = sqlite3_prepare_v2( _db, getAppIdSQL, sizeof(getAppIdSQL), &stmt, nullptr );
+
+	if( rc == SQLITE_OK ) {
+		sqlite3_bind_text( stmt, 1, info.name.data(), info.name.size(), SQLITE_TRANSIENT );
+		
+		if( sqlite3_step(stmt) == SQLITE_ROW ) {
+			toReturn = sqlite3_column_int( stmt, 0);
+		}
+		
+		sqlite3_finalize( stmt );
+
+	} else throw std::runtime_error("can't getapp");
+
+	return toReturn;
+
+}
+
+int Database::insertApp( const char* appName ) {
+	int appId;
+
+    const char insertAppSQL[] = "INSERT INTO Data (name) VALUES (?)";
+	sqlite3_stmt* stmt;
+
+    int rc = sqlite3_prepare_v2( _db, insertAppSQL, sizeof(insertAppSQL), &stmt, nullptr );
+
+    if (rc == SQLITE_OK) {
+        sqlite3_bind_text(stmt, 1, appName, -1, SQLITE_STATIC);
+        sqlite3_step(stmt);
+        appId = static_cast<int>(sqlite3_last_insert_rowid(_db));
+        sqlite3_finalize(stmt);
+    } else throw std::runtime_error("can't insapp");
+
+	return appId;
 }

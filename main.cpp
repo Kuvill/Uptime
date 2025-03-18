@@ -4,6 +4,7 @@
 #include "inc/server.hpp"
 #include "ipc_interface.hpp"
 
+#include <iostream>
 #include <chrono>
 #include <exception>
 #include <thread>
@@ -21,14 +22,18 @@ const char* dbName = "res/db/uptime.db";
 // one more todo: 3) set class of exception:
 	// require ram storage dump
 	// don't require
+	// !! clear sqlite memory (is require befor death?)
 
 // 		4) write logger
 
-int main(){
+int main() {
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
+
+	int sleepDuration = 5;
 	bool useDB = false;
+
 
 	try {
 		while( true ) {
@@ -52,12 +57,15 @@ int main(){
 			}
 
 
-			std::this_thread::sleep_for( std::chrono::seconds(5) );
+			std::this_thread::sleep_for( std::chrono::seconds( sleepDuration ) );
 		}
 	}
 
 	catch( const std::exception& err ) {
 		db.dumpStorage( storage );
+
+		// filler
+		std::cerr << "Got an error: " << err.what() << '\n';
 	}
 
 	return 0;

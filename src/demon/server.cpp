@@ -9,11 +9,6 @@
 
 #include <stdexcept>
 
-MsgType checkSocket() {
-
-	return MsgType::none;
-}
-
 const char start[] = "s";
 const char end[] = "e";
 

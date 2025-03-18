@@ -1,5 +1,3 @@
-> [!TIP] This is multiconfig project.
+# Uptimer
 
-### Compile degub: cmake --build build --config Debug
-
-### Compile release: cmake --build build --config Release
+## How do you spend your time?

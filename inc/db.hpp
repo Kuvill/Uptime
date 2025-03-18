@@ -21,7 +21,8 @@
 class Database { 
 	sqlite3* _db;
 
-	void insertApp(const char* appName );
+	int insertApp(const char* appName );
+	int getAppId( const ProcessInfo& info );
 
 public:
 	
