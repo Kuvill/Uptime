@@ -2,7 +2,7 @@
 #include "inc/ram_storage.hpp"
 
 #include <sqlite3.h>
-#include <cstdint>
+#include <ctime>
 
 // 2 variants:
 
@@ -23,6 +23,7 @@ class Database {
 
 	int insertApp(const char* appName );
 	int getAppId( const ProcessInfo& info );
+	void insertUptimeRecord( const ProcessInfo&, std::time_t );
 
 public:
 	
@@ -31,9 +32,7 @@ public:
 
 	bool insertUser( const char* userName );
 	
-	void insertUptimeRecord( uint32_t userId, uint32_t appId, uint64_t uptime, uint64_t date);
-
 	// upon two mehod are useless?
-	void dumpStorage( const Storage& );
+	void dumpStorage( Storage& );
 	void insertUptimeRecord( const ProcessInfo& );
 };

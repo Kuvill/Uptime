@@ -10,6 +10,6 @@ include_directories( . )
 
 add_executable( ${PROJECT_NAME} )
 
-target_sources( ${PROJECT_NAME} PRIVATE main.cpp ./src/demon/get_uptime.cpp ./src/demon/db.cpp ./src/demon/ram_storage.cpp)
+target_sources( ${PROJECT_NAME} PRIVATE main.cpp ./src/demon/get_uptime.cpp ./src/demon/db.cpp ./src/demon/ram_storage.cpp ./src/demon/server.cpp)
 target_compile_features( ${PROJECT_NAME} PRIVATE c_std_23 )
 # target_link_libraries( ${sqlite3_LIBRARIES} )

@@ -2,7 +2,9 @@
 #include "inc/db.hpp"
 #include "inc/ram_storage.hpp"
 #include "inc/server.hpp"
-#include "ipc_interface.hpp"
+#include "inc/ipc_interface.hpp"
+
+#include "inc/debugger.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -37,9 +39,12 @@ int main() {
 
 	try {
 		while( true ) {
+			DEBUG("New Iteration\n");
 
 			{
+			DEBUG("here\n");
 				auto msgType = connect.listen();
+			DEBUG("but not here\n");
 
 				if( msgType == MsgType::start ) {
 					db.dumpStorage( storage );
@@ -62,11 +67,12 @@ int main() {
 	}
 
 	catch( const std::exception& err ) {
-		db.dumpStorage( storage );
 
 		// filler
 		std::cerr << "Got an error: " << err.what() << '\n';
 	}
+
+	db.dumpStorage( storage );
 
 	return 0;
 } 

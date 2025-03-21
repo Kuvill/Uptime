@@ -9,6 +9,9 @@
 
 #include <stdexcept>
 
+// this is really potential problem FIXME
+#include <cerrno>
+
 const char start[] = "s";
 const char end[] = "e";
 
@@ -22,7 +25,7 @@ MsgType TypeByMsg( const char buf[] ) {
 }
 
 Ips::Ips() {
-	_serverSocket = socket( AF_UNIX, SOCK_STREAM, 0 );
+	_serverSocket = socket( AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0 );
 	if( _serverSocket  < 0 )
 		throw std::runtime_error("Cannot create an socket!");
 

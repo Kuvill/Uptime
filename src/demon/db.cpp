@@ -4,25 +4,38 @@
 #include <stdexcept>
 
 #include <ctime>
+#include "inc/ram_storage.hpp"
 
 // does move Tables name to defines - good idea?
 
 const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS Users (" \
-							"user_id INTEGER PRIMARY KEY," \
-							"user_name TEXT);" \
+						"user_id INTEGER PRIMARY KEY," \
+						"user_name TEXT"
+				");" \
 
-							"CREATE TABLE IF NOT EXISTS Applications (" \
-							"app_id INTEGER PRIMARY KEY," \
-							"app_name TEXT);" \
+				"CREATE TABLE IF NOT EXISTS Applications (" \
+						"app_id INTEGER PRIMARY KEY," \
+						"type_id INTEGER," \
+						"app_name TEXT," \
+						"FOREIGN KEY(type_id) REFERENCES Categories(type_id)"
+				");" \
 
-							"CREATE TABLE IF NOT EXISTS Records (" \
+				"CREATE TABLE IF NOT EXISTS Records (" \
 									/*"rec_id INTEGER PRIMARY KEY," \ */
-									"user_id INTEGER," \
-									"app_id INTEGER," \
-									"rec_time DATETIME," \
-									"uptime INTEGER64," \
-									"FOREIGN KEY(user_id) REFERENCES Users(user_id)," \
-									"FOREIGN KEY(app_id) REFERENCES Applications(app_id) );";
+						"user_id INTEGER," \
+						"app_id INTEGER," \
+						"rec_time DATETIME," \
+						"uptime INTEGER64," \
+						"FOREIGN KEY(user_id) REFERENCES Users(user_id)," \
+						"FOREIGN KEY(app_id) REFERENCES Applications(app_id)"
+				");" \
+
+				"CREATE TABLE IF NOT EXISTS Categories (" \
+						"type_id INTEGER PRIMARY KEY," \
+						"type_name TEXT" \
+				");";
+
+				
 
 // create tables if not
 void checkTables( sqlite3* db ) {
@@ -53,9 +66,13 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-	time_t recTime;
-	time(&recTime);
+	std::time_t recTime;
+	std::time(&recTime);
 
+	insertUptimeRecord( info, recTime );
+}
+
+void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
@@ -70,7 +87,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 
 	if( rc == SQLITE_OK ) {
 		sqlite3_bind_int( stmt , 1, appId );
-		sqlite3_bind_int( stmt , 2, recTime );
+		sqlite3_bind_int( stmt , 2, time );
 		sqlite3_bind_int64( stmt , 3, info.uptime );
 	} else throw std::runtime_error("can't record");
 
@@ -102,7 +119,7 @@ int Database::getAppId( const ProcessInfo& info ) {
 int Database::insertApp( const char* appName ) {
 	int appId;
 
-    const char insertAppSQL[] = "INSERT INTO Data (name) VALUES (?)";
+    const char insertAppSQL[] = "INSERT INTO Users (name) VALUES (?)";
 	sqlite3_stmt* stmt;
 
     int rc = sqlite3_prepare_v2( _db, insertAppSQL, sizeof(insertAppSQL), &stmt, nullptr );
@@ -115,4 +132,12 @@ int Database::insertApp( const char* appName ) {
     } else throw std::runtime_error("can't insapp");
 
 	return appId;
+}
+
+void Database::dumpStorage( Storage& store ) {
+	for( auto& record : store ) {
+		insertUptimeRecord( {record.name, record.uptime}, record.recTime );
+	}
+
+	store.clear();
 }
