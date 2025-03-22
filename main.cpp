@@ -42,9 +42,7 @@ int main() {
 			DEBUG("New Iteration\n");
 
 			{
-			DEBUG("here\n");
 				auto msgType = connect.listen();
-			DEBUG("but not here\n");
 
 				if( msgType == MsgType::start ) {
 					db.dumpStorage( storage );
