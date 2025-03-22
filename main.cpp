@@ -30,11 +30,7 @@ Logger logger(LogLvl::Info);
 // 		4) write logger
 
 int main() {
-	// erase when see it;
-	// i have an issue. Foot create new db row on every exec.
-	// somereason have bad output in info (ram dump)
-
-	// now i have records only into apps
+	// NEW ISSUE: IF APP EXIST IN DB, it NOT OVERWRITE UPTIME (be careful, dont overwrite rec_time)
 	Database db( dbName );
 	Storage storage;
 	Ips connect;

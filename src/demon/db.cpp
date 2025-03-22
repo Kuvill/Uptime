@@ -102,8 +102,9 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 		const char* zErrMsg = sqlite3_errmsg(_db);
 		logger.log(LogLvl::Error, "Cannot write an record into db");
 		throw std::runtime_error(zErrMsg);
-		
 	}
+
+	sqlite3_finalize( stmt );
 
 	logger.log(LogLvl::Info, "an record inserted");
 }
