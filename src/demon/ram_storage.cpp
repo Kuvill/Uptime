@@ -52,7 +52,7 @@ void Storage::clear() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-		os << a.user << ' ' << a.name << ' ' << a.uptime << a.recTime << '\n';
+		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime << '\n';
 	}
 
 	return os;

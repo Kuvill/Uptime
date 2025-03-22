@@ -26,7 +26,7 @@ const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS Users (" \
 						"user_id INTEGER," \
 						"app_id INTEGER," \
 						"rec_time DATETIME," \
-						"uptime INTEGER64," \
+						"uptime INTEGER," \
 						"FOREIGN KEY(user_id) REFERENCES Users(user_id)," \
 						"FOREIGN KEY(app_id) REFERENCES Applications(app_id)"
 				");" \
@@ -87,15 +87,23 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 	int rc = sqlite3_prepare_v2( _db, sql, sizeof(sql), &stmt, nullptr );
 
 	if( rc == SQLITE_OK ) {
-		sqlite3_bind_int( stmt , 1, appId );
-		sqlite3_bind_int( stmt , 2, time );
-		sqlite3_bind_int64( stmt , 3, info.uptime );
+		rc = sqlite3_bind_int( stmt , 1, appId );
+		rc += sqlite3_bind_int64( stmt , 2, time );
+		rc += sqlite3_bind_int( stmt , 3, info.uptime );
+
 	} else {
 		const char* zErrMsg = sqlite3_errmsg(_db);
 		logger.log(LogLvl::Error, "Cannot write an record into db");
 		throw std::runtime_error(zErrMsg);
 	}
 
+	rc = sqlite3_step( stmt );
+	if( rc != SQLITE_DONE ) {
+		const char* zErrMsg = sqlite3_errmsg(_db);
+		logger.log(LogLvl::Error, "Cannot write an record into db");
+		throw std::runtime_error(zErrMsg);
+		
+	}
 
 	logger.log(LogLvl::Info, "an record inserted");
 }
@@ -149,7 +157,10 @@ int Database::insertApp( const char* appName ) {
 	return appId;
 }
 
+// FIXME change distance to size
 void Database::dumpStorage( Storage& store ) {
+	logger.log(LogLvl::Info, "dumped: ", std::distance( store.begin(), store.end()));
+
 	for( auto& record : store ) {
 		insertUptimeRecord( {record.name, record.uptime}, record.recTime );
 	}

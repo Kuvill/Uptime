@@ -12,16 +12,18 @@
 
 // want to create Workspace info
 
+// irrational way. at least one copy
 ProcessInfo FocusInfo() {
 	ProcessInfo info;
+	info.name.resize(40); info.name.clear();
+	std::array<char, 40> appName;
 
 	FILE* mimic;
 	mimic = popen( getFocusedInfo, "r" );
-	fgets( info.name.data(), 40, mimic );
-	// DEBUG( info.name );
+	fgets( appName.data(), 40, mimic );
 
 	{ // getting uptime by pid
-		std::array<char, 5> pid{};
+		std::array<char, 6> pid{};
 		std::array<char, 11> uptimeInStr{};
 		fgets( pid.data(), pid.size(), mimic );
 
@@ -31,9 +33,14 @@ ProcessInfo FocusInfo() {
 		strcat(getUptimePlusPID, pid.data());
 		mimic = popen( getUptimePlusPID, "r" );
 		fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
+		fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
 		info.uptime = strtoll(uptimeInStr.data(), NULL, 10);
 		
 	}
+
+	// idk why cycle on appName until '\0' or '\n' not workibg
+	info.name.append(appName.data()); info.name.pop_back();
+	
 
 	logger.log( LogLvl::Warning, info.uptime, info.name );
 

@@ -30,6 +30,11 @@ Logger logger(LogLvl::Info);
 // 		4) write logger
 
 int main() {
+	// erase when see it;
+	// i have an issue. Foot create new db row on every exec.
+	// somereason have bad output in info (ram dump)
+
+	// now i have records only into apps
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
@@ -65,8 +70,6 @@ int main() {
 
 			logger.log( LogLvl::Info, "new info added");
 
-
-			break;
 			std::this_thread::sleep_for( std::chrono::seconds( sleepDuration ) );
 		}
 	}
