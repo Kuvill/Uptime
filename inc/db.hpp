@@ -1,3 +1,5 @@
+#pragma once
+
 #include "inc/get_uptime.hpp"
 #include "inc/ram_storage.hpp"
 

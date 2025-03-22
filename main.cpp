@@ -4,14 +4,15 @@
 #include "inc/server.hpp"
 #include "inc/ipc_interface.hpp"
 
-#include "inc/debugger.hpp"
+#include "inc/logger.hpp"
 
-#include <iostream>
 #include <chrono>
 #include <exception>
 #include <thread>
 
 const char* dbName = "res/db/uptime.db";
+
+Logger logger(LogLvl::Info);
 
 // to do. 1) write catch exception to save all ram data
 // 		  2) write signal catch for same
@@ -39,17 +40,20 @@ int main() {
 
 	try {
 		while( true ) {
-			DEBUG("New Iteration\n");
+			logger.log( LogLvl::Info, "New Iteration\n");
 
 			{
 				auto msgType = connect.listen();
 
 				if( msgType == MsgType::start ) {
+					logger.log( LogLvl::Info, "Choosed db");
 					db.dumpStorage( storage );
 					useDB = true;
 
-				} else if( msgType == MsgType::end )
+				} else if( msgType == MsgType::end ) { 
+					logger.log( LogLvl::Info, "back to ram");
 					useDB = false;
+				}
 			}
 
 			if( useDB ) {
@@ -59,18 +63,19 @@ int main() {
 				storage.insert( FocusInfo() );
 			}
 
+			logger.log( LogLvl::Info, "new info added");
 
+
+			break;
 			std::this_thread::sleep_for( std::chrono::seconds( sleepDuration ) );
 		}
 	}
 
 	catch( const std::exception& err ) {
-
-		// filler
-		std::cerr << "Got an error: " << err.what() << '\n';
+		logger.log(LogLvl::Error, err.what());
 	}
 
+	logger.log( LogLvl::Info, "memory dump: ", storage );
 	db.dumpStorage( storage );
-
 	return 0;
 } 

@@ -11,6 +11,7 @@
 
 // this is really potential problem FIXME
 #include <cerrno>
+#include "inc/logger.hpp"
 
 const char start[] = "s";
 const char end[] = "e";
@@ -32,10 +33,10 @@ Ips::Ips() {
 	{
 		sockaddr_un localAdr{};
 		localAdr.sun_family = AF_UNIX;
-		strcpy( localAdr.sun_path, PATH );
+		strcpy( localAdr.sun_path, SOCK_PATH );
 
 		// if socket exist
-		unlink(PATH);
+		unlink(SOCK_PATH);
 		if( bind( _serverSocket, reinterpret_cast<sockaddr*>(&localAdr), 
 					sizeof(localAdr) ) < 0 )
 			throw std::runtime_error("failed to bind socket!");
@@ -47,7 +48,7 @@ Ips::Ips() {
 
 Ips::~Ips() {
 	close( _serverSocket );
-	unlink(PATH);
+	unlink(SOCK_PATH);
 }
 
 MsgType Ips::listen() {
@@ -58,6 +59,7 @@ MsgType Ips::listen() {
 		if( clientSocket < 0 ) 
 			clientSocket = accept( _serverSocket, nullptr, nullptr );
 		if( clientSocket >= 0 ) {
+			logger.log( LogLvl::Info, "Client Found");
 			int rCode = read( clientSocket, buf, 15 );
 
 			if( rCode < 0 )

@@ -1,10 +1,11 @@
 #include "inc/db.hpp"
+#include "inc/ram_storage.hpp"
+#include "inc/logger.hpp"
 
 #include <sqlite3.h>
-#include <stdexcept>
 
+#include <stdexcept>
 #include <ctime>
-#include "inc/ram_storage.hpp"
 
 // does move Tables name to defines - good idea?
 
@@ -80,7 +81,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 
 	const char sql[] = "INSERT INTO Records (" \
 			    "user_id, app_id, rec_time, uptime) " \
-			    "VALUES (USER_ID, ?1, ?2, ?3);";
+			    "VALUES (1, ?1, ?2, ?3);";
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2( _db, sql, sizeof(sql), &stmt, nullptr );
@@ -89,14 +90,20 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 		sqlite3_bind_int( stmt , 1, appId );
 		sqlite3_bind_int( stmt , 2, time );
 		sqlite3_bind_int64( stmt , 3, info.uptime );
-	} else throw std::runtime_error("can't record");
+	} else {
+		const char* zErrMsg = sqlite3_errmsg(_db);
+		logger.log(LogLvl::Error, "Cannot write an record into db");
+		throw std::runtime_error(zErrMsg);
+	}
 
+
+	logger.log(LogLvl::Info, "an record inserted");
 }
 
 int Database::getAppId( const ProcessInfo& info ) {
 	int toReturn = -1;
 
-	const char getAppIdSQL[] = "SELECT app_id FROM Applications WHERE name = ?1;";
+	const char getAppIdSQL[] = "SELECT app_id FROM Applications WHERE app_name = ?1;";
 	// when i will be optimize code, i have to: merge requests and save stmt
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2( _db, getAppIdSQL, sizeof(getAppIdSQL), &stmt, nullptr );
@@ -110,7 +117,11 @@ int Database::getAppId( const ProcessInfo& info ) {
 		
 		sqlite3_finalize( stmt );
 
-	} else throw std::runtime_error("can't getapp");
+	} else {
+		const char* zErrMsg = sqlite3_errmsg(_db);
+		logger.log( LogLvl::Error, "Cannot get app id");
+		throw std::runtime_error(zErrMsg);
+	}
 
 	return toReturn;
 
@@ -119,7 +130,7 @@ int Database::getAppId( const ProcessInfo& info ) {
 int Database::insertApp( const char* appName ) {
 	int appId;
 
-    const char insertAppSQL[] = "INSERT INTO Users (name) VALUES (?)";
+    const char insertAppSQL[] = "INSERT INTO Applications (app_name) VALUES (?1);";
 	sqlite3_stmt* stmt;
 
     int rc = sqlite3_prepare_v2( _db, insertAppSQL, sizeof(insertAppSQL), &stmt, nullptr );
@@ -129,8 +140,12 @@ int Database::insertApp( const char* appName ) {
         sqlite3_step(stmt);
         appId = static_cast<int>(sqlite3_last_insert_rowid(_db));
         sqlite3_finalize(stmt);
-    } else throw std::runtime_error("can't insapp");
-
+    } else {
+	    const char* errMsg = sqlite3_errmsg(_db);
+	    logger.log( LogLvl::Error, errMsg);
+	    throw std::runtime_error("Cannot insert new app");
+    }
+	logger.log( LogLvl::Info, "Inserted new app with id: ", appId );
 	return appId;
 }
 

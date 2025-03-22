@@ -1,4 +1,5 @@
 #include "inc/get_uptime.hpp"
+#include "inc/logger.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -9,12 +10,15 @@
 
 #define getUptimeByPID "ps -o etimes "
 
+// want to create Workspace info
+
 ProcessInfo FocusInfo() {
 	ProcessInfo info;
 
 	FILE* mimic;
 	mimic = popen( getFocusedInfo, "r" );
 	fgets( info.name.data(), 40, mimic );
+	// DEBUG( info.name );
 
 	{ // getting uptime by pid
 		std::array<char, 5> pid{};
@@ -28,8 +32,10 @@ ProcessInfo FocusInfo() {
 		mimic = popen( getUptimePlusPID, "r" );
 		fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
 		info.uptime = strtoll(uptimeInStr.data(), NULL, 10);
-
+		
 	}
+
+	logger.log( LogLvl::Warning, info.uptime, info.name );
 
 	pclose(mimic);
 	return info;

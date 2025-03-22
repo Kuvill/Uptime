@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <functional>
+#include <ostream>
 
 #define USER_ID 1
 
@@ -36,8 +37,8 @@ Storage::It Storage::end() {
 	return _storage.end();
 }
 
-Storage::cIt Storage::cbegin() const {
-	return _storage.cbegin();
+Storage::cIt Storage::begin() const {
+	return _storage.begin();
 }
 
 Storage::cIt Storage::end() const {
@@ -48,3 +49,11 @@ void Storage::clear() {
 	_storage.clear();
 }
 
+std::ostream& operator<<( std::ostream& os, const Storage& store ) {
+	os << "Ram info:\n";
+	for( auto& a : store ) {
+		os << a.user << ' ' << a.name << ' ' << a.uptime << a.recTime << '\n';
+	}
+
+	return os;
+}

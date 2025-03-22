@@ -33,6 +33,8 @@ class Storage {
 	using It = std::unordered_set<Record>::iterator;
 	using cIt = std::unordered_set<Record>::const_iterator;
 
+	friend std::ostream& operator<<( std::ostream& os, const Storage& store );
+
 public:
 	void insert( const ProcessInfo& info );
 
@@ -40,7 +42,7 @@ public:
 
 	It end();
 
-	cIt cbegin() const;
+	cIt begin() const;
 
 	cIt end() const;
 
