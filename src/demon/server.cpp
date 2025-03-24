@@ -16,7 +16,7 @@
 const char start[] = "s";
 const char end[] = "e";
 
-MsgType TypeByMsg( const char buf[] ) {
+static MsgType TypeByMsg( const char buf[] ) {
 	if( strcmp(buf, start) )
 		return MsgType::start;
 	else if( strcmp( buf, end ) )

@@ -10,12 +10,25 @@
 #include <exception>
 #include <thread>
 
+#include <csignal>
+
 const char* dbName = "res/db/uptime.db";
 
 Logger logger(LogLvl::Info);
 
-// to do. 1) write catch exception to save all ram data
-// 		  2) write signal catch for same
+// only for signals
+// use them instead of db and storage - scary. mb after 1.0 i will do that
+Database* g_db;
+Storage* g_storage;
+
+void SigHandler( int code ) {
+	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
+
+	g_db->dumpStorage( *g_storage );
+	exit(0);
+}
+
+// 		  1) write signal catch for same
 
 // for ipc i'm using socket here. This worser, that pipe (i guess)
 // but i think knowing base of sockets will be nice for me
@@ -27,16 +40,28 @@ Logger logger(LogLvl::Info);
 	// don't require
 	// !! clear sqlite memory (is require befor death?)
 
-// 		4) write logger
 
+// Main questin: Update Writes or make new? 
+// first way - cute stat, but potential memory overcup (disk)
+
+// it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
 int main() {
-	// NEW ISSUE: IF APP EXIST IN DB, it NOT OVERWRITE UPTIME (be careful, dont overwrite rec_time)
+	// Last issue: app with broken name writes as random blob. i have to filter blobs and log Warrning
+
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
 
 	int sleepDuration = 5;
 	bool useDB = false;
+
+	g_db = &db;
+	g_storage = &storage;
+
+	// 1) had i take 2 last. 2) what about handle others and just log them?
+	signal( SIGINT, SigHandler );
+	signal( SIGABRT, SigHandler );
+	signal( SIGTERM, SigHandler );
 
 
 	try {
@@ -63,8 +88,6 @@ int main() {
 			} else {
 				storage.insert( FocusInfo() );
 			}
-
-			logger.log( LogLvl::Info, "new info added");
 
 			std::this_thread::sleep_for( std::chrono::seconds( sleepDuration ) );
 		}

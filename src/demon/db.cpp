@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 
 #include <stdexcept>
+#include <cstring>
 #include <ctime>
 
 // does move Tables name to defines - good idea?
@@ -39,7 +40,7 @@ const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS Users (" \
 				
 
 // create tables if not
-void checkTables( sqlite3* db ) {
+static void checkTables( sqlite3* db ) {
 	char* zErrMsg = nullptr;
 	int rc;
 
@@ -77,7 +78,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
-		insertApp( info.name.c_str() );
+		appId = insertApp( info.name.c_str() );
 
 	const char sql[] = "INSERT INTO Records (" \
 			    "user_id, app_id, rec_time, uptime) " \

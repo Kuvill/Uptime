@@ -1,4 +1,5 @@
 #include "inc/ram_storage.hpp"
+#include "inc/logger.hpp"
 
 #include <ctime>
 #include <functional>
@@ -20,6 +21,13 @@ bool Record::operator==( const Record& other ) const {
 void Storage::insert( const ProcessInfo& info ) {
 	std::time_t time;
 	std::time(&time);
+	
+	if( info.name[0] == '\0' ) {
+		logger.log(LogLvl::Warning, "The app has no app_id, skipping");
+		return;
+	}
+
+	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time );
 
 	_storage.insert( Record(
 		USER_ID,
