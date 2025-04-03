@@ -1,3 +1,5 @@
+// for future: change popen to sway-ips (7) 
+
 #include "inc/get_uptime.hpp"
 #include "inc/logger.hpp"
 

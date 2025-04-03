@@ -2,6 +2,7 @@
 
 #include <inc/ipc_interface.hpp>
 #include <inc/server.hpp>
+#include "inc/logger.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -11,18 +12,10 @@
 
 // this is really potential problem FIXME
 #include <cerrno>
-#include "inc/logger.hpp"
 
-const char start[] = "s";
-const char end[] = "e";
 
-static MsgType TypeByMsg( const char buf[] ) {
-	if( strcmp(buf, start) )
-		return MsgType::start;
-	else if( strcmp( buf, end ) )
-		return MsgType::end;
-	else
-		return MsgType::debug;
+static MsgType TypeByMsg( char code ) {
+	return static_cast<MsgType>( code );
 }
 
 Ips::Ips() {
@@ -52,7 +45,7 @@ Ips::~Ips() {
 }
 
 MsgType Ips::listen() {
-	char buf[16]{};
+	char code;
 
 	int clientSocket = -1;
 
@@ -60,13 +53,13 @@ MsgType Ips::listen() {
 			clientSocket = accept( _serverSocket, nullptr, nullptr );
 		if( clientSocket >= 0 ) {
 			logger.log( LogLvl::Info, "Client Found");
-			int rCode = read( clientSocket, buf, 15 );
+			int rCode = read( clientSocket, &code, 1 );
 
 			if( rCode < 0 )
 				clientSocket = -1;
 
 			if( rCode > 0 ) {
-				return TypeByMsg( buf );
+				return TypeByMsg( code );
 			}
 			
 		} else {
