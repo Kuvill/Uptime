@@ -14,8 +14,8 @@
 #include <cerrno>
 
 
-static MsgType TypeByMsg( char code ) {
-	return static_cast<MsgType>( code );
+static MsgType TypeByMsg( char buf ) {
+	return static_cast<MsgType>( buf );
 }
 
 Ips::Ips() {
@@ -45,7 +45,7 @@ Ips::~Ips() {
 }
 
 MsgType Ips::listen() {
-	char code;
+	char buf[16]{};
 
 	int clientSocket = -1;
 
@@ -53,13 +53,14 @@ MsgType Ips::listen() {
 			clientSocket = accept( _serverSocket, nullptr, nullptr );
 		if( clientSocket >= 0 ) {
 			logger.log( LogLvl::Info, "Client Found");
-			int rCode = read( clientSocket, &code, 1 );
+			int rCode = read( clientSocket, &buf, 15 );
 
 			if( rCode < 0 )
 				clientSocket = -1;
 
 			if( rCode > 0 ) {
-				return TypeByMsg( code );
+				strcpy( _addInfo, buf+1 );
+				return TypeByMsg( buf[0] );
 			}
 			
 		} else {

@@ -11,10 +11,12 @@
 
 class Ips {
 	int _serverSocket;
+	char _addInfo[8];
 
 public:
 	Ips();
 	~Ips();
 
 	MsgType listen();
+	const char* getMessage();
 };

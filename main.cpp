@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <exception>
+#include <string>
 #include <thread>
 
 #include <csignal>
@@ -71,14 +72,19 @@ int main() {
 			{
 				auto msgType = connect.listen();
 
-				if( msgType == MsgType::start ) {
+				// how to incapsulate this?
+				if( msgType == MsgType::start_record ) {
 					logger.log( LogLvl::Info, "Choosed db");
 					db.dumpStorage( storage );
 					useDB = true;
 
-				} else if( msgType == MsgType::end ) { 
+				} else if( msgType == MsgType::end_record ) { 
 					logger.log( LogLvl::Info, "back to ram");
 					useDB = false;
+
+				} else if( msgType == MsgType::change_cd ) {
+					logger.log( LogLvl::Info, "changing db cd to: ", connect.getMessage());
+					sleepDuration = std::stoi( connect.getMessage() );
 				}
 			}
 
