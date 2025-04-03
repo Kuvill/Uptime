@@ -70,3 +70,7 @@ MsgType Ips::listen() {
 	
 	return MsgType::none;
 }
+
+const char* Ips::getMessage() {
+	return _addInfo;
+}
