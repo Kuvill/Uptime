@@ -14,8 +14,8 @@ Now you can execute build/Gui and build/Demon! (now only from project root path)
 #### Dependencies
 
 Demon:
-> sqlite3
+- sqlite3
 
 GUI:
-> gtk4
-> adwaita-1
+- gtk4
+- adwaita-1
