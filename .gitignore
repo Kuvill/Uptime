@@ -3,3 +3,4 @@ build/
 res/db/uptime.db
 anUi/
 tests/
+.clangd

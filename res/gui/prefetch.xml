@@ -1,0 +1,8 @@
+<!-- glib-compile-resources prefetch.xml --sourcedir=. --target=ui.gresource -->
+
+<gresources version="1.0">
+	<gresource prefix="/tmp/uptimer.ui"> <!-- what is this? -->
+		<file compressed="true">main.ui</file>
+  </gresource>
+</gresources>
+

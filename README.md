@@ -4,7 +4,8 @@
 
 ### How to build
 
-git clone --depth=1 git@github.com:Kuvill/Uptime.git
+git clone --depth=1 https://github.com/Kuvill/Uptime.git
+
 cd Uptime
 cmake --build build --config Release 
 

@@ -29,7 +29,8 @@ void SigHandler( int code ) {
 	exit(0);
 }
 
-// 		  1) write signal catch for same
+// MAIN ISSUE: there are path form project root. How to execute from anywhere...?
+// i should use switch row and from toolbar view for settings 
 
 // for ipc i'm using socket here. This worser, that pipe (i guess)
 // but i think knowing base of sockets will be nice for me
@@ -53,6 +54,7 @@ int main() {
 	Storage storage;
 	Ips connect;
 
+	// should be float / ms
 	int sleepDuration = 5;
 	bool useDB = false;
 
@@ -67,7 +69,7 @@ int main() {
 
 	try {
 		while( true ) {
-			logger.log( LogLvl::Info, "New Iteration\n");
+			logger.log( LogLvl::Info, "New Iteration\n" );
 
 			{
 				auto msgType = connect.listen();
@@ -89,7 +91,7 @@ int main() {
 			}
 
 			if( useDB ) {
-				db.insertUptimeRecord( FocusInfo() ); // array of bool to chose stat
+				db.insertUptimeRecord( FocusInfo() );
 
 			} else {
 				storage.insert( FocusInfo() );

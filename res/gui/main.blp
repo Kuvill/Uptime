@@ -1,0 +1,94 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.Window window {
+  title: _("Uptimer");
+
+  content: Adw.NavigationSplitView {
+    sidebar: Adw.NavigationPage {
+      StackSidebar {
+        stack: body;
+      }
+    };
+
+    content: Adw.NavigationPage {
+      Stack body {
+        transition-type: crossfade;
+
+        StackPage {
+          title: _("Table");
+
+          child: Box {
+            orientation: vertical;
+            halign: center;
+            margin-top: 32;
+          
+            ScrolledWindow {
+              height-request: 340;
+              width-request: 340;
+              has-frame: true;
+
+              ColumnView db {
+                show-column-separators: true;
+
+                ColumnViewColumn {
+                  title: _("Application");
+                  expand: true;
+
+                  factory: SignalListItemFactory {};
+                }
+
+                ColumnViewColumn {
+                  title: _("Uptime");
+
+                  factory: SignalListItemFactory {};
+                }
+              }
+            }
+          };
+        }
+
+        StackPage {
+          title: _("Charts");
+
+          child: Label {
+            label: _("1");
+          };
+        }
+
+        StackPage {
+          title: _("Settings");
+
+          child: Label {
+            label: _("1");
+          };
+        }
+
+        StackPage {
+          title: _("About");
+
+          child: Adw.StatusPage {
+            Box {
+              halign: center;
+              orientation: vertical;
+              spacing: 18;
+
+              Label {
+                label: _("Uptimer");
+
+                styles [
+                  "title-1",
+                ]
+              }
+
+              Label {
+                label: _("{List to github, mail. Why i created this project, lience}");
+              }
+            }
+          };
+        }
+      }
+    };
+  };
+}
+
