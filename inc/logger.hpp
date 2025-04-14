@@ -41,6 +41,7 @@ class Logger {
 public:
 	Logger( LogLvl = LogLvl::Warning );
 	Logger( std::ofstream& of, LogLvl = LogLvl::Warning );
+    ~Logger();
 
 	template <typename Head, typename... Tail>
 	void log( LogLvl lvl, Head head, Tail... tail );

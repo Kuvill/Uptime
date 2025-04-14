@@ -22,6 +22,10 @@ void Storage::insert( const ProcessInfo& info ) {
 	std::time_t time;
 	std::time(&time);
 	
+    insert( info, time );
+}
+
+void Storage::insert( const ProcessInfo& info, std::time_t time ) {
 	if( info.name[0] == '\0' ) {
 		logger.log(LogLvl::Warning, "The app has no app_id, skipping");
 		return;
@@ -35,6 +39,7 @@ void Storage::insert( const ProcessInfo& info ) {
 		info.uptime,
 		time
 	 ));
+
 }
 
 Storage::It Storage::begin() {

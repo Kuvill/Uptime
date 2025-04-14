@@ -3,3 +3,4 @@ build/
 res/db/uptime.db
 tests/
 .clangd
+.cache/

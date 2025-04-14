@@ -14,6 +14,7 @@ struct Record {
 	long recTime;
 
 	Record( uint32_t u, Name n, long l, uint32_t p ) : user(u), uptime(p), name(n), recTime(l) {}
+    Record() = default;
 
 
 	bool operator==( const Record& other ) const;
@@ -37,6 +38,7 @@ class Storage {
 
 public:
 	void insert( const ProcessInfo& info );
+	void insert( const ProcessInfo& info, time_t time );
 
 	It begin();
 

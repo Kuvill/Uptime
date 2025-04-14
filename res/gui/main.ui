@@ -12,6 +12,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
       <object class="AdwNavigationSplitView">
         <property name="sidebar">
           <object class="AdwNavigationPage">
+            <property name="title" translatable="yes">Pages</property>
             <child>
               <object class="GtkStackSidebar">
                 <property name="stack">body</property>
@@ -21,6 +22,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
         </property>
         <property name="content">
           <object class="AdwNavigationPage">
+            <property name="title" translatable="yes">Content</property>
             <child>
               <object class="GtkStack" id="body">
                 <property name="transition-type">1</property>
@@ -38,10 +40,10 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                             <property name="width-request">340</property>
                             <property name="has-frame">true</property>
                             <child>
-                              <object class="GtkColumnView" id="db">
+                              <object class="GtkColumnView" id="column_view">
                                 <property name="show-column-separators">true</property>
                                 <child>
-                                  <object class="GtkColumnViewColumn">
+                                  <object class="GtkColumnViewColumn" id="app_name_col">
                                     <property name="title" translatable="yes">Application</property>
                                     <property name="expand">true</property>
                                     <property name="factory">
@@ -50,7 +52,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkColumnViewColumn">
+                                  <object class="GtkColumnViewColumn" id="uptime_col">
                                     <property name="title" translatable="yes">Uptime</property>
                                     <property name="factory">
                                       <object class="GtkSignalListItemFactory"></object>
@@ -70,7 +72,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                     <property name="title" translatable="yes">Charts</property>
                     <property name="child">
                       <object class="GtkLabel">
-                        <property name="label" translatable="yes">1</property>
+                        <property name="label" translatable="yes">In progress...</property>
                       </object>
                     </property>
                   </object>
@@ -80,7 +82,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                     <property name="title" translatable="yes">Settings</property>
                     <property name="child">
                       <object class="GtkLabel">
-                        <property name="label" translatable="yes">1</property>
+                        <property name="label" translatable="yes">Also in progress...</property>
                       </object>
                     </property>
                   </object>

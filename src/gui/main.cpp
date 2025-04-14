@@ -1,19 +1,25 @@
+#include <inc/logger.hpp>
+#include <inc/columnView.hpp>
+
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
 
+Logger logger(LogLvl::Info);
+
+// lazy builder init, that just create everythings from builder
 static void activate( GtkApplication* app, gpointer data ) {
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 
-	GObject* window = gtk_builder_get_object( builder, "window" );
-	gtk_window_set_application( GTK_WINDOW( window ), app );
-	
-    GSList* objects = gtk_builder_get_objects(builder);
+	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
+
+	setup_column_view( builder );
 
 	g_object_unref( builder );
 
 
-	gtk_window_present( GTK_WINDOW( window ) );
-	// g_slist_free( objects ); // it done by window?
+	gtk_window_set_application( window , app );
+
+	gtk_window_present( window );
 }
 
 int main (int argc, char *argv[]) {

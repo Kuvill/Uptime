@@ -32,6 +32,8 @@ void SigHandler( int code ) {
 // MAIN ISSUE: there are path form project root. How to execute from anywhere...?
 // i should use switch row and from toolbar view for settings 
 
+// Record description ( title )
+
 // for ipc i'm using socket here. This worser, that pipe (i guess)
 // but i think knowing base of sockets will be nice for me
 

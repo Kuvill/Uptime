@@ -14,6 +14,7 @@ void DEBUG( const std::string& text ) {}
 
 Logger::Logger( LogLvl lvl ) : _lvl(lvl) {}
 Logger::Logger( std::ofstream& of, LogLvl lvl ) : _out(of), _lvl(lvl) {}
+Logger::~Logger() = default;
 
 void Logger::subLog() {
 	_out << COL_DEF;
