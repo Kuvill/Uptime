@@ -33,7 +33,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                         <property name="margin-bottom">5</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="icon-name">view-menu</property>
+                            <property name="icon-name">open-menu-symbolic.svg</property>
                           </object>
                         </child>
                       </object>
@@ -60,6 +60,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                 <property name="transition-type">1</property>
                 <child>
                   <object class="GtkStackPage">
+                    <property name="name">table</property>
                     <property name="title" translatable="yes">Table</property>
                     <property name="child">
                       <object class="GtkBox">
@@ -101,6 +102,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                 </child>
                 <child>
                   <object class="GtkStackPage">
+                    <property name="name">charts</property>
                     <property name="title" translatable="yes">Charts</property>
                     <property name="child">
                       <object class="GtkLabel">
@@ -111,6 +113,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                 </child>
                 <child>
                   <object class="GtkStackPage">
+                    <property name="name">settings</property>
                     <property name="title" translatable="yes">Settings</property>
                     <property name="child">
                       <object class="GtkLabel">
@@ -121,6 +124,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                 </child>
                 <child>
                   <object class="GtkStackPage">
+                    <property name="name">about</property>
                     <property name="title" translatable="yes">About</property>
                     <property name="child">
                       <object class="AdwStatusPage">

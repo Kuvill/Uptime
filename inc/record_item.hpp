@@ -22,4 +22,5 @@ enum {
     N_PROPERTIES
 };
 
-GListStore* setup_column_view( GtkBuilder* );
+RecordItem* record_item_new( const char* appName, guint64 uptime );
+

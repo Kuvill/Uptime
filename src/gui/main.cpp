@@ -1,5 +1,6 @@
 #include <inc/logger.hpp>
-#include <inc/columnView.hpp>
+#include <inc/record_item.hpp>
+#include <inc/column_view.hpp>
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
@@ -26,8 +27,8 @@ static void activate( GtkApplication* app, gpointer data ) {
 	g_object_unref( builder );
 
 
-	gtk_window_set_application( window , app );
 
+	gtk_window_set_application( window , app );
 	gtk_window_present( window );
 }
 

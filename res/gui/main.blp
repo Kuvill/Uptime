@@ -1,3 +1,9 @@
+// After editing this file, you have to compile it into main.ui with
+// blueprint-compiler compile main.blp > main.ui
+
+// _("") - translatable string
+// C_("", "") - Context for translator
+
 using Gtk 4.0;
 using Adw 1;
 
@@ -52,6 +58,7 @@ Adw.Window window {
         transition-type: crossfade;
 
         StackPage {
+          name: "table";
           title: _("Table");
 
           child: Box {
@@ -85,6 +92,7 @@ Adw.Window window {
         }
 
         StackPage {
+          name: "charts";
           title: _("Charts");
 
           child: Label {
@@ -93,6 +101,7 @@ Adw.Window window {
         }
 
         StackPage {
+          name: "settings";
           title: _("Settings");
 
           child: Label {
@@ -101,6 +110,7 @@ Adw.Window window {
         }
 
         StackPage {
+          name: "about";
           title: _("About");
 
           child: Adw.StatusPage {

@@ -17,7 +17,8 @@ demon_sources = [
 gui_sources = [
   './src/logger.cpp',
   './src/gui/main.cpp',
-  './src/gui/columnView.cpp',
+  './src/gui/column_view.cpp',
+  './src/gui/record_item.cpp',
 ]
 
 gtkdeps = [

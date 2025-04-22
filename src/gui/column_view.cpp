@@ -1,96 +1,49 @@
-// unfoturnaly, it can't be an c file
-// coz my logger has template functions
+#include "glib.h"
+#include "gtk/gtk.h"
+#include "inc/logger.hpp"
+#include "inc/column_view.hpp"
+#include "inc/record_item.hpp"
 
-// be careful with unrefs
+/* 
+   struct Resources {
+    GtkWidget* stack;
+    GtkWidget* page1;
+    GtkWidget* page2;
+    gboolean page1_loaded;
+    gboolean page2_loaded;
+   }
+*/
 
-#include <inc/columnView.hpp>
-#include <inc/logger.hpp>
+static const gchar* TABLE_PAGE = "table";
+static const gchar* CHARTS_PAGE = "charts";
+[[maybe_unused]] static const gchar* SETTINGS_PAGE = "settings";
+[[maybe_unused]] static const gchar* ABOUT_PAGE = "about";
 
-#include <gtk/gtk.h>
+static void load_table() {
+    logger.log(LogLvl::Error, "Load table not working yet");
+}
+static void load_charts() {
+    logger.log(LogLvl::Error, "Load charts not working yet");
+}
 
-/* Record Item */
+static void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) {
+    logger.log(LogLvl::Info, "Stack page switched" );
+    const gchar* newPage = gtk_stack_get_visible_child_name( stack );
 
-G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
+    if( g_strcmp0( newPage, TABLE_PAGE ) == 0 ) {
+        load_table();
 
-static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
+    } else if( g_strcmp0( newPage, CHARTS_PAGE ) == 0 ) {
+        load_charts();
 
-static void record_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
-    RecordItem *rec = (RecordItem*)object;
+    } else if( g_strcmp0( newPage, SETTINGS_PAGE ) == 0 ) {
 
-    switch (property_id) {
-        case PROP_APPNAME:
-            logger.log(LogLvl::Info, "name prop changed!\n");
+    } else if( g_strcmp0( newPage, ABOUT_PAGE ) == 0 ) {
 
-            g_free(rec->appName);
-            rec->appName = g_value_dup_string(value);
-
-            g_object_notify_by_pspec(object, pspec);
-            break;
-        case PROP_UPTIME:
-            logger.log(LogLvl::Info, "uptime prop changed!\n");
-
-            rec->uptime = g_value_get_uint64(value);
-
-            g_object_notify_by_pspec(object, pspec);
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-            break;
+    } else {
+        logger.log(LogLvl::Error, "Unprocessing Stack Page"); 
     }
 }
-
-static void record_get_property(GObject *object, guint property_id, GValue *value, GParamSpec *pspec) {
-    RecordItem *rec = (RecordItem*)object;
-
-    switch (property_id) {
-        case PROP_APPNAME:
-            g_value_set_string(value, rec->appName);
-            break;
-        case PROP_UPTIME:
-            g_value_set_uint64(value, rec->uptime);
-            break;
-        default:
-            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
-            break;
-    }
-}
-void record_item_init( RecordItem* item ) {
-	item->appName = nullptr;
-	item->uptime = 0;
-}
-
-void record_item_finalize( GObject* object ) {
-	RecordItem* item = (RecordItem*)object;
-
-	if( item->appName )
-		g_free( item->appName );
-
-	G_OBJECT_CLASS(record_item_parent_class)->finalize(object);
-}
-
-void record_item_class_init( RecordItemClass* klass ) {
-    GObjectClass *object_class = G_OBJECT_CLASS( klass );
-
-    object_class->set_property = record_set_property;
-    object_class->get_property = record_get_property;
-
-    obj_properties[PROP_APPNAME] = g_param_spec_string("name", "Name", "Name of the application in record", NULL, G_PARAM_READWRITE);
-    obj_properties[PROP_UPTIME] = g_param_spec_uint64("uptime", "Uptime", "Uptime of the record", 0, G_MAXUINT64, 0, G_PARAM_READWRITE);
-
-    g_object_class_install_properties(object_class, N_PROPERTIES, obj_properties);
-
-	G_OBJECT_CLASS(klass)->finalize = record_item_finalize;
-}
-
-RecordItem* record_item_new( const char* appName, guint64 uptime ) {
-	RecordItem* item = static_cast<RecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
-
-	item->appName = g_strdup( appName );
-	item->uptime = uptime;
-
-	return item;
-}
-
 
 // create widget for an field of RecordItem
 // @factory - GtkFactory, that will create an widget
@@ -148,9 +101,6 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     gtk_label_set_text( GTK_LABEL( label ), strUptime );
 }
 
-
-/* Record Item */
-
 GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
@@ -180,6 +130,10 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 	g_signal_connect( uptimeFactory, "bind", G_CALLBACK(bind_update_cb), nullptr );
 
 	gtk_column_view_column_set_factory( uptimeCol, uptimeFactory );
+
+    // Fill table from db
+    auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
+    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), nullptr );
 
     return store;
 }
