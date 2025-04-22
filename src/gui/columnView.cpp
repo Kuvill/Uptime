@@ -6,27 +6,11 @@
 #include <inc/columnView.hpp>
 #include <inc/logger.hpp>
 
+#include <gtk/gtk.h>
+
 /* Record Item */
 
-struct RecordItem {
-	GObject parent;
-	gchar* appName;
-	guint64 uptime;
-};
-
-struct RecordItemClass {
-	GObjectClass parentClass;
-};
-
-#define RECORD_ITEM_TYPE record_item_get_type()
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
-
-// i need this to call notify on change
-enum {
-    PROP_APPNAME = 1,
-    PROP_UPTIME,
-    N_PROPERTIES
-};
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 

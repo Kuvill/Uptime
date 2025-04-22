@@ -6,6 +6,15 @@
 
 Logger logger(LogLvl::Info);
 
+// chars that i want: 
+// General
+//  just rectangles with values as length
+//  pie chart
+// By app:
+//  app uptime change by {date.*}
+// By Category:
+//  like from AI course: polygon. that more value that acute the angle 
+
 // lazy builder init, that just create everythings from builder
 static void activate( GtkApplication* app, gpointer data ) {
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );

@@ -5,15 +5,49 @@ Adw.Window window {
   title: _("Uptimer");
 
   content: Adw.NavigationSplitView {
+    // SideBar
     sidebar: Adw.NavigationPage {
       title: _("Pages");
-      StackSidebar {
-        stack: body;
-      }
+
+      child: Box {
+        orientation: vertical;
+
+        [top]
+        StackSidebar {
+          vexpand: true;
+          stack: body;
+        }
+
+        [bottom]
+        Box {
+          orientation: horizontal;
+
+          Button {
+            halign: start;
+            hexpand: true;
+            margin-start: 5;
+            margin-bottom: 5;
+
+            Image {
+              // file: "/usr/share/icons/zed.png";
+              icon-name: "open-menu-symbolic.svg";
+            }
+          }
+
+          Button {
+            halign: end;
+            hexpand: true;
+            margin-end: 5;
+            margin-bottom: 5;
+          }
+        }
+      };
     };
 
+    // Content
     content: Adw.NavigationPage {
       title: _("Content");
+
       Stack body {
         transition-type: crossfade;
 

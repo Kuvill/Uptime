@@ -1,6 +1,25 @@
+#pragma once
+
 #include <gtk/gtk.h>
 
-static const char* APP_COL_ID = "appName";
-static const char* UPTIME_COL_ID = "uptime";
+#define RECORD_ITEM_TYPE (record_item_get_type())
+G_DECLARE_FINAL_TYPE(RecordItem, record_item, RECORD, ITEM, GObject)
 
-GListStore* setup_column_view( GtkBuilder* builder );
+struct _RecordItem {
+    GObject parent;
+    gchar* appName;
+    guint64 uptime;
+};
+
+struct _RecordItemClass {
+    GObjectClass parent_class;
+};
+
+// i need this to call notify on change
+enum {
+    PROP_APPNAME = 1,
+    PROP_UPTIME,
+    N_PROPERTIES
+};
+
+GListStore* setup_column_view( GtkBuilder* );

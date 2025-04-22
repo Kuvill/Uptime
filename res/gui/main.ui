@@ -13,11 +13,43 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
         <property name="sidebar">
           <object class="AdwNavigationPage">
             <property name="title" translatable="yes">Pages</property>
-            <child>
-              <object class="GtkStackSidebar">
-                <property name="stack">body</property>
+            <property name="child">
+              <object class="GtkBox">
+                <property name="orientation">1</property>
+                <child type="top">
+                  <object class="GtkStackSidebar">
+                    <property name="vexpand">true</property>
+                    <property name="stack">body</property>
+                  </object>
+                </child>
+                <child type="bottom">
+                  <object class="GtkBox">
+                    <property name="orientation">0</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="halign">1</property>
+                        <property name="hexpand">true</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-bottom">5</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="icon-name">view-menu</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="halign">2</property>
+                        <property name="hexpand">true</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-bottom">5</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
-            </child>
+            </property>
           </object>
         </property>
         <property name="content">

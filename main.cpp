@@ -63,7 +63,6 @@ int main() {
 	g_db = &db;
 	g_storage = &storage;
 
-	// 1) had i take 2 last. 2) what about handle others and just log them?
 	signal( SIGINT, SigHandler );
 	signal( SIGABRT, SigHandler );
 	signal( SIGTERM, SigHandler );
