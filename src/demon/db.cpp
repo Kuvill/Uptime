@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 
 #include <stdexcept>
+#include <chrono>
 #include <cstring>
 #include <ctime>
 

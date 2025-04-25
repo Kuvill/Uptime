@@ -40,17 +40,11 @@ void SigHandler( int code ) {
 // as moder cpp way i should to pick boost.asio or ZeroMQ
 
 // one more todo: 3) set class of exception:
-	// require ram storage dump
-	// don't require
-	// !! clear sqlite memory (is require befor death?)
-
-
-// Main questin: Update Writes or make new? 
-// first way - cute stat, but potential memory overcup (disk)
+	// clear sqlite memory 
 
 // it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
 int main() {
-	// Last issue: app with broken name writes as random blob. i have to filter blobs and log Warrning
+    // I also want to record browser tab name (or whatever, that contain tab name)
 
 	Database db( dbName );
 	Storage storage;
@@ -75,7 +69,6 @@ int main() {
 			{
 				auto msgType = connect.listen();
 
-				// how to incapsulate this?
 				if( msgType == MsgType::start_record ) {
 					logger.log( LogLvl::Info, "Choosed db");
 					db.dumpStorage( storage );

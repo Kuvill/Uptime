@@ -1,8 +1,8 @@
-#include "glib.h"
-#include "gtk/gtk.h"
 #include "inc/logger.hpp"
-#include "inc/column_view.hpp"
 #include "inc/record_item.hpp"
+#include "inc/column_view.hpp"
+
+#include <gtk/gtk.h>
 
 /* 
    struct Resources {

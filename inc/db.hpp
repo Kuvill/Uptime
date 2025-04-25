@@ -21,15 +21,14 @@
 // by all users
 
 class Database {
-	sqlite3* _db;
-
 	int insertApp(const char* appName );
 	int getAppId( const ProcessInfo& info );
 	void insertUptimeRecord( const ProcessInfo&, std::time_t );
-
+    
+protected:
+    sqlite3* _db;
 
 public:
-
 	Database( const char* dbName );
 	~Database();
 
