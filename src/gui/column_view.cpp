@@ -73,13 +73,14 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     gtk_label_set_text( GTK_LABEL( label ), strUptime );
 }
 
-GListStore* setup_column_view( GtkBuilder* builder ) {
+GListStore* setup_column_view( GtkBuilder* builder, State& state ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
 	auto* appNameCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "app_name_col" ));
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
     GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
+    state.setStore( store );
 
     // test
     RecordItem* item = record_item_new( "firefox", 10 );
@@ -106,11 +107,7 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
     // Fill table from db
     auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
     g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), nullptr );
-
-    // set up timer for update
-    GTimer* timer = g_timer_new();
-    g_timer_start(timer);
-    g_timeout_add_seconds(5, update_data, nullptr);
+    on_stack_page_changed(stack, 0, nullptr);
 
     return store;
 }

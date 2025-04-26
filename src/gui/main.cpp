@@ -1,6 +1,7 @@
 #include <inc/logger.hpp>
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
+#include <inc/lazy_load.hpp>
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
@@ -16,16 +17,22 @@ Logger logger(LogLvl::Info);
 // By Category:
 //  like from AI course: polygon. that more value that acute the angle 
 
+guint SetupTimer( State& state ) {
+    GTimer* timer = g_timer_new();
+    g_timer_start(timer);
+    return g_timeout_add_seconds( 5, update_data, &state );
+}
+
 // Add alias into App
 static void activate( GtkApplication* app, gpointer data ) {
+    State state;
+
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
-
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-
-	setup_column_view( builder );
-
+	setup_column_view( builder, state );
 	g_object_unref( builder );
 
+    SetupTimer( state );
     
 
 	gtk_window_set_application( window , app );
