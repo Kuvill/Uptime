@@ -1,6 +1,7 @@
 #include "inc/db.hpp"
 #include "inc/ram_storage.hpp"
 #include "inc/logger.hpp"
+#include "inc/time.hpp"
 
 #include <sqlite3.h>
 
@@ -84,7 +85,7 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-	recTime_t recTime = std::chrono::system_clock::now();
+	recTime_t recTime = getCurrentTime();
 
 	insertUptimeRecord( info, recTime );
 }
@@ -101,7 +102,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 
 	if( rc == SQLITE_OK ) {
 		rc = sqlite3_bind_int( stmt , 1, appId );
-		rc += sqlite3_bind_int64( stmt , 2, time.time_since_epoch().count() );
+		rc += sqlite3_bind_int64( stmt , 2, time.count() );
 		rc += sqlite3_bind_int( stmt , 3, info.uptime );
 
 	} else {

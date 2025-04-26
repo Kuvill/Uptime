@@ -5,14 +5,16 @@
 #include "inc/db_out.hpp"
 
 #include <gtk/gtk.h>
+#include <sqlite3.h>
 
 #define USERS_TABLE "Users"
 #define APP_TABLE "Applications"
 #define REC_TABLE "Records"
 #define CATEGOR_TABLE "Categories"
 
-static const char sqlGetRecords[] = "SLECT * FROM " REC_TABLE \
-                                     "WHERE ";
+static const char sqlGetRecords[] = "SELECT app_name, uptime, datetime(rec_time, 'unixepoch') AS rec_date " \
+                                    "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id  = " APP_TABLE ".app_id " \
+                                    "WHERE rec_date > datetime(?1, 'unixepoch');";
 
 GListStore* DatabaseReader::getRecords( Operators op, recTime_t time ) {
 	GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
@@ -22,6 +24,8 @@ GListStore* DatabaseReader::getRecords( Operators op, recTime_t time ) {
 
     // FIXME potential out-of-bound
 	if( rc == SQLITE_OK ) {
+        sqlite3_bind_int64(stmt, 1, time.count());
+
 		while( sqlite3_step(stmt) == SQLITE_ROW ) {
             RecordItem* item = record_item_new();
 

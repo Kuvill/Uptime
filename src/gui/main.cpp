@@ -17,8 +17,6 @@ Logger logger(LogLvl::Info);
 //  like from AI course: polygon. that more value that acute the angle 
 
 // Add alias into App
-
-// lazy builder init, that just create everythings from builder
 static void activate( GtkApplication* app, gpointer data ) {
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 
@@ -28,7 +26,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 	g_object_unref( builder );
 
-
+    
 
 	gtk_window_set_application( window , app );
 	gtk_window_present( window );

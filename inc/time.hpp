@@ -2,4 +2,7 @@
 
 #include <chrono>
 
-using recTime_t = std::chrono::system_clock::time_point;
+// seconds. MUST BE time since unix epoch
+using recTime_t = std::chrono::seconds;
+
+recTime_t getCurrentTime();

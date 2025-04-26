@@ -7,6 +7,8 @@ incdir = include_directories('.')
 
 demon_sources = [
   './src/logger.cpp',
+  './src/time.cpp',
+
   './main.cpp',
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -16,9 +18,12 @@ demon_sources = [
 
 gui_sources = [
   './src/logger.cpp',
+  './src/time.cpp',
+
   './src/gui/main.cpp',
   './src/gui/column_view.cpp',
   './src/gui/record_item.cpp',
+  './src/gui/lazy_load.cpp'
 ]
 
 gtkdeps = [

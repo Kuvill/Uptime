@@ -1,4 +1,5 @@
 #include "inc/logger.hpp"
+#include "inc/time.hpp"
 #include "inc/ram_storage.hpp"
 
 #include <ctime>
@@ -11,7 +12,7 @@
 std::size_t std::hash<Record>::operator()( const Record& rec ) const {
 	const std::hash<uint32_t> hasher;
 
-	return (hasher(rec.user) << 32) + hasher(rec.recTime.time_since_epoch().count());
+	return (hasher(rec.user) << 32) + hasher(rec.recTime.count());
 }
 
 bool Record::operator==( const Record& other ) const {
@@ -19,7 +20,7 @@ bool Record::operator==( const Record& other ) const {
 }
 
 void Storage::insert( const ProcessInfo& info ) {
-    auto time = std::chrono::system_clock::now();
+    auto time = getCurrentTime();
 	
     insert( info, time );
 }
@@ -30,7 +31,7 @@ void Storage::insert( const ProcessInfo& info, recTime_t time ) {
 		return;
 	}
 
-	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time.time_since_epoch().count() );
+	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time.count() );
 
 	_storage.insert( Record(
 		USER_ID,
@@ -64,7 +65,7 @@ void Storage::clear() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime.time_since_epoch().count() << '\n';
+		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime.count() << '\n';
 	}
 
 	return os;
