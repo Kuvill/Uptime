@@ -55,8 +55,6 @@ static const char sqlInsertApp[] = "INSERT INTO " APP_TABLE " (app_name) VALUES 
 
 static const char sqlGetCount[] = "SELECT COUNT(*) FROM " REC_TABLE;
 
-static const char sqlGetRecords[] = "SLECT ";
-
 // create tables if not
 static void checkTables( sqlite3* db ) {
 	char* zErrMsg = nullptr;
@@ -86,13 +84,12 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-	std::time_t recTime;
-	std::time(&recTime);
+	recTime_t recTime = std::chrono::system_clock::now();
 
 	insertUptimeRecord( info, recTime );
 }
 
-void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
+void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
@@ -104,7 +101,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info, std::time_t time ) {
 
 	if( rc == SQLITE_OK ) {
 		rc = sqlite3_bind_int( stmt , 1, appId );
-		rc += sqlite3_bind_int64( stmt , 2, time );
+		rc += sqlite3_bind_int64( stmt , 2, time.time_since_epoch().count() );
 		rc += sqlite3_bind_int( stmt , 3, info.uptime );
 
 	} else {
@@ -204,38 +201,6 @@ size_t Database::getRecordsCount() {
 	}
 
     return count;
-}
-
-// idle to use system like from final yellow belt
-// ( pass as argument string: TYPE (date, app) <=> VALUE(string or date) )
-Storage Database::getRecords() {
-	Storage toReturn;
-
-	sqlite3_stmt* stmt;
-	int rc = sqlite3_prepare_v2( _db, sqlGetRecords, sizeof(sqlGetRecords), &stmt, nullptr );
-
-    // FIXME potential out-of-bound
-	if( rc == SQLITE_OK ) {
-		while( sqlite3_step(stmt) == SQLITE_ROW ) {
-            Record rec;
-
-            rec.name = getAppName( sqlite3_column_int(stmt, 1) );
-            rec.uptime = sqlite3_column_int(stmt, 2);
-            rec.recTime = sqlite3_column_int(stmt, 3);
-
-            toReturn.insert( {rec.name, rec.uptime}, rec.recTime );
-		}
-		
-		sqlite3_finalize( stmt );
-
-	} else {
-		const char* zErrMsg = sqlite3_errmsg(_db);
-		logger.log( LogLvl::Error, "Cannot get app id");
-		throw std::runtime_error(zErrMsg);
-	}
-
-    return toReturn;
-
 }
 
 const char* Database::getAppName( int appId ){

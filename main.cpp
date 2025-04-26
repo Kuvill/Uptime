@@ -13,6 +13,8 @@
 
 #include <csignal>
 
+using namespace std::chrono_literals;
+
 const char* dbName = "res/db/uptime.db";
 
 Logger logger(LogLvl::Info);
@@ -51,7 +53,7 @@ int main() {
 	Ips connect;
 
 	// should be float / ms
-	int sleepDuration = 5;
+    auto sleepDuration = 5s;
 	bool useDB = false;
 
 	g_db = &db;
@@ -80,7 +82,8 @@ int main() {
 
 				} else if( msgType == MsgType::change_cd ) {
 					logger.log( LogLvl::Info, "changing db cd to: ", connect.getMessage());
-					sleepDuration = std::stoi( connect.getMessage() );
+					sleepDuration = static_cast<std::chrono::seconds>(
+                            std::stoi( connect.getMessage() ) );
 				}
 			}
 
@@ -91,7 +94,7 @@ int main() {
 				storage.insert( FocusInfo() );
 			}
 
-			std::this_thread::sleep_for( std::chrono::seconds( sleepDuration ) );
+			std::this_thread::sleep_for( sleepDuration );
 		}
 	}
 

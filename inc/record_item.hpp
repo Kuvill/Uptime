@@ -23,4 +23,4 @@ enum {
 };
 
 RecordItem* record_item_new( const char* appName, guint64 uptime );
-
+RecordItem* record_item_new();

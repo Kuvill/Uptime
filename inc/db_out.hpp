@@ -17,5 +17,5 @@ enum class Operators {
 // There is no virtual destructor.
 class DatabaseReader : Database {
 public:
-    GListStore* getRecords( Operators op, std::time_t );
+    GListStore* getRecords( Operators op, recTime_t );
 };

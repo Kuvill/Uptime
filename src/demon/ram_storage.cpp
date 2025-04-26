@@ -1,5 +1,5 @@
-#include "inc/ram_storage.hpp"
 #include "inc/logger.hpp"
+#include "inc/ram_storage.hpp"
 
 #include <ctime>
 #include <functional>
@@ -11,7 +11,7 @@
 std::size_t std::hash<Record>::operator()( const Record& rec ) const {
 	const std::hash<uint32_t> hasher;
 
-	return (hasher(rec.user) << 32) + hasher(rec.recTime);
+	return (hasher(rec.user) << 32) + hasher(rec.recTime.time_since_epoch().count());
 }
 
 bool Record::operator==( const Record& other ) const {
@@ -19,19 +19,18 @@ bool Record::operator==( const Record& other ) const {
 }
 
 void Storage::insert( const ProcessInfo& info ) {
-	std::time_t time;
-	std::time(&time);
+    auto time = std::chrono::system_clock::now();
 	
     insert( info, time );
 }
 
-void Storage::insert( const ProcessInfo& info, std::time_t time ) {
+void Storage::insert( const ProcessInfo& info, recTime_t time ) {
 	if( info.name[0] == '\0' ) {
 		logger.log(LogLvl::Warning, "The app has no app_id, skipping");
 		return;
 	}
 
-	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time );
+	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time.time_since_epoch().count() );
 
 	_storage.insert( Record(
 		USER_ID,
@@ -65,7 +64,7 @@ void Storage::clear() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime << '\n';
+		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime.time_since_epoch().count() << '\n';
 	}
 
 	return os;

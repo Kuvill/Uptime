@@ -2,9 +2,10 @@
 
 #include "inc/get_uptime.hpp"
 #include "inc/ram_storage.hpp"
+#include "inc/time.hpp"
 
 #include <sqlite3.h>
-#include <ctime>
+
 
 // 2 variants:
 
@@ -20,10 +21,11 @@
 // by morning/halfday/night
 // by all users
 
+
 class Database {
 	int insertApp(const char* appName );
 	int getAppId( const ProcessInfo& info );
-	void insertUptimeRecord( const ProcessInfo&, std::time_t );
+	void insertUptimeRecord( const ProcessInfo&, recTime_t );
     
 protected:
     sqlite3* _db;

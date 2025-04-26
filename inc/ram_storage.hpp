@@ -1,6 +1,7 @@
 #pragma once
 
 #include "inc/get_uptime.hpp"
+#include "inc/time.hpp"
 
 #include <unordered_set>
 
@@ -11,9 +12,9 @@ struct Record {
 	uint32_t user;
 	uint32_t uptime;
 	Name name;
-	long recTime;
+	recTime_t recTime;
 
-	Record( uint32_t u, Name n, long l, uint32_t p ) : user(u), uptime(p), name(n), recTime(l) {}
+	Record( uint32_t u, Name n, uint32_t p, recTime_t recTime ) : user(u), uptime(p), name(n), recTime(recTime) {}
     Record() = default;
 
 
@@ -38,7 +39,7 @@ class Storage {
 
 public:
 	void insert( const ProcessInfo& info );
-	void insert( const ProcessInfo& info, time_t time );
+	void insert( const ProcessInfo& info, recTime_t time );
 
 	It begin();
 
