@@ -41,6 +41,6 @@ public:
 	void insertUptimeRecord( const ProcessInfo& );
 
 	size_t getRecordsCount();
-    const char* getAppName( int appId );
+    const unsigned char* getAppName( int appId );
     Storage getRecords();
 };

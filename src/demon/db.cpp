@@ -51,6 +51,7 @@ static const char sqlInsertRecord[] = "INSERT INTO " REC_TABLE "(" \
 
 
 static const char sqlGetAppId[] = "SELECT app_id FROM " APP_TABLE " WHERE app_name = ?1;";
+static const char sqlGetAppName[] = "SELECT app_name FROM " APP_TABLE " WHERE app_id = ?1;";
 
 static const char sqlInsertApp[] = "INSERT INTO " APP_TABLE " (app_name) VALUES (?1);";
 
@@ -71,7 +72,7 @@ static void checkTables( sqlite3* db ) {
 // in GUI version, i have to use v2 and set flag read_only
 // mb i need here NOMUTEX for correct communication
 Database::Database( const char* dbName ) {
-	if( sqlite3_open( dbName, &_db ) )
+	if( sqlite3_open( dbName, &_db ) != SQLITE_OK )
 		throw std::runtime_error("Error while starting sqlite3");
 
 	checkTables( _db );
@@ -204,6 +205,27 @@ size_t Database::getRecordsCount() {
     return count;
 }
 
-const char* Database::getAppName( int appId ){
-    return nullptr;
+const unsigned char* Database::getAppName( int appId ){
+    int rc;
+    const unsigned char* toReturn = nullptr;
+
+    sqlite3_stmt* stmt;
+    rc = sqlite3_prepare_v2( _db, sqlGetAppName, sizeof(sqlGetAppName), &stmt, nullptr );
+
+    if( rc == SQLITE_OK ) {
+		sqlite3_bind_int( stmt, 1, appId );
+		
+		if( sqlite3_step(stmt) == SQLITE_ROW ) {
+			toReturn = sqlite3_column_text( stmt, 0);
+		}
+		
+		sqlite3_finalize( stmt );
+
+	} else {
+		const char* zErrMsg = sqlite3_errmsg(_db);
+		logger.log( LogLvl::Error, "cannot get app name");
+		throw std::runtime_error(zErrMsg);
+	}
+
+	return toReturn;
 }

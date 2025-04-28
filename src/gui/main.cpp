@@ -2,11 +2,15 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
+#include "inc/db_out.hpp"
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
+#include <unistd.h>
 
 Logger logger(LogLvl::Info);
+
+const char* dbName = "res/db/uptime.db";
 
 // chars that i want: 
 // General
@@ -25,6 +29,7 @@ guint SetupTimer( State& state ) {
 
 // Add alias into App
 static void activate( GtkApplication* app, gpointer data ) {
+    DatabaseReader db( "res/db/uptime.db" );
     State state;
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
@@ -33,7 +38,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 	g_object_unref( builder );
 
     SetupTimer( state );
-    
+    state.mergeStore( db.getRecords(Operators::Eqal, {}) );
 
 	gtk_window_set_application( window , app );
 	gtk_window_present( window );

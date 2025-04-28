@@ -1,7 +1,9 @@
-#include "glib.h"
+#include <gio/gio.h>
+
 #include "inc/logger.hpp"
 #include "inc/time.hpp"
 #include "inc/lazy_load.hpp"
+#include "inc/record_item.hpp"
 
 using namespace std::chrono;
 
@@ -23,9 +25,7 @@ using namespace std::chrono;
                 _bound.to = _bound.from + months(1);
                 break;
 
-            case Duration::ByDay:
-                _bound.from = duration_cast<days>( getCurrentTime() );
-                _bound.to = _bound.from + days(1);
+            case Duration::ByDay: _bound.from = duration_cast<days>( getCurrentTime() ); _bound.to = _bound.from + days(1);
                 break;
                 
             case Duration::All:
@@ -79,6 +79,10 @@ using namespace std::chrono;
 
     }
 
+    void State::mergeStore( RecordItem** items ) {
+        g_list_store_splice(_store, 0, 0, (void**)items, 1);
+    }
+
     void State::setStore( GListStore* store ) {
         _store = store;
     }
@@ -118,7 +122,6 @@ void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) 
 
 gboolean update_data( gpointer data ) {
     logger.log(LogLvl::Error, "Timer not impl yet" );
-
 
     return G_SOURCE_CONTINUE;
 }

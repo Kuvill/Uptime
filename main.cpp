@@ -34,15 +34,13 @@ void SigHandler( int code ) {
 // MAIN ISSUE: there are path form project root. How to execute from anywhere...?
 // i should use switch row and from toolbar view for settings 
 
-// Record description ( title )
-
 // for ipc i'm using socket here. This worser, that pipe (i guess)
 // but i think knowing base of sockets will be nice for me
 
 // as moder cpp way i should to pick boost.asio or ZeroMQ
 
 // one more todo: 3) set class of exception:
-	// clear sqlite memory 
+	// free sqlite memory 
 
 // it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
 int main() {

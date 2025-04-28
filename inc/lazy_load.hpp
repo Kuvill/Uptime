@@ -1,8 +1,12 @@
 #pragma once
 
 #include <gtk/gtk.h>
-#include "inc/time.hpp"
 
+#include "inc/time.hpp"
+#include "inc/record_item.hpp"
+
+// that is strut hell imo. i have to orginize them.
+// never worked with gui befor, i have to change
 enum class Duration {
     ByDay,
     ByMonth,
@@ -23,6 +27,7 @@ class State {
     Bound _bound;
 
 public:
+    void mergeStore( RecordItem** );
     void setStore( GListStore* );
     GListStore* getStore();
 

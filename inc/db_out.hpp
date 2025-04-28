@@ -1,10 +1,11 @@
 #pragma once
 
 // lot of unused symbols, but guess this variant more readable
-#include "db.hpp"
 #include "record_item.hpp"
+#include "inc/time.hpp"
 
 #include <gtk/gtk.h>
+#include <sqlite3.h>
 
 enum class Operators {
     Grate,
@@ -14,8 +15,18 @@ enum class Operators {
     Eqal
 };
 
+// I have to overload constructor to open read only
+// + mb i have to store GListStore* here
+
 // There is no virtual destructor.
-class DatabaseReader : Database {
+class DatabaseReader {
+protected:
+    sqlite3* _db;
+
 public:
-    GListStore* getRecords( Operators op, recTime_t );
+    DatabaseReader( const char* dbName );
+    ~DatabaseReader();
+
+    RecordItem** getRecords( Operators op, recTime_t );
+    const unsigned char* getAppName( int appId );
 };
