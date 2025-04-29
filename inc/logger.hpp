@@ -69,3 +69,4 @@ void Logger::subLog( Head last ) {
 	_out << last << '\n';
 	_out << COL_DEF;
 }
+

@@ -1,4 +1,3 @@
-#include "gio/gio.h"
 #include "inc/logger.hpp"
 #include "inc/record_item.hpp"
 #include "inc/time.hpp"
@@ -6,6 +5,8 @@
 
 #include <gtk/gtk.h>
 #include <sqlite3.h>
+#include <cmath>
+#include <stdexcept>
 
 #define USERS_TABLE "Users"
 #define APP_TABLE "Applications"
@@ -21,7 +22,7 @@ WHERE rec_date > datetime('2025-04-26 08:00:00');
 // to get last record, i can Order by rec_time with LIMIT 1 
 // (BEFOR I HAVE to check, is there spetific function (mb with WAL))
 static const char sqlGetRecords[] = "SELECT app_name, uptime, datetime(rec_time, 'unixepoch') AS rec_date " \
-                                    "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id  = " APP_TABLE ".app_id " \
+                                    "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id = " APP_TABLE ".app_id " \
                                     "WHERE rec_date > datetime(?1, 'unixepoch');";
 
 static const char sqlGetAppName[] = "SELECT app_name FROM " APP_TABLE " WHERE app_id = ?1;";
@@ -53,6 +54,7 @@ DatabaseReader::~DatabaseReader() {
 }
 
 // FIXME check performance with vector
+// @you have to delete returned value;
 RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
 	RecordItem** items;
     int count;
@@ -60,33 +62,44 @@ RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2( _db, sqlGetRecords, sizeof(sqlGetRecords), &stmt, nullptr );
 
-    // FIXME potential out-of-bound
 	if( rc == SQLITE_OK ) {
-        sqlite3_bind_int64(stmt, 1, time.count());
-        count = countRows( stmt );
+        rc = sqlite3_bind_int64(stmt, 1, time.count());
+        if( rc != SQLITE_OK ) throw std::runtime_error("err");
+
+        // count = countRows( stmt );
+        count = 10;
+        logger.log(LogLvl::Info, "loaded ", count, " record" );
 
         items = new RecordItem*[ count ];
 
 		for( int i = 0; i < count; ++i ) {
+            if( sqlite3_step( stmt ) != SQLITE_ROW ) throw std::runtime_error("13123");
             RecordItem* item = record_item_new();
 
-            // i don't want to call notify. Guess this is misstake
-            item->appName = g_strdup( (gchar*)getAppName( sqlite3_column_int(stmt, 1) ) );
-            item->uptime = sqlite3_column_int(stmt, 2);
-            // rec.recTime = sqlite3_column_int(stmt, 3);
+            // auto a = getAppName( sqlite3_column_int(stmt, 0) );
+            auto a = (sqlite3_column_text( stmt, 0 ));
+            if( a == nullptr ) a = new unsigned char{'!'};
+            logger.log( LogLvl::Warning, "name: ", a);
 
-            // FIXME ???? Bro you saved 4 byte for what ????? D:
-            *(items++) = item;
+            // i don't want to call notify. Guess this is misstake
+            item->appName = g_strdup( (gchar*)a );
+            item->uptime = sqlite3_column_int(stmt, 2);
+            // rec.recTime = sqlite3_column_int(stmt, 2);
+
+            if( item == nullptr ) logger.log(LogLvl::Warning, "item null");
+            else if( item->appName == nullptr ) logger.log(LogLvl::Warning, "appname null");
+
+            items[i] = item;
 		}
-		
-		sqlite3_finalize( stmt );
+
+        sqlite3_finalize( stmt );
 
 	} else {
 		const char* zErrMsg = sqlite3_errmsg(_db);
 		throw std::runtime_error(zErrMsg);
 	}
 
-    return items - count;
+    return items;
 }
 
 const unsigned char* DatabaseReader::getAppName( int appId ){
@@ -98,19 +111,28 @@ const unsigned char* DatabaseReader::getAppName( int appId ){
 
     if( rc == SQLITE_OK ) {
 		sqlite3_bind_int( stmt, 1, appId );
+        logger.log(LogLvl::Warning, "Required add id: ", appId );
 		
 		if( sqlite3_step(stmt) == SQLITE_ROW ) {
+            logger.log(LogLvl::Warning, "App name have to be getted");
 			toReturn = sqlite3_column_text( stmt, 0);
-		}
+		} else {
+            const char* zErrMsg = sqlite3_errmsg( _db );
+            logger.log(LogLvl::Warning, "not row");
+            throw std::runtime_error(zErrMsg);
+        }
 		
 		sqlite3_finalize( stmt );
 
 	} else {
+        sqlite3_finalize( stmt );
 		const char* zErrMsg = sqlite3_errmsg(_db);
 		logger.log( LogLvl::Error, "cannot get app name");
 		throw std::runtime_error(zErrMsg);
 	}
 
-	return toReturn;
+    if( toReturn == nullptr )
+        logger.log(LogLvl::Warning, "Steel the same");
+
+    return toReturn;
 }
-// FIXME sqlite return uchar*, when gchar is signed. cast or use unsigned in struct

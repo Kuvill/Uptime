@@ -2,6 +2,8 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
+#include "gio/gio.h"
+#include "glib-object.h"
 #include "inc/db_out.hpp"
 
 #include <gtk/gtk.h>
@@ -27,7 +29,18 @@ guint SetupTimer( State& state ) {
     return g_timeout_add_seconds( 5, update_data, &state );
 }
 
-// Add alias into App
+void clicked( GtkButton* self, gpointer data ) {
+    GListStore* store = (GListStore*)data;
+
+    RecordItem** items = new RecordItem*[2];
+
+    RecordItem* item = record_item_new( "TES", 1 );
+    items[0] = item;
+    g_list_store_splice( store, 0, 0, (void**)(items), 1 );
+    g_object_unref( item );
+}
+
+// Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
     DatabaseReader db( "res/db/uptime.db" );
     State state;
@@ -39,6 +52,14 @@ static void activate( GtkApplication* app, gpointer data ) {
 
     SetupTimer( state );
     state.mergeStore( db.getRecords(Operators::Eqal, {}) );
+
+    // ----
+    GtkWidget* TEST_BTN = gtk_button_new();
+    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), state.getStore());
+    auto* window2 = gtk_window_new();
+    gtk_window_present( GTK_WINDOW(window2) );
+    gtk_window_set_child( GTK_WINDOW(window2), TEST_BTN );
+    // ---
 
 	gtk_window_set_application( window , app );
 	gtk_window_present( window );

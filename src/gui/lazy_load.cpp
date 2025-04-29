@@ -7,6 +7,8 @@
 
 using namespace std::chrono;
 
+// OOP way: create state pattern class, that remember state.
+// more cheap way: create static function getDif
     void State::changeModel( Duration ) {
         logger.log(LogLvl::Info, "Changing view model");
 
@@ -80,7 +82,10 @@ using namespace std::chrono;
     }
 
     void State::mergeStore( RecordItem** items ) {
-        g_list_store_splice(_store, 0, 0, (void**)items, 1);
+        g_list_store_splice(_store, 0, 0, (void**)(items), 10);
+
+        // here i delete 2 pointers. Not items
+        delete items;
     }
 
     void State::setStore( GListStore* store ) {
