@@ -5,10 +5,12 @@
 
 #include <sqlite3.h>
 
+#include <cstdlib>
+#include <filesystem>
 #include <stdexcept>
-#include <chrono>
 #include <cstring>
 #include <ctime>
+#include <type_traits>
 
 // does move Tables name to defines - good idea?
 
@@ -76,6 +78,18 @@ Database::Database( const char* dbName ) {
 		throw std::runtime_error("Error while starting sqlite3");
 
 	checkTables( _db );
+}
+
+Database::Database( const std::string& dbName, std::true_type createInHomeDir ) {
+    std::string homePath = std::getenv( "HOME" );
+    homePath.push_back('/');
+    homePath.append( dbName );
+
+    logger.log(LogLvl::Info, "DB path: ", homePath );
+    if( sqlite3_open( homePath.c_str(), &_db ) != SQLITE_OK ) 
+        throw std::runtime_error("Error while starting sqlite3");
+
+    checkTables( _db );
 }
 
 Database::~Database() {

@@ -6,6 +6,7 @@
 
 #include <gtk/gtk.h>
 #include <sqlite3.h>
+#include <type_traits>
 
 enum class Operators {
     Grate,
@@ -25,8 +26,9 @@ protected:
 
 public:
     DatabaseReader( const char* dbName );
+    DatabaseReader( const char* dbName, std::true_type );
     ~DatabaseReader();
 
-    RecordItem** getRecords( Operators op, recTime_t );
+    std::tuple<RecordItem**, int> getRecords( Operators op, recTime_t );
     const unsigned char* getAppName( int appId );
 };

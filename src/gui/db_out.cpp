@@ -7,6 +7,7 @@
 #include <sqlite3.h>
 #include <cmath>
 #include <stdexcept>
+#include <type_traits>
 
 #define USERS_TABLE "Users"
 #define APP_TABLE "Applications"
@@ -48,6 +49,18 @@ DatabaseReader::DatabaseReader( const char* dbName ) {
     }
 }
 
+DatabaseReader::DatabaseReader( const char* dbName, std::true_type ) {
+    std::string homePath = std::getenv( "HOME" );
+    homePath.push_back('/');
+    homePath.append( dbName );
+
+    logger.log(LogLvl::Info, "DB path: ", homePath );
+    if( sqlite3_open_v2( homePath.c_str(), &_db, SQLITE_OPEN_READONLY, nullptr ) != SQLITE_OK ) {
+        throw std::runtime_error("Error while opening sqlite3");
+    }
+
+}
+
 DatabaseReader::~DatabaseReader() {
 	if( _db )
 		sqlite3_close( _db );
@@ -55,7 +68,7 @@ DatabaseReader::~DatabaseReader() {
 
 // FIXME check performance with vector
 // @you have to delete returned value;
-RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
+std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_t time ) {
 	RecordItem** items;
     int count;
 
@@ -66,8 +79,8 @@ RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
         rc = sqlite3_bind_int64(stmt, 1, time.count());
         if( rc != SQLITE_OK ) throw std::runtime_error("err");
 
-        // count = countRows( stmt );
-        count = 10;
+        count = countRows( stmt );
+        // count = 10;
         logger.log(LogLvl::Info, "loaded ", count, " record" );
 
         items = new RecordItem*[ count ];
@@ -77,17 +90,12 @@ RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
             RecordItem* item = record_item_new();
 
             // auto a = getAppName( sqlite3_column_int(stmt, 0) );
-            auto a = (sqlite3_column_text( stmt, 0 ));
-            if( a == nullptr ) a = new unsigned char{'!'};
-            logger.log( LogLvl::Warning, "name: ", a);
+            auto appName = (sqlite3_column_text( stmt, 0 ));
 
             // i don't want to call notify. Guess this is misstake
-            item->appName = g_strdup( (gchar*)a );
+            item->appName = g_strdup( (gchar*)appName );
             item->uptime = sqlite3_column_int(stmt, 2);
             // rec.recTime = sqlite3_column_int(stmt, 2);
-
-            if( item == nullptr ) logger.log(LogLvl::Warning, "item null");
-            else if( item->appName == nullptr ) logger.log(LogLvl::Warning, "appname null");
 
             items[i] = item;
 		}
@@ -99,7 +107,7 @@ RecordItem** DatabaseReader::getRecords( Operators op, recTime_t time ) {
 		throw std::runtime_error(zErrMsg);
 	}
 
-    return items;
+    return {items, count};
 }
 
 const unsigned char* DatabaseReader::getAppName( int appId ){

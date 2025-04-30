@@ -2,6 +2,7 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
+#include <type_traits>
 #include "gio/gio.h"
 #include "glib-object.h"
 #include "inc/db_out.hpp"
@@ -42,7 +43,7 @@ void clicked( GtkButton* self, gpointer data ) {
 
 // Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    DatabaseReader db( "res/db/uptime.db" );
+    DatabaseReader db( ".local/share/uptimer/uptime.db", std::true_type() );
     State state;
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );

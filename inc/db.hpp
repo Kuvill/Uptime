@@ -5,6 +5,7 @@
 #include "inc/time.hpp"
 
 #include <sqlite3.h>
+#include <type_traits>
 
 
 // 2 variants:
@@ -32,6 +33,7 @@ protected:
 
 public:
 	Database( const char* dbName );
+    Database( const std::string& dbName, std::true_type CreateInHomeDir );
 	~Database();
 
 	bool insertUser( const char* userName );

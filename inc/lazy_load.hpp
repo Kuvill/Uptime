@@ -27,7 +27,7 @@ class State {
     Bound _bound;
 
 public:
-    void mergeStore( RecordItem** );
+    void mergeStore( std::tuple<RecordItem**, int> );
     void setStore( GListStore* );
     GListStore* getStore();
 

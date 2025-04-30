@@ -81,11 +81,12 @@ using namespace std::chrono;
 
     }
 
-    void State::mergeStore( RecordItem** items ) {
-        g_list_store_splice(_store, 0, 0, (void**)(items), 10);
+    // mb resive in first pointer will be greater
+    void State::mergeStore( std::tuple<RecordItem**, int> items ) {
+        g_list_store_splice(_store, 0, 0, (void**)(std::get<0>(items)), std::get<1>(items));
 
         // here i delete 2 pointers. Not items
-        delete items;
+        delete std::get<0>(items);
     }
 
     void State::setStore( GListStore* store ) {

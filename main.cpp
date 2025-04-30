@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "inc/get_uptime.hpp"
 #include "inc/db.hpp"
 #include "inc/ram_storage.hpp"
@@ -6,23 +7,30 @@
 
 #include "inc/logger.hpp"
 
+#include <cstdlib>
+#include <fstream>
 #include <chrono>
 #include <exception>
 #include <string>
 #include <thread>
 
 #include <csignal>
+#include <type_traits>
 
 using namespace std::chrono_literals;
 
-const char* dbName = "res/db/uptime.db";
+// for future: set project dir
+ChangeDir ch( std::getenv("HOME") );
 
-Logger logger(LogLvl::Info);
+// const char* dbName = "res/db/uptime.db";
+const char* dbName = ".local/share/uptimer/uptime.db";
+
+Logger logger( ".local/share/uptimer/log.log", LogLvl::Info );
 
 // only for signals
 // use them instead of db and storage - scary. mb after 1.0 i will do that
-Database* g_db;
-Storage* g_storage;
+static Database* g_db;
+static Storage* g_storage;
 
 void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
@@ -43,14 +51,17 @@ void SigHandler( int code ) {
 	// free sqlite memory 
 
 // it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
+// Prevent run several times: use file (create .lock or read an file)
+// if locked - brut force all opened program (if i be able to do  this) // to prevent kill -9
 int main() {
     // I also want to record browser tab name (or whatever, that contain tab name)
-
+    chdir( std::getenv("HOME") );
 	Database db( dbName );
+
 	Storage storage;
 	Ips connect;
 
-	// should be float / ms
+	// should be ms
     auto sleepDuration = 5s;
 	bool useDB = false;
 

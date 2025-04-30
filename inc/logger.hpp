@@ -10,6 +10,8 @@
 #define COL_YEL "\033[33m"
 #define COL_GRY "\033[90m"
 
+// add GUI / DEMON befor message
+
 enum class LogLvl {
 	Info = 0,
 	Warning = 1,
@@ -26,8 +28,15 @@ constexpr const char* toStr( LogLvl lvl ) {
 	}
 }
 
+class ChangeDir {
+public:
+    ChangeDir(const char* path );
+};
+
+std::string pushFrontHome( std::string&& );
+
 class Logger {
-	std::ostream& _out = std::cout;
+	std::ostream* _out = &std::cout;
 	LogLvl _lvl;
 
 	template <typename Head, typename... Tail>
@@ -40,7 +49,9 @@ class Logger {
 
 public:
 	Logger( LogLvl = LogLvl::Warning );
-	Logger( std::ofstream& of, LogLvl = LogLvl::Warning );
+	Logger( std::ofstream* of, LogLvl = LogLvl::Warning );
+    Logger( const char* path, LogLvl = LogLvl::Warning );
+
     ~Logger();
 
 	template <typename Head, typename... Tail>
@@ -53,20 +64,20 @@ template <typename Head, typename... Tail>
 void Logger::log( LogLvl lvl, Head head, Tail... tail ) {
 	if( lvl < _lvl ) return;
 
-	_out << toStr(lvl) << ": ";
-	_out << head;
+	*_out << toStr(lvl) << ": ";
+	*_out << head;
 	subLog( tail... );
 }
 
 template <typename Head, typename... Tail>
 void Logger::subLog( Head head, Tail... tail ) {
-	_out << head;
+	*_out << head;
 	subLog( tail... );
 }
 
 template <typename Head, typename... Tail>
 void Logger::subLog( Head last ) {
-	_out << last << '\n';
-	_out << COL_DEF;
+	*_out << last << '\n';
+	*_out << COL_DEF;
 }
 

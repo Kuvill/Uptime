@@ -49,5 +49,15 @@ custom_target(
   output: 'ui.gresource'
 )
 
-executable( 'Uptimer', demon_sources, dependencies : dbdeps, include_directories: incdir )
-executable( 'Gui', gui_sources, dependencies : [gtkdeps, dbdeps], include_directories: incdir )
+fs = import('fs')
+install_subdir( 'res', install_dir: fs.expanduser('~/.local/share/uptimer/' ) )
+
+executable( 'Uptimer', 
+  demon_sources, include_directories: incdir,
+  dependencies : dbdeps ,
+  install: true )
+
+executable( 'Gui', 
+  gui_sources, include_directories: incdir,
+  dependencies : [gtkdeps, dbdeps],
+  install: true )

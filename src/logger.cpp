@@ -1,22 +1,38 @@
 #include "inc/logger.hpp"
 
-#ifndef Release 
+#include <unistd.h>
+#include <cstdlib>
+#include <fstream>
 
-void DEBUG( const std::string& text ) {
-	std::cerr << text << '\n';
+ChangeDir::ChangeDir(const char* path ) {
+    if (chdir(path) != 0)
+        exit(127);
 }
 
-#else
+std::string pushFrontHome( const std::string& path ) {
+    std::string homePath = std::getenv("HOME");
 
-void DEBUG( const std::string& text ) {}
+    homePath.append( std::move( path ));
 
-#endif
+    std::cerr << "I return this shit: " << homePath << '\n';
+    
+    return homePath;
+}
+
 
 Logger::Logger( LogLvl lvl ) : _lvl(lvl) {}
-Logger::Logger( std::ofstream& of, LogLvl lvl ) : _out(of), _lvl(lvl) {}
-Logger::~Logger() = default;
+Logger::Logger( std::ofstream* of, LogLvl lvl ) : _out(of), _lvl(lvl) {}
+Logger::Logger( const char* path, LogLvl lvl ) : _lvl(lvl) {
+    _out = new std::ofstream( path );
+}
+
+Logger::~Logger() {
+    delete _out;
+}
+
+
 
 void Logger::subLog() {
-	_out << COL_DEF;
-	_out << '\n';
+	*_out << COL_DEF;
+	*_out << '\n';
 }

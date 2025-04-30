@@ -1,5 +1,7 @@
 tips/
 build/
+debug/
+release/
 res/db/uptime.db
 tests/
 .clangd
