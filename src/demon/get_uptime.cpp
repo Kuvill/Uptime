@@ -7,7 +7,6 @@
 #include <cstdlib>
 #include <array>
 #include <cstring>
-#include <stdexcept>
 
 static const char* getFocusedInfo = "swaymsg -t get_tree |  jq -r '.. | select(.focused? == true) | .app_id, .name, .pid'";
 
@@ -22,29 +21,35 @@ ProcessInfo FocusInfo() {
 	std::array<char, 40> appName{};
     std::array<char, 100> describe{}; 
 
+    // just hope, that swaymsg member size - 256
     std::array<char, 256> garbage;
 
 	FILE* mimic;
 	mimic = popen( getFocusedInfo, "r" );
 
-	char* newBufSize = fgets( appName.data(), appName.size(), mimic );
-    if( newBufSize == nullptr ) return {{'\0'}, {}};
+    // read appName
+	char* bufPtr = fgets( appName.data(), appName.size(), mimic );
+    if( bufPtr == nullptr ) return {{'\0'}, {}};
 
-    if( *newBufSize == 0 ) 
-        while( *fgets( garbage.data(), garbage.size(), mimic ) != 0 );
+    int strSize = strlen( appName.data() );
+    if( strSize != 0 && appName[strSize-1] != '\n' )
+        fgets( garbage.data(), garbage.size(), mimic );
 
-    newBufSize = fgets( describe.data(), describe.size(), mimic );
-    if( *newBufSize == 0 ) {
-        while( *fgets( garbage.data(), garbage.size(), mimic ) != 0 );
-    }
+    // read description
+    bufPtr = fgets( describe.data(), describe.size(), mimic );
+    if( bufPtr == nullptr ) return {{'\0'}, {}};
+
+    strSize = strlen( describe.data() );
+    if( strSize != 0 && describe[strSize-1] != '\n' )
+        fgets( garbage.data(), garbage.size(), mimic );
 
 	// if app have no .app_id
     // idle give user choose: insert line with emprt name and describe
-	if( appName[0] == '\0' || !strcmp(appName.data(), "null\n") )
+    if( appName[0] == '\0' || !strcmp(appName.data(), "null\n") )
         return {{'\0'}, {}};
 
 	// idk why cycle on appName until '\0' or '\n' not workibg
-	info.name.append(appName.data()); info.name.pop_back();
+    info.name.append(appName.data()); info.name.pop_back();
 
     if( describe.data() != 0 ) {
         info.describe.append( describe.data() );
