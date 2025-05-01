@@ -8,24 +8,22 @@
 #include "inc/logger.hpp"
 
 #include <cstdlib>
-#include <fstream>
 #include <chrono>
 #include <exception>
 #include <string>
 #include <thread>
 
 #include <csignal>
-#include <type_traits>
 
 using namespace std::chrono_literals;
 
-// for future: set project dir
-ChangeDir ch( std::getenv("HOME") );
+// set path to project directory (now just ~/.local/share/uptimer)
+static const ChangeDir ch;
 
 // const char* dbName = "res/db/uptime.db";
-const char* dbName = ".local/share/uptimer/uptime.db";
+const char* dbName = "uptime2.db";
 
-Logger logger( ".local/share/uptimer/log.log", LogLvl::Info );
+Logger logger( LogLvl::Info );
 
 // only for signals
 // use them instead of db and storage - scary. mb after 1.0 i will do that
@@ -39,23 +37,18 @@ void SigHandler( int code ) {
 	exit(0);
 }
 
-// MAIN ISSUE: there are path form project root. How to execute from anywhere...?
-// i should use switch row and from toolbar view for settings 
+// i should use switch row and from toolbar view for settings
 
-// for ipc i'm using socket here. This worser, that pipe (i guess)
-// but i think knowing base of sockets will be nice for me
-
-// as moder cpp way i should to pick boost.asio or ZeroMQ
+// as moder cpp way i should to pick as socket boost.asio or ZeroMQ
 
 // one more todo: 3) set class of exception:
-	// free sqlite memory 
+	// free sqlite memory
 
 // it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
 // Prevent run several times: use file (create .lock or read an file)
 // if locked - brut force all opened program (if i be able to do  this) // to prevent kill -9
 int main() {
     // I also want to record browser tab name (or whatever, that contain tab name)
-    chdir( std::getenv("HOME") );
 	Database db( dbName );
 
 	Storage storage;
@@ -85,7 +78,7 @@ int main() {
 					db.dumpStorage( storage );
 					useDB = true;
 
-				} else if( msgType == MsgType::end_record ) { 
+				} else if( msgType == MsgType::end_record ) {
 					logger.log( LogLvl::Info, "back to ram");
 					useDB = false;
 
@@ -114,4 +107,4 @@ int main() {
 	logger.log( LogLvl::Info, "memory dump: ", storage );
 	db.dumpStorage( storage );
 	return 0;
-} 
+}

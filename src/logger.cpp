@@ -4,8 +4,11 @@
 #include <cstdlib>
 #include <fstream>
 
-ChangeDir::ChangeDir(const char* path ) {
-    if (chdir(path) != 0)
+ChangeDir::ChangeDir() {
+    std::string newPath = std::move(std::getenv("HOME"));
+    newPath += "/.local/share/uptimer/";
+
+    if (chdir( newPath.c_str() ) != 0)
         exit(127);
 }
 
@@ -15,7 +18,7 @@ std::string pushFrontHome( const std::string& path ) {
     homePath.append( std::move( path ));
 
     std::cerr << "I return this shit: " << homePath << '\n';
-    
+
     return homePath;
 }
 
@@ -27,7 +30,8 @@ Logger::Logger( const char* path, LogLvl lvl ) : _lvl(lvl) {
 }
 
 Logger::~Logger() {
-    delete _out;
+    if( dynamic_cast<std::ofstream*>( _out ))
+        delete _out;
 }
 
 

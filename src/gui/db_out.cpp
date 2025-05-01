@@ -20,7 +20,7 @@ FROM Records JOIN Applications ON Records.app_id  = Applications.app_id
 WHERE rec_date > datetime('2025-04-26 08:00:00');
 */
 
-// to get last record, i can Order by rec_time with LIMIT 1 
+// to get last record, i can Order by rec_time with LIMIT 1
 // (BEFOR I HAVE to check, is there spetific function (mb with WAL))
 static const char sqlGetRecords[] = "SELECT app_name, uptime, datetime(rec_time, 'unixepoch') AS rec_date " \
                                     "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id = " APP_TABLE ".app_id " \
@@ -120,7 +120,7 @@ const unsigned char* DatabaseReader::getAppName( int appId ){
     if( rc == SQLITE_OK ) {
 		sqlite3_bind_int( stmt, 1, appId );
         logger.log(LogLvl::Warning, "Required add id: ", appId );
-		
+
 		if( sqlite3_step(stmt) == SQLITE_ROW ) {
             logger.log(LogLvl::Warning, "App name have to be getted");
 			toReturn = sqlite3_column_text( stmt, 0);
@@ -129,7 +129,7 @@ const unsigned char* DatabaseReader::getAppName( int appId ){
             logger.log(LogLvl::Warning, "not row");
             throw std::runtime_error(zErrMsg);
         }
-		
+
 		sqlite3_finalize( stmt );
 
 	} else {

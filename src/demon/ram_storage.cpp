@@ -8,6 +8,12 @@
 
 #define USER_ID 1
 
+Record::Record( uint32_t usr, Name appName, recTime_t uptime, recTime_t recTime, std::string describe )
+            : user(usr), info(appName, uptime, describe), recTime( recTime ) {}
+
+Record::Record( uint32_t usr, ProcessInfo info, recTime_t recTime )
+            : user(usr), info(info), recTime(recTime) {}
+
 // AI says, fnv-a1 would be nice
 std::size_t std::hash<Record>::operator()( const Record& rec ) const {
 	const std::hash<uint32_t> hasher;
@@ -27,7 +33,7 @@ void Storage::insert( const ProcessInfo& info ) {
 
 void Storage::insert( const ProcessInfo& info, recTime_t time ) {
 	if( info.name[0] == '\0' ) {
-		logger.log(LogLvl::Warning, "The app has no app_id, skipping");
+		logger.log(LogLvl::Warning, "The app has no app_id, skipping. (describe: ", info.describe, ")");
 		return;
 	}
 
@@ -35,8 +41,7 @@ void Storage::insert( const ProcessInfo& info, recTime_t time ) {
 
 	_storage.insert( Record(
 		USER_ID,
-		info.name,
-		info.uptime,
+        info,
 		time
 	 ));
 
@@ -65,7 +70,8 @@ void Storage::clear() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-		os << a.user << ' ' << a.name << ' ' << a.uptime << ' '<< a.recTime.count() << '\n';
+		os << a.user << ' ' << a.info.name << ' ' << a.info.uptime << ' '<< a.recTime.count() << '\n';
+        os << a.info.describe << '\n';
 	}
 
 	return os;

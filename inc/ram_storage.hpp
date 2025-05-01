@@ -10,11 +10,11 @@
 struct Record {
 	// FIXME should to save char* ( std::string coz i take from user, not lunux)
 	uint32_t user;
-	uint32_t uptime;
-	Name name;
+    ProcessInfo info;
 	recTime_t recTime;
 
-	Record( uint32_t u, Name n, uint32_t p, recTime_t recTime ) : user(u), uptime(p), name(n), recTime(recTime) {}
+	Record( uint32_t usr, Name appName, recTime_t uptime, recTime_t recTime, std::string describe = "" );
+	Record( uint32_t usr, ProcessInfo info, recTime_t recTime );
     Record() = default;
 
 

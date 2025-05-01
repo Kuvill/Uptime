@@ -30,7 +30,7 @@ constexpr const char* toStr( LogLvl lvl ) {
 
 class ChangeDir {
 public:
-    ChangeDir(const char* path );
+    ChangeDir();
 };
 
 std::string pushFrontHome( std::string&& );
@@ -80,4 +80,3 @@ void Logger::subLog( Head last ) {
 	*_out << last << '\n';
 	*_out << COL_DEF;
 }
-

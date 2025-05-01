@@ -6,7 +6,6 @@
 #include <sqlite3.h>
 
 #include <cstdlib>
-#include <filesystem>
 #include <stdexcept>
 #include <cstring>
 #include <ctime>
@@ -28,6 +27,7 @@ static const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS " USERS_TABLE " (
 						"app_id INTEGER PRIMARY KEY," \
 						"type_id INTEGER," \
 						"app_name TEXT," \
+                        "app_alias TEXT," \
 						"FOREIGN KEY(type_id) REFERENCES " CATEGOR_TABLE "(type_id)"
 				");" \
 
@@ -37,6 +37,7 @@ static const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS " USERS_TABLE " (
 						"app_id INTEGER," \
 						"rec_time DATETIME," \
 						"uptime INTEGER," \
+                        "describe TEXT," \
 						"FOREIGN KEY(user_id) REFERENCES " USERS_TABLE "(user_id)," \
 						"FOREIGN KEY(app_id) REFERENCES " APP_TABLE "(app_id)"
 				");" \
@@ -48,8 +49,8 @@ static const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS " USERS_TABLE " (
 
 
 static const char sqlInsertRecord[] = "INSERT INTO " REC_TABLE "(" \
-					    "user_id, app_id, rec_time, uptime) " \
-					    "VALUES (1, ?1, ?2, ?3);";
+					    "user_id, app_id, rec_time, uptime, describe) " \
+					    "VALUES (1, ?1, ?2, ?3, ?4);";
 
 
 static const char sqlGetAppId[] = "SELECT app_id FROM " APP_TABLE " WHERE app_name = ?1;";
@@ -105,6 +106,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 	insertUptimeRecord( info, recTime );
 }
 
+// i should use extended sql request to improve performance
 void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	int appId = getAppId( info );
 
@@ -118,7 +120,8 @@ void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	if( rc == SQLITE_OK ) {
 		rc = sqlite3_bind_int( stmt , 1, appId );
 		rc += sqlite3_bind_int64( stmt , 2, time.count() );
-		rc += sqlite3_bind_int( stmt , 3, info.uptime );
+		rc += sqlite3_bind_int( stmt , 3, info.uptime.count() );
+        rc += sqlite3_bind_text( stmt, 4, info.describe.data(), info.describe.size(), SQLITE_TRANSIENT );
 
 	} else {
 		const char* zErrMsg = sqlite3_errmsg(_db);
@@ -190,7 +193,7 @@ void Database::dumpStorage( Storage& store ) {
 	logger.log(LogLvl::Info, "dumped: ", std::distance( store.begin(), store.end()));
 
 	for( auto& record : store ) {
-		insertUptimeRecord( {record.name, record.uptime}, record.recTime );
+		insertUptimeRecord( record.info, record.recTime );
 	}
 
 	store.clear();

@@ -7,10 +7,13 @@
 git clone --depth=1 https://github.com/Kuvill/Uptime.git
 
 cd Uptime;
-meson setup build/;
-ninja -C build;
+meson setup build/ --buildtype=release;
+cd build;
+ninja build;
+meson install;
 
-Now you can execute build/Gui and build/Demon! (now only from project root path)
+That's all!
+
 #### Dependencies
 
 Demon:

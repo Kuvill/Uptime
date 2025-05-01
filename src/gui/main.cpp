@@ -2,7 +2,6 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
-#include <type_traits>
 #include "gio/gio.h"
 #include "glib-object.h"
 #include "inc/db_out.hpp"
@@ -13,16 +12,18 @@
 
 Logger logger(LogLvl::Info);
 
-const char* dbName = "res/db/uptime.db";
+static const ChangeDir cd;
 
-// chars that i want: 
+const char* dbName = "uptime.db";
+
+// chars that i want:
 // General
 //  just rectangles with values as length
 //  pie chart
 // By app:
 //  app uptime change by {date.*}
 // By Category:
-//  like from AI course: polygon. that more value that acute the angle 
+//  like from AI course: polygon. that more value that acute the angle
 
 guint SetupTimer( State& state ) {
     GTimer* timer = g_timer_new();
@@ -30,6 +31,7 @@ guint SetupTimer( State& state ) {
     return g_timeout_add_seconds( 5, update_data, &state );
 }
 
+#ifdef DEBUG
 void clicked( GtkButton* self, gpointer data ) {
     GListStore* store = (GListStore*)data;
 
@@ -40,10 +42,11 @@ void clicked( GtkButton* self, gpointer data ) {
     g_list_store_splice( store, 0, 0, (void**)(items), 1 );
     g_object_unref( item );
 }
+#endif
 
 // Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    DatabaseReader db( ".local/share/uptimer/uptime.db", std::true_type() );
+    DatabaseReader db( "uptime.db" );
     State state;
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
@@ -51,15 +54,17 @@ static void activate( GtkApplication* app, gpointer data ) {
 	setup_column_view( builder, state );
 	g_object_unref( builder );
 
+	state.mergeStore( db.getRecords(Operators::Eqal, {}) );
     SetupTimer( state );
-    state.mergeStore( db.getRecords(Operators::Eqal, {}) );
 
     // ----
+#ifdef DEBUG
     GtkWidget* TEST_BTN = gtk_button_new();
     g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), state.getStore());
     auto* window2 = gtk_window_new();
     gtk_window_present( GTK_WINDOW(window2) );
     gtk_window_set_child( GTK_WINDOW(window2), TEST_BTN );
+#endif
     // ---
 
 	gtk_window_set_application( window , app );
@@ -76,4 +81,3 @@ int main (int argc, char *argv[]) {
 
 	return stat;
 }
-

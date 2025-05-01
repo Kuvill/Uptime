@@ -49,6 +49,11 @@ custom_target(
   output: 'ui.gresource'
 )
 
+buildtype = get_option('buildtype')
+if buildtype == 'debug'
+  add_project_arguments([ '-DDEBUG' ], language: 'cpp')
+endif
+
 fs = import('fs')
 install_subdir( 'res', install_dir: fs.expanduser('~/.local/share/uptimer/' ) )
 
