@@ -1,139 +1,176 @@
 // After editing this file, you have to compile it into main.ui with
 // blueprint-compiler compile main.blp > main.ui
-
 // _("") - translatable string
 // C_("", "") - Context for translator
-
 using Gtk 4.0;
 using Adw 1;
 
 Adw.Window window {
   title: _("Uptimer");
 
-  content: Adw.NavigationSplitView {
-    // SideBar
-    sidebar: Adw.NavigationPage {
-      title: _("Pages");
+  content: Adw.ToolbarView {
+    // bottom-bar-style: raised;
+    
+    [top]
+    Adw.HeaderBar {
+      show-title: false;
+    }
 
-      child: Box {
-        orientation: vertical;
+    Adw.NavigationSplitView {
+      // SideBar
+      sidebar: Adw.NavigationPage {
+        title: _("Pages");
 
-        [top]
-        StackSidebar {
-          vexpand: true;
-          stack: body;
-        }
+        child: Box {
+          orientation: vertical;
 
-        [bottom]
-        Box {
-          orientation: horizontal;
-
-          Button {
-            halign: start;
-            hexpand: true;
-            margin-start: 5;
-            margin-bottom: 5;
-
-            Image {
-              // file: "/usr/share/icons/zed.png";
-              icon-name: "open-menu-symbolic.svg";
-            }
+          [top]
+          StackSidebar {
+            vexpand: true;
+            stack: body;
           }
 
-          Button {
-            halign: end;
-            hexpand: true;
-            margin-end: 5;
-            margin-bottom: 5;
+          [bottom]
+          Box {
+            orientation: horizontal;
+
+            Button {
+              halign: start;
+              hexpand: true;
+              margin-start: 5;
+              margin-bottom: 5;
+
+              Image {
+                // file: "/usr/share/icons/zed.png";
+                icon-name: "open-menu-symbolic.svg";
+              }
+            }
+
+            Button {
+              halign: end;
+              hexpand: true;
+              margin-end: 5;
+              margin-bottom: 5;
+            }
+          }
+        };
+      };
+
+      // Content
+      content: Adw.NavigationPage {
+        title: _("Content");
+
+        Box {
+          orientation: vertical;
+          
+          Box {
+            orientation: horizontal;
+            [start]
+            MenuButton DurationBtn {
+              menu-model: setDuration;
+              
+            }
+          }
+        
+          Stack body {
+            transition-type: crossfade;
+
+            StackPage {
+              name: "table";
+              title: _("Table");
+
+              child: Box {
+                orientation: vertical;
+                halign: center;
+                margin-top: 32;
+
+                ScrolledWindow {
+                  height-request: 340;
+                  width-request: 340;
+                  has-frame: true;
+
+                  ColumnView column_view {
+                    show-column-separators: true;
+
+                    ColumnViewColumn app_name_col {
+                      title: _("Application");
+                      expand: true;
+
+                      factory: SignalListItemFactory {};
+                    }
+
+                    ColumnViewColumn uptime_col {
+                      title: _("Uptime");
+
+                      factory: SignalListItemFactory {};
+                    }
+                  }
+                }
+              };
+            }
+
+            StackPage {
+              name: "charts";
+              title: _("Charts");
+
+              child: Label {
+                label: _("In progress...");
+              };
+            }
+
+            StackPage {
+              name: "settings";
+              title: _("Settings");
+
+              child: Label {
+                label: _("Also in progress...");
+              };
+            }
+
+            StackPage {
+              name: "about";
+              title: _("About");
+
+              child: Adw.StatusPage {
+                Box {
+                  halign: center;
+                  orientation: vertical;
+                  spacing: 18;
+
+                  Label {
+                    label: _("Uptimer");
+
+                    styles [
+                      "title-1",
+                    ]
+                  }
+
+                  Label {
+                    label: _("{List to github, mail. Why i created this project, lience}");
+                  }
+                }
+              };
+            }
           }
         }
       };
-    };
-
-    // Content
-    content: Adw.NavigationPage {
-      title: _("Content");
-
-      Stack body {
-        transition-type: crossfade;
-
-        StackPage {
-          name: "table";
-          title: _("Table");
-
-          child: Box {
-            orientation: vertical;
-            halign: center;
-            margin-top: 32;
-
-            ScrolledWindow {
-              height-request: 340;
-              width-request: 340;
-              has-frame: true;
-
-              ColumnView column_view {
-                show-column-separators: true;
-
-                ColumnViewColumn app_name_col {
-                  title: _("Application");
-                  expand: true;
-
-                  factory: SignalListItemFactory {};
-                }
-
-                ColumnViewColumn uptime_col {
-                  title: _("Uptime");
-
-                  factory: SignalListItemFactory {};
-                }
-              }
-            }
-          };
-        }
-
-        StackPage {
-          name: "charts";
-          title: _("Charts");
-
-          child: Label {
-            label: _("In progress...");
-          };
-        }
-
-        StackPage {
-          name: "settings";
-          title: _("Settings");
-
-          child: Label {
-            label: _("Also in progress...");
-          };
-        }
-
-        StackPage {
-          name: "about";
-          title: _("About");
-
-          child: Adw.StatusPage {
-            Box {
-              halign: center;
-              orientation: vertical;
-              spacing: 18;
-
-              Label {
-                label: _("Uptimer");
-
-                styles [
-                  "title-1",
-                ]
-              }
-
-              Label {
-                label: _("{List to github, mail. Why i created this project, lience}");
-              }
-            }
-          };
-        }
-      }
-    };
+    }
   };
 }
+
+menu setDuration {
+  // submenu  - beauty
+  
+  section {
+    item {
+      label: _("Years");
+    }
+    item {
+      label: _("Months");
+    }
+    item {
+      label: _("Days");
+    }
+  }
+}
+

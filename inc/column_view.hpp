@@ -1,6 +1,8 @@
 #pragma once
 
-#include <gtk/gtk.h>
 #include "inc/lazy_load.hpp"
+#include "inc/context.hpp"
 
-GListStore* setup_column_view( GtkBuilder* builder, State& );
+#include <gtk/gtk.h>
+
+GListStore* setup_column_view( GtkBuilder* builder, Context& );

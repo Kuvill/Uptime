@@ -12,6 +12,11 @@
 
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
 
+gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
+    return g_strcmp0( reinterpret_cast<const RecordItem*>( lhs )->appName,
+            reinterpret_cast< const RecordItem*>( rhs )->appName );
+}
+
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
 
 static void record_set_property(GObject *object, guint property_id, const GValue *value, GParamSpec *pspec) {
@@ -29,7 +34,7 @@ static void record_set_property(GObject *object, guint property_id, const GValue
         case PROP_UPTIME:
             logger.log(LogLvl::Info, "uptime prop changed!\n");
 
-            rec->uptime = g_value_get_uint64(value);
+            rec->uptime = toRecTime(g_value_get_uint64(value));
 
             g_object_notify_by_pspec(object, pspec);
             break;
@@ -47,7 +52,7 @@ static void record_get_property(GObject *object, guint property_id, GValue *valu
             g_value_set_string(value, rec->appName);
             break;
         case PROP_UPTIME:
-            g_value_set_uint64(value, rec->uptime);
+            g_value_set_uint64(value, rec->uptime.count());
             break;
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec);
@@ -56,7 +61,7 @@ static void record_get_property(GObject *object, guint property_id, GValue *valu
 }
 void record_item_init( RecordItem* item ) {
 	item->appName = nullptr;
-	item->uptime = 0;
+	item->uptime = toRecTime(0);
 }
 
 void record_item_finalize( GObject* object ) {
@@ -86,7 +91,7 @@ RecordItem* record_item_new( const char* appName, guint64 uptime ) {
 	RecordItem* item = static_cast<RecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
 
 	item->appName = g_strdup( appName );
-	item->uptime = uptime;
+	item->uptime = toRecTime(uptime);
 
 	return item;
 }

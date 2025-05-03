@@ -1,14 +1,18 @@
 #pragma once
 
+#include "glib.h"
+#include "inc/time.hpp"
+
 #include <gtk/gtk.h>
 
 #define RECORD_ITEM_TYPE (record_item_get_type())
 G_DECLARE_FINAL_TYPE(RecordItem, record_item, RECORD, ITEM, GObject)
 
+
 struct _RecordItem {
     GObject parent;
     gchar* appName;
-    guint64 uptime;
+    recTime_t uptime;
 };
 
 struct _RecordItemClass {
@@ -24,3 +28,5 @@ enum {
 
 RecordItem* record_item_new( const char* appName, guint64 uptime );
 RecordItem* record_item_new();
+
+int RecordItemNameCompare( const void* lhs, const void* rhs, void* );

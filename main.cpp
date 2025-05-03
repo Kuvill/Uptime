@@ -55,7 +55,7 @@ int main() {
 	Ips connect;
 
 	// should be ms
-    auto sleepDuration = 1s;
+    auto sleepDuration = 5s;
 	bool useDB = false;
 
 	g_db = &db;

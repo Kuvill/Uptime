@@ -1,3 +1,4 @@
+#include "glib.h"
 #include "inc/logger.hpp"
 #include "inc/record_item.hpp"
 #include "inc/time.hpp"
@@ -27,6 +28,10 @@ static const char sqlGetRecords[] = "SELECT app_name, uptime, datetime(rec_time,
                                     "WHERE rec_date > datetime(?1, 'unixepoch');";
 
 static const char sqlGetAppName[] = "SELECT app_name FROM " APP_TABLE " WHERE app_id = ?1;";
+
+static const char sqlGetLastRecord[] = "SELECT app_name, uptime, datetime(rec_time, 'unixepoch') AS rec_date " \
+                                        "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id = " APP_TABLE ".app_id " \
+                                        "ORDER BY rec_time LIMIT 1;";
 
 
 
@@ -94,7 +99,7 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
 
             // i don't want to call notify. Guess this is misstake
             item->appName = g_strdup( (gchar*)appName );
-            item->uptime = sqlite3_column_int(stmt, 2);
+            item->uptime = toRecTime( sqlite3_column_int(stmt, 1) );
             // rec.recTime = sqlite3_column_int(stmt, 2);
 
             items[i] = item;
@@ -108,6 +113,30 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
 	}
 
     return {items, count};
+}
+
+RecordItem* DatabaseReader::getLastRecord() {
+    RecordItem* item = record_item_new();
+
+    sqlite3_stmt* stmt;
+    int rc = sqlite3_prepare_v2( _db, sqlGetLastRecord, sizeof(sqlGetLastRecord), &stmt, nullptr );
+
+    if( rc == SQLITE_OK ) {
+        if( sqlite3_step( stmt ) == SQLITE_ROW ) {
+            auto appName = (sqlite3_column_text( stmt, 0 ));
+
+            item->appName = g_strdup( (gchar*)appName );
+            item->uptime = toRecTime( sqlite3_column_int( stmt, 1 ) );
+        }
+
+        sqlite3_finalize( stmt );
+    } else {
+        const char* zErrMsg = sqlite3_errmsg(_db);
+		throw std::runtime_error(zErrMsg);
+    }
+
+    return item;
+
 }
 
 const unsigned char* DatabaseReader::getAppName( int appId ){

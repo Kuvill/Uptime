@@ -2,9 +2,8 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
-#include "gio/gio.h"
-#include "glib-object.h"
 #include "inc/db_out.hpp"
+#include "inc/context.hpp"
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
@@ -25,10 +24,13 @@ const char* dbName = "uptime.db";
 // By Category:
 //  like from AI course: polygon. that more value that acute the angle
 
-guint SetupTimer( State& state ) {
+// i should contain as third class general settings
+// (State shoude contain visual settings, guess)
+
+guint SetupTimer( Context& context ) {
     GTimer* timer = g_timer_new();
     g_timer_start(timer);
-    return g_timeout_add_seconds( 5, update_data, &state );
+    return g_timeout_add_seconds( 5, update_data, &context );
 }
 
 #ifdef DEBUG
@@ -46,21 +48,23 @@ void clicked( GtkButton* self, gpointer data ) {
 
 // Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    DatabaseReader db( "uptime.db" );
-    State state;
+    Context context {
+        DatabaseReader( "uptime.db" ),
+        State()
+    };
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-	setup_column_view( builder, state );
+	setup_column_view( builder, context );
 	g_object_unref( builder );
 
-	state.mergeStore( db.getRecords(Operators::Eqal, {}) );
-    SetupTimer( state );
+	context.state.mergeStore( context.db.getRecords(Operators::Eqal, {}) );
+    SetupTimer( context );
 
     // ----
 #ifdef DEBUG
     GtkWidget* TEST_BTN = gtk_button_new();
-    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), state.getStore());
+    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), context.state.getStore());
     auto* window2 = gtk_window_new();
     gtk_window_present( GTK_WINDOW(window2) );
     gtk_window_set_child( GTK_WINDOW(window2), TEST_BTN );

@@ -3,8 +3,13 @@
 #include "inc/record_item.hpp"
 #include "inc/column_view.hpp"
 #include "inc/lazy_load.hpp"
+#include "inc/time.hpp"
 
 #include <gtk/gtk.h>
+#include <chrono>
+#include <cstdio>
+#include <format>
+
 
 /* 
    struct Resources {
@@ -15,6 +20,19 @@
     gboolean page2_loaded;
    }
 */
+
+static std::string timeToStr( recTime_t& time ) {
+    using namespace std::literals::chrono_literals;
+
+    std::chrono::hh_mm_ss<std::chrono::seconds> date( time );
+    if( date.hours() >= 1h )
+        return std::format( "{} h", date.hours() );
+
+    if( date.minutes() >= 1h )
+        return std::format( "{} m", date.minutes() );
+
+    return std::format("{} s", date.seconds() );
+}
 
 
 // create widget for an field of RecordItem
@@ -65,22 +83,19 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     GtkWidget* label = gtk_list_item_get_child( listItem );
     RecordItem* rec = static_cast<RecordItem*>( gtk_list_item_get_item( listItem ) );
 
-    gchar strUptime[64]; // stole 1 bit, but hope it will be ok :)
-    snprintf( strUptime, 64, "%zu", rec->uptime );
-
     g_signal_connect(rec, "notify::uptime", G_CALLBACK(on_uptime_changed), label); 
 
-    gtk_label_set_text( GTK_LABEL( label ), strUptime );
+    gtk_label_set_text( GTK_LABEL( label ), timeToStr( rec->uptime ).c_str() );
 }
 
-GListStore* setup_column_view( GtkBuilder* builder, State& state ) {
+GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
 	auto* appNameCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "app_name_col" ));
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
     GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
-    state.setStore( store );
+    context.state.setStore( store );
 
     // test
     RecordItem* item = record_item_new( "firefox", 10 );
