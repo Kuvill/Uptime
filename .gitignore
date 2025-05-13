@@ -6,3 +6,7 @@ res/db/uptime.db
 tests/
 .clangd
 .cache/
+
+
+# remove later!
+third_party/*

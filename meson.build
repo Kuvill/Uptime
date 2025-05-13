@@ -4,8 +4,9 @@ add_project_arguments('-std=c++23', language: 'cpp')
 
 # i don't want to set compiler for gtk blueprint, so i need to set up CI
 
-incdir = include_directories('./inc')
-incdir = include_directories('.')
+incdir = include_directories('.', './inc', './third_party/')
+# incdir += include_directories('./inc')
+# incdir += include_directories('./third_party/')
 
 demon_sources = [
   './src/logger.cpp',

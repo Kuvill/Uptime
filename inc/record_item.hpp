@@ -30,3 +30,7 @@ RecordItem* record_item_new( const char* appName, guint64 uptime );
 RecordItem* record_item_new();
 
 int RecordItemNameCompare( const void* lhs, const void* rhs, void* );
+int RecordItemUptimeCompare( const void* lhs, const void* rhs, void* );
+
+bool RecordItemNameGrater( RecordItem* lhs, RecordItem* rhs );
+

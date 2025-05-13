@@ -58,7 +58,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 	setup_column_view( builder, context );
 	g_object_unref( builder );
 
-	context.state.mergeStore( context.db.getRecords(Operators::Eqal, {}) );
+	context.state.mergeStoreUnique( context.db.getRecords(Operators::Eqal, {}) );
     SetupTimer( context );
 
     // ----

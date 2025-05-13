@@ -1,9 +1,7 @@
 #include <gio/gio.h>
 
 #include "inc/logger.hpp"
-#include "inc/time.hpp"
 #include "inc/lazy_load.hpp"
-#include "inc/record_item.hpp"
 
 static const gchar* TABLE_PAGE = "table";
 static const gchar* CHARTS_PAGE = "charts";

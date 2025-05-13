@@ -26,6 +26,7 @@ class State {
 
 public:
     void mergeStore( std::tuple<RecordItem**, int> );
+    void mergeStoreUnique(  std::tuple<RecordItem**, int> );
     void setStore( GListStore* );
     GListStore* getStore();
 

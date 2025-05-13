@@ -26,12 +26,12 @@ static std::string timeToStr( recTime_t& time ) {
 
     std::chrono::hh_mm_ss<std::chrono::seconds> date( time );
     if( date.hours() >= 1h )
-        return std::format( "{} h", date.hours() );
+        return std::format( "{}", date.hours() );
 
     if( date.minutes() >= 1h )
-        return std::format( "{} m", date.minutes() );
+        return std::format( "{}", date.minutes() );
 
-    return std::format("{} s", date.seconds() );
+    return std::format("{}", date.seconds() );
 }
 
 

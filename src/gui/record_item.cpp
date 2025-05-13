@@ -12,9 +12,32 @@
 
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
 
+bool RecordItemNameGrater( RecordItem* lhs, RecordItem* rhs ) {
+    if( RecordItemNameCompare( lhs, rhs, nullptr ) > 0 )
+        return true;
+    return false;
+}
+
+// second compare param - uptimer
 gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
-    return g_strcmp0( reinterpret_cast<const RecordItem*>( lhs )->appName,
+    int result = g_strcmp0( reinterpret_cast<const RecordItem*>( lhs )->appName,
             reinterpret_cast< const RecordItem*>( rhs )->appName );
+
+    // if name is same, compare by uptime
+    if( result == 0 ) {
+        if( reinterpret_cast<const RecordItem*>( lhs )->uptime >
+            reinterpret_cast<const RecordItem*>( rhs )->uptime ) {
+            return 1;
+        } else
+            return -1;
+    }
+
+    return result;
+}
+
+gint RecordItemUptimeCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
+    return reinterpret_cast<const RecordItem*>( lhs )->uptime <
+           reinterpret_cast< const RecordItem*>( rhs )->uptime;
 }
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };
