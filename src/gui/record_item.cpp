@@ -119,9 +119,7 @@ RecordItem* record_item_new( const char* appName, guint64 uptime ) {
 	return item;
 }
 
-// Not gtk c-style, but i have there logger, so it is already not c file
+// c++ function overload, but since i use logger it is ok
 RecordItem* record_item_new() {
 	return static_cast<RecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
 }
-
-

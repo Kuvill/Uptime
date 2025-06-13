@@ -17,11 +17,13 @@
 
 using namespace std::chrono_literals;
 
+// 7/10 ERROE FIXME! child process of terminals (pies?) are not closing on error (sock not found) (while it support only sway i should kill it on sway log out)
+
 // set path to project directory (now just ~/.local/share/uptimer)
 static const ChangeDir ch;
 
-// const char* dbName = "res/db/uptime.db";
-const char* dbName = "uptime2.db";
+const char* dbName = "res/db/uptime.db";
+// const char* dbName = "uptime2.db";
 
 Logger logger( LogLvl::Info );
 

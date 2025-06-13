@@ -9,11 +9,12 @@
 #include <libadwaita-1/adwaita.h>
 #include <unistd.h>
 
+
 Logger logger(LogLvl::Info);
 
 static const ChangeDir cd;
 
-const char* dbName = "uptime.db";
+const char* dbName = "res/db/uptime.db";
 
 // chars that i want:
 // General
@@ -27,14 +28,15 @@ const char* dbName = "uptime.db";
 // i should contain as third class general settings
 // (State shoude contain visual settings, guess)
 
-guint SetupTimer( Context& context ) {
+static guint SetupTimer( Context& context ) {
     GTimer* timer = g_timer_new();
     g_timer_start(timer);
+
     return g_timeout_add_seconds( 5, update_data, &context );
 }
 
 #ifdef DEBUG
-void clicked( GtkButton* self, gpointer data ) {
+static void clicked( GtkButton* self, gpointer data ) {
     GListStore* store = (GListStore*)data;
 
     RecordItem** items = new RecordItem*[2];
@@ -48,23 +50,28 @@ void clicked( GtkButton* self, gpointer data ) {
 
 // Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    Context context {
-        DatabaseReader( "uptime.db" ),
+    // Holy Molly... I spend like 4 hours (((
+    // to detect, that context dies on activate end
+
+    // btw i can pass it as data
+    
+    Context* context = new Context{
+        DatabaseReader( dbName ),
         State()
     };
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-	setup_column_view( builder, context );
+	setup_column_view( builder, *context );
 	g_object_unref( builder );
 
-	context.state.mergeStoreUnique( context.db.getRecords(Operators::Eqal, {}) );
-    SetupTimer( context );
+	context->state.mergeStoreUnique( context->db.getRecords(Operators::Eqal, {}) );
+    SetupTimer( *context );
 
     // ----
 #ifdef DEBUG
     GtkWidget* TEST_BTN = gtk_button_new();
-    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), context.state.getStore());
+    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), context->state.getStore());
     auto* window2 = gtk_window_new();
     gtk_window_present( GTK_WINDOW(window2) );
     gtk_window_set_child( GTK_WINDOW(window2), TEST_BTN );

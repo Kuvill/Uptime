@@ -1,7 +1,10 @@
 #include <gio/gio.h>
+#include <print>
 
 #include "inc/logger.hpp"
 #include "inc/lazy_load.hpp"
+#include "inc/context.hpp"
+#include "record_item.hpp"
 
 static const gchar* TABLE_PAGE = "table";
 static const gchar* CHARTS_PAGE = "charts";
@@ -17,6 +20,8 @@ static void load_charts() {
 
 void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) {
     logger.log(LogLvl::Info, "Stack page switched" );
+
+    Context& context = *static_cast<Context*>(data);
     const gchar* newPage = gtk_stack_get_visible_child_name( stack );
 
     if( g_strcmp0( newPage, TABLE_PAGE ) == 0 ) {
@@ -39,5 +44,14 @@ void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) 
 gboolean update_data( gpointer data ) {
     logger.log(LogLvl::Error, "Timer not impl yet" );
 
+    Context& context = *static_cast<Context*>(data);
+    RecordItem* newItem = context.db.getLastRecord();
+
+    g_list_store_insert_sorted(context.state.getStore(), newItem, RecordItemUptimeCompare, nullptr );
+    // g_list_store_append( context.state.getStore(), newItem );
+
     return G_SOURCE_CONTINUE;
+}
+
+void onDurationAction( GSimpleAction* self, GVariant* param, gpointer data ) { 
 }

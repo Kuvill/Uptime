@@ -10,10 +10,10 @@ Adw.Window window {
 
   content: Adw.ToolbarView {
     // bottom-bar-style: raised;
-    
+
     [top]
     Adw.HeaderBar {
-      show-title: false;
+      // show-title: false;
     }
 
     Adw.NavigationSplitView {
@@ -62,16 +62,16 @@ Adw.Window window {
 
         Box {
           orientation: vertical;
-          
+
           Box {
             orientation: horizontal;
+
             [start]
             MenuButton DurationBtn {
               menu-model: setDuration;
-              
             }
           }
-        
+
           Stack body {
             transition-type: crossfade;
 
@@ -160,17 +160,20 @@ Adw.Window window {
 
 menu setDuration {
   // submenu  - beauty
-  
   section {
     item {
+      name: "years";
       label: _("Years");
     }
+
     item {
+      name: "months";
       label: _("Months");
     }
+
     item {
+      name: "days";
       label: _("Days");
     }
   }
 }
-

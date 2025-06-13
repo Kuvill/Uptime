@@ -12,6 +12,8 @@
 
 // add GUI / DEMON befor message
 
+// use std::source_location
+
 enum class LogLvl {
 	Info = 0,
 	Warning = 1,

@@ -32,4 +32,5 @@ public:
     std::tuple<RecordItem**, int> getRecords( Operators op, recTime_t );
     RecordItem* getLastRecord();
     const unsigned char* getAppName( int appId );
+    void checkErr( const char* = "" );
 };

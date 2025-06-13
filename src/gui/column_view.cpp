@@ -12,6 +12,7 @@
 
 
 /* 
+   // Should be in context 
    struct Resources {
     GtkWidget* stack;
     GtkWidget* page1;
@@ -32,6 +33,11 @@ static std::string timeToStr( recTime_t& time ) {
         return std::format( "{}", date.minutes() );
 
     return std::format("{}", date.seconds() );
+}
+
+static void on_year_selected( Context* data ) {
+    logger.log(LogLvl::Error, "mb double: changed to year");
+    data->state.changeModel(Duration::ByYear);
 }
 
 
@@ -121,8 +127,14 @@ GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
 
     // Fill table from db
     auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
-    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), nullptr );
+    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), &context );
     on_stack_page_changed(stack, 0, nullptr);
+
+    // setup menu
+    // here is invalide pointer instance and type check errors
+    // auto* year_item = G_MENU_ITEM( gtk_builder_get_object( builder, "years" ) );
+    // g_signal_connect(year_item, "activate", G_CALLBACK(on_year_selected), &context);
+
 
     return store;
 }

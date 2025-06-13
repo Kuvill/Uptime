@@ -20,7 +20,9 @@ struct Bound {
 
 };
 
+// It should be init once at start and then on Bound changings
 class State {
+    // sorted
     GListStore* _store;
     Bound _bound;
 
@@ -40,6 +42,7 @@ public:
 };
 
 struct Settings {
+    // scanning application cooldown
     std::chrono::seconds cd;
 };
 

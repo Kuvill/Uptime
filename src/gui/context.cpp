@@ -1,6 +1,7 @@
 #include "inc/context.hpp"
-#include <algorithm>
 #include "inc/logger.hpp"
+
+#include <algorithm>
 
 using namespace std::chrono;
 
@@ -11,7 +12,6 @@ using namespace std::chrono;
 
         // looks really ugly
         // only way that i see - use variant over enum 
-        // performance the same ( 4-8 byte loose. but i have only once instance)
         // but will it appearance?
         switch (_bound.model) {
             case Duration::ByYear:

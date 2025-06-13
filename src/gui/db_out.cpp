@@ -7,7 +7,9 @@
 #include <gtk/gtk.h>
 #include <sqlite3.h>
 #include <cmath>
+#include <cstring>
 #include <stdexcept>
+#include <thread>
 #include <type_traits>
 
 #define USERS_TABLE "Users"
@@ -36,6 +38,7 @@ static const char sqlGetLastRecord[] = "SELECT app_name, uptime, datetime(rec_ti
 
 
 
+// O(n)
 static int countRows( sqlite3_stmt *stmt ) {
     int count = 0;
     while (sqlite3_step( stmt ) == SQLITE_ROW)
@@ -71,9 +74,9 @@ DatabaseReader::~DatabaseReader() {
 		sqlite3_close( _db );
 }
 
-// FIXME check performance with vector
-// @you have to delete returned value;
+// @yru have to delete returned value;
 std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_t time ) {
+    logger.log(LogLvl::Info, "Trying to get all records...");
 	RecordItem** items;
     int count;
 
@@ -85,13 +88,16 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
         if( rc != SQLITE_OK ) throw std::runtime_error("err");
 
         count = countRows( stmt );
-        // count = 10;
+        // count = 200;
         logger.log(LogLvl::Info, "loaded ", count, " record" );
 
         items = new RecordItem*[ count ];
 
-		for( int i = 0; i < count; ++i ) {
-            if( sqlite3_step( stmt ) != SQLITE_ROW ) throw std::runtime_error("13123");
+		//--for( int i = 0; i < count; ++i ) {
+            //-- if( sqlite3_step( stmt ) != SQLITE_ROW ) throw std::runtime_error("unexpected number of rows");
+
+        int i = 0;
+        for(; sqlite3_step( stmt ) == SQLITE_ROW; ++i ) {
             RecordItem* item = record_item_new();
 
             // auto a = getAppName( sqlite3_column_int(stmt, 0) );
@@ -104,6 +110,7 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
 
             items[i] = item;
 		}
+        // count = i;
 
         sqlite3_finalize( stmt );
 
@@ -112,11 +119,20 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
 		throw std::runtime_error(zErrMsg);
 	}
 
+    auto err = sqlite3_errcode( _db );
+    if( err != SQLITE_OK ) {
+        logger.log(LogLvl::Error, "eror after all records", err );
+        exit(1);
+    }
+
+    // checkErr( "end of getREcords");
     return {items, count};
 }
 
 RecordItem* DatabaseReader::getLastRecord() {
+    logger.log(LogLvl::Info, "Trying to get last record...");
     RecordItem* item = record_item_new();
+    // checkErr("in start of Last");
 
     sqlite3_stmt* stmt;
     int rc = sqlite3_prepare_v2( _db, sqlGetLastRecord, sizeof(sqlGetLastRecord), &stmt, nullptr );
@@ -148,14 +164,12 @@ const unsigned char* DatabaseReader::getAppName( int appId ){
 
     if( rc == SQLITE_OK ) {
 		sqlite3_bind_int( stmt, 1, appId );
-        logger.log(LogLvl::Warning, "Required add id: ", appId );
 
 		if( sqlite3_step(stmt) == SQLITE_ROW ) {
-            logger.log(LogLvl::Warning, "App name have to be getted");
 			toReturn = sqlite3_column_text( stmt, 0);
 		} else {
             const char* zErrMsg = sqlite3_errmsg( _db );
-            logger.log(LogLvl::Warning, "not row");
+            logger.log(LogLvl::Error, "get App Name sql returned not a row");
             throw std::runtime_error(zErrMsg);
         }
 
@@ -169,7 +183,20 @@ const unsigned char* DatabaseReader::getAppName( int appId ){
 	}
 
     if( toReturn == nullptr )
-        logger.log(LogLvl::Warning, "Steel the same");
+        logger.log(LogLvl::Warning, "Still the same");
+
+    auto err = sqlite3_errcode( _db );
+    if( err != SQLITE_OK ) {
+        logger.log(LogLvl::Error, "eror after all records", err );
+        exit(1);
+    }
 
     return toReturn;
+}
+
+void DatabaseReader::checkErr( const char* msg ) {
+    auto err = sqlite3_errcode( _db );
+
+    if( err != SQLITE_OK )
+        logger.log(LogLvl::Error, "Error with sqlite3: ", err );
 }

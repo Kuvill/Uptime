@@ -11,9 +11,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
     <property name="content">
       <object class="AdwToolbarView">
         <child type="top">
-          <object class="AdwHeaderBar">
-            <property name="show-title">false</property>
-          </object>
+          <object class="AdwHeaderBar"></object>
         </child>
         <child>
           <object class="AdwNavigationSplitView">
@@ -186,12 +184,15 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
   <menu id="setDuration">
     <section>
       <item>
+        <attribute name="name">years</attribute>
         <attribute name="label" translatable="yes">Years</attribute>
       </item>
       <item>
+        <attribute name="name">months</attribute>
         <attribute name="label" translatable="yes">Months</attribute>
       </item>
       <item>
+        <attribute name="name">days</attribute>
         <attribute name="label" translatable="yes">Days</attribute>
       </item>
     </section>
