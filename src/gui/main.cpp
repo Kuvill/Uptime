@@ -32,7 +32,7 @@ static guint SetupTimer( Context& context ) {
     GTimer* timer = g_timer_new();
     g_timer_start(timer);
 
-    return g_timeout_add_seconds( 5, update_data, &context );
+    return g_timeout_add_seconds( 1, update_data, &context );
 }
 
 #ifdef DEBUG

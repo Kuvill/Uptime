@@ -89,7 +89,7 @@ using namespace std::chrono;
 
     // not so fast. Have to change Model to improve performance
     void State::mergeStoreUnique( std::tuple<RecordItem**, int> items ) {
-        std::sort( std::get<0>(items), std::get<0>(items) + std::get<1>(items), RecordItemNameGrater );
+        std::sort( std::get<0>(items), std::get<0>(items) + std::get<1>(items), RecordItemNameLess );
 
         auto end = std::unique(  std::get<0>(items), std::get<0>(items) + std::get<1>(items),
                 []( RecordItem* lhs, RecordItem* rhs ){

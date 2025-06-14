@@ -12,8 +12,8 @@
 
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
 
-bool RecordItemNameGrater( RecordItem* lhs, RecordItem* rhs ) {
-    if( RecordItemNameCompare( lhs, rhs, nullptr ) > 0 )
+bool RecordItemNameLess( RecordItem* lhs, RecordItem* rhs ) {
+    if( RecordItemNameCompare( lhs, rhs, nullptr ) < 0 )
         return true;
     return false;
 }

@@ -32,5 +32,5 @@ RecordItem* record_item_new();
 int RecordItemNameCompare( const void* lhs, const void* rhs, void* );
 int RecordItemUptimeCompare( const void* lhs, const void* rhs, void* );
 
-bool RecordItemNameGrater( RecordItem* lhs, RecordItem* rhs );
+bool RecordItemNameLess( RecordItem* lhs, RecordItem* rhs );
 

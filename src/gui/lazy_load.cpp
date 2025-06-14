@@ -1,6 +1,8 @@
 #include <gio/gio.h>
 #include <print>
 
+#include "glib-object.h"
+#include "gtk/gtk.h"
 #include "inc/logger.hpp"
 #include "inc/lazy_load.hpp"
 #include "inc/context.hpp"
@@ -39,17 +41,69 @@ void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) 
     }
 }
 
+// FIXME
+// btw i think i have somethings like this in ?db_out?
+static void updateUptime( RecordItem* newItem, RecordItem* item, std::chrono::seconds cd ) {
+    if( item->appName == newItem->appName ) {
+    // difference instance (1. mb i should add epsilon.)
+        if( abs(item->uptime - newItem->uptime) > cd )
+            // newItem->uptime += item->uptime;
+            g_object_set( newItem, "kek;", 123, nullptr );
+
+        // sequence record. Btw 1 tact loose. i can save abs result and use it in max
+        else
+            // newItem->uptime = std::max(newItem->uptime, item->uptime);
+            // g_object_set( newItem, newItem->appName, std::max(newItem->uptime, item->uptime), nullptr );
+            g_object_set( newItem, "kekw", 123, nullptr );
+    }
+
+}
 
 
+// to implement expanded view, i have to release my own list moddel
+// coz the data should be applyable to both types of graphic.
+// + better filter implement + more easyest support at general
 gboolean update_data( gpointer data ) {
     logger.log(LogLvl::Error, "Timer not impl yet" );
 
-    Context& context = *static_cast<Context*>(data);
-    RecordItem* newItem = context.db.getLastRecord();
+    auto& context = *static_cast<Context*>(data);
+    auto* store = context.state.getStore();
+    auto* newItem = context.db.getLastRecord();
 
-    g_list_store_insert_sorted(context.state.getStore(), newItem, RecordItemUptimeCompare, nullptr );
-    // g_list_store_append( context.state.getStore(), newItem );
+    // from this: check how to merge record
 
+    // use find by name. There is <= 1 item with same name
+    int index = g_list_store_insert_sorted(context.state.getStore(), newItem, RecordItemNameCompare, nullptr );
+    logger.log(LogLvl::Info, index );
+
+
+    // g_list_model_get_n_items - not working :D
+    guint count = 0;
+    RecordItem* temp = RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), count ));
+    while( temp != nullptr ) {
+        ++count;
+        temp = RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), count ));
+    }
+
+    // can make it shorter
+    if( index < count - 1 ) {
+        logger.log(LogLvl::Info, "index+1" );
+        auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index+1 )));
+        if( item->appName == newItem->appName ) {
+            updateUptime( newItem, item, context.settings.cd );
+            g_list_store_remove(store, index+1);
+        }
+
+    } if( index > 0 ) {
+        logger.log(LogLvl::Info, "index-1" );
+        auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index-1 )));
+        if( item->appName == newItem->appName ) {
+            updateUptime( newItem, item, context.settings.cd );
+            g_list_store_remove(store, index-1);
+        }
+    }
+
+    // FIXME
     return G_SOURCE_CONTINUE;
 }
 
