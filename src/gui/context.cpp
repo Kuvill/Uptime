@@ -118,3 +118,6 @@ using namespace std::chrono;
     GListStore* State::getStore() { return _store; }
 
 
+void State::createTimer() {
+    _timer = g_timer_new();
+}

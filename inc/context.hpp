@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glib.h"
 #include "inc/time.hpp"
 #include "inc/record_item.hpp"
 #include "inc/db_out.hpp"
@@ -26,7 +27,17 @@ class State {
     GListStore* _store;
     Bound _bound;
 
+    GTimer* _timer;
+
+    // should be just guint64, but i don't query it from db
+    RecordItem* _lastItem = nullptr;
+
 public:
+    RecordItem* getLastItem() { return _lastItem; }
+    void setLastItem( RecordItem* item ) { _lastItem = item; }
+
+    void createTimer();
+
     void mergeStore( std::tuple<RecordItem**, int> );
     void mergeStoreUnique(  std::tuple<RecordItem**, int> );
     void setStore( GListStore* );
@@ -39,6 +50,8 @@ public:
 
     void setFrom();
     void setTo();
+
+    friend struct Context;
 };
 
 struct Settings {
@@ -51,4 +64,5 @@ struct Context {
     State state;
     Settings settings;
 };
+
 

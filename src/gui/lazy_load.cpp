@@ -44,19 +44,18 @@ void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) 
 // FIXME
 // btw i think i have somethings like this in ?db_out?
 static void updateUptime( RecordItem* newItem, RecordItem* item, std::chrono::seconds cd ) {
-    if( item->appName == newItem->appName ) {
     // difference instance (1. mb i should add epsilon.)
-        if( abs(item->uptime - newItem->uptime) > cd )
-            // newItem->uptime += item->uptime;
-            g_object_set( newItem, "kek;", 123, nullptr );
+    if( abs(item->uptime - newItem->uptime) > cd ) {
+        auto newUptime = newItem->uptime + item->uptime;
+        g_object_set( item, "uptime", newUptime, nullptr );
 
-        // sequence record. Btw 1 tact loose. i can save abs result and use it in max
-        else
-            // newItem->uptime = std::max(newItem->uptime, item->uptime);
-            // g_object_set( newItem, newItem->appName, std::max(newItem->uptime, item->uptime), nullptr );
-            g_object_set( newItem, "kekw", 123, nullptr );
+    // sequence record. Btw 1 tact loose. i can save abs result and use it in max
+    } else {
+       // newItem->uptime = std::max(newItem->uptime, item->uptime);
+       // g_object_set( newItem, newItem->appName, std::max(newItem->uptime, item->uptime), nullptr );
+       auto newUptime = std::max(newItem->uptime, item->uptime);
+       g_object_set( item, "uptime", newUptime, nullptr );
     }
-
 }
 
 
@@ -64,48 +63,38 @@ static void updateUptime( RecordItem* newItem, RecordItem* item, std::chrono::se
 // coz the data should be applyable to both types of graphic.
 // + better filter implement + more easyest support at general
 gboolean update_data( gpointer data ) {
-    logger.log(LogLvl::Error, "Timer not impl yet" );
-
     auto& context = *static_cast<Context*>(data);
     auto* store = context.state.getStore();
     auto* newItem = context.db.getLastRecord();
 
+    // should be better way
+    auto lastItem = context.state.getLastItem();
+
+    if( lastItem != nullptr && RecordItemEqual( lastItem, newItem ) ) {
+        logger.log(LogLvl::Warning, "Queried item is same as preview");
+        return G_SOURCE_CONTINUE;
+    }
+
     // from this: check how to merge record
 
-    // use find by name. There is <= 1 item with same name
-    int index = g_list_store_insert_sorted(context.state.getStore(), newItem, RecordItemNameCompare, nullptr );
-    logger.log(LogLvl::Info, index );
+    guint index;
+    bool isOverlap = g_list_store_find_with_equal_func
+            (store, (void*)newItem, RecordItemNameEqual, &index);
 
+    // there is max 1 item with same name
+    if( isOverlap ) {
+        logger.log(LogLvl::Info, "Merging records...");
+            auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index )));
+            updateUptime( newItem, item, context.settings.cd );
+            logger.log(LogLvl::Info, "Replace record info: ", newItem->appName, ", ", newItem->uptime );
+            // g_object_set( item, "name", newItem->appName, "uptime", newItem->uptime, nullptr );
 
-    // g_list_model_get_n_items - not working :D
-    guint count = 0;
-    RecordItem* temp = RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), count ));
-    while( temp != nullptr ) {
-        ++count;
-        temp = RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), count ));
+    } else {
+        logger.log( LogLvl::Info, "New record added" );
+        g_list_store_insert_sorted( store, newItem, RecordItemNameCompare, nullptr );
     }
 
-    // can make it shorter
-    if( index < count - 1 ) {
-        logger.log(LogLvl::Info, "index+1" );
-        auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index+1 )));
-        if( item->appName == newItem->appName ) {
-            updateUptime( newItem, item, context.settings.cd );
-            g_list_store_remove(store, index+1);
-        }
+    context.state.setLastItem( newItem );
 
-    } if( index > 0 ) {
-        logger.log(LogLvl::Info, "index-1" );
-        auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index-1 )));
-        if( item->appName == newItem->appName ) {
-            updateUptime( newItem, item, context.settings.cd );
-            g_list_store_remove(store, index-1);
-        }
-    }
-
-    // FIXME
     return G_SOURCE_CONTINUE;
-}
-
-void onDurationAction( GSimpleAction* self, GVariant* param, gpointer data ) { 
 }

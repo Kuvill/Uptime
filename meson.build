@@ -12,7 +12,6 @@ demon_sources = [
   './src/logger.cpp',
   './src/time.cpp',
 
-  './main.cpp',
   './src/demon/db.cpp',
   './src/demon/server.cpp',
   './src/demon/get_uptime.cpp',
@@ -27,7 +26,6 @@ gui_sources = [
   './src/demon/db.cpp',
   './src/demon/ram_storage.cpp',
 
-  './src/gui/main.cpp',
   './src/gui/column_view.cpp',
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
@@ -60,11 +58,15 @@ fs = import('fs')
 install_subdir( 'res', install_dir: fs.expanduser('~/.local/share/uptimer/' ) )
 
 executable( 'Uptimer', 
-  demon_sources, include_directories: incdir,
+  ['main.cpp', demon_sources], include_directories: incdir,
   dependencies : dbdeps ,
   install: true )
 
 executable( 'Gui', 
-  gui_sources, include_directories: incdir,
+  ['./src/gui/main.cpp', gui_sources], include_directories: incdir,
   dependencies : [gtkdeps, dbdeps],
   install: true )
+
+executable( 'Tests',
+  ['tests/tests.cpp', demon_sources, gui_sources], include_directories: incdir,
+  dependencies: [gtkdeps, dbdeps] )

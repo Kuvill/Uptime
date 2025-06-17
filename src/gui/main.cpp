@@ -29,8 +29,7 @@ const char* dbName = "res/db/uptime.db";
 // (State shoude contain visual settings, guess)
 
 static guint SetupTimer( Context& context ) {
-    GTimer* timer = g_timer_new();
-    g_timer_start(timer);
+    context.state.createTimer();
 
     return g_timeout_add_seconds( 1, update_data, &context );
 }
@@ -82,8 +81,8 @@ static void activate( GtkApplication* app, gpointer data ) {
 	gtk_window_present( window );
 }
 
-int main (int argc, char *argv[]) {
-	AdwApplication* app = adw_application_new("org.my.try", G_APPLICATION_DEFAULT_FLAGS );
+int main( int argc, char *argv[] ) {
+	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
 
 	g_signal_connect( app, "activate", G_CALLBACK( activate ), nullptr );
 

@@ -22,17 +22,22 @@
    }
 */
 
-static std::string timeToStr( recTime_t& time ) {
+static std::string oneUnitTime( const recTime_t& time ) {
     using namespace std::literals::chrono_literals;
 
     std::chrono::hh_mm_ss<std::chrono::seconds> date( time );
     if( date.hours() >= 1h )
-        return std::format( "{}", date.hours() );
+        return std::format( "{} {}", date.hours(), date.minutes() );
 
-    if( date.minutes() >= 1h )
-        return std::format( "{}", date.minutes() );
+    if( date.minutes() >= 1min )
+        return std::format( "{} {}", date.minutes(), date.seconds() );
 
     return std::format("{}", date.seconds() );
+}
+
+// add second field info (like min::sec)
+static std::string timeToStr( const recTime_t& time ) {
+    return oneUnitTime( time );
 }
 
 static void on_year_selected( Context* data ) {
@@ -46,6 +51,7 @@ static void on_year_selected( Context* data ) {
 // @item_list - here store our items for MODEL, not factor.
 // so just change in list will not present on widget
 static void setup_cb( GtkSignalListItemFactory* factory, GtkListItem* item_list ) {
+    logger.log(LogLvl::Info, "Columnn view setup called");
 	GtkWidget* label = gtk_label_new( nullptr );
 	gtk_label_set_xalign( GTK_LABEL( label ), 0.0f );
 	gtk_list_item_set_child( item_list, label );
@@ -60,10 +66,7 @@ static void on_uptime_changed(GObject *object, GParamSpec *pspec, GtkWidget *lab
     guint64 new_name;
     g_object_get(object, "uptime", &new_name, NULL);
 
-    gchar strUptime[64]; // stole 1 bit, but hope it will be ok :)
-    snprintf( strUptime, 64, "%zu", new_name );
-
-    g_object_set(label, "label", strUptime, NULL);
+    g_object_set(label, "label", timeToStr( recTime_t( new_name ) ).c_str(), NULL);
 }
 
 // fill an created by setup widget
@@ -71,7 +74,7 @@ static void on_uptime_changed(GObject *object, GParamSpec *pspec, GtkWidget *lab
 // @item_list - here store our items for MODEL, not factor.
 // so just change in list will not present on widget
 static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem ) {
-    logger.log(LogLvl::Info, "an record was binded to ColumnView");
+    logger.log(LogLvl::Info, "an record(appname) was binded to ColumnView");
     GtkWidget* label = gtk_list_item_get_child( listItem );
     RecordItem* rec = static_cast<RecordItem*>( gtk_list_item_get_item( listItem ) );
 
@@ -86,6 +89,7 @@ static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem 
 // @item_list - here store our items for MODEL, not factor.
 // so just change in list will not present on widget
 static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem ) {
+    logger.log(LogLvl::Info, "an record(uptime) was binded to ColumnView");
     GtkWidget* label = gtk_list_item_get_child( listItem );
     RecordItem* rec = static_cast<RecordItem*>( gtk_list_item_get_item( listItem ) );
 

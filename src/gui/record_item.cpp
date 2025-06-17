@@ -5,6 +5,7 @@
 
 #include <inc/record_item.hpp>
 #include <inc/logger.hpp>
+#include "glib.h"
 
 #include <gtk/gtk.h>
 
@@ -12,10 +13,26 @@
 
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
 
+bool RecordItemEqual( RecordItem* lhs, RecordItem* rhs ) {
+    return RecordItemOnlyStrCmp(lhs, rhs) == 0 &&
+        lhs->uptime == rhs->uptime;
+}
+
+// bool
+gboolean RecordItemNameEqual( gconstpointer lhs, gconstpointer rhs ) {
+    return g_strcmp0( reinterpret_cast<const RecordItem*>( lhs )->appName, 
+           reinterpret_cast< const RecordItem*>( rhs )->appName) == 0;
+}
+
 bool RecordItemNameLess( RecordItem* lhs, RecordItem* rhs ) {
     if( RecordItemNameCompare( lhs, rhs, nullptr ) < 0 )
         return true;
     return false;
+}
+
+gint RecordItemOnlyStrCmp( gconstpointer lhs, gconstpointer rhs ) {
+    return g_strcmp0( reinterpret_cast<const RecordItem*>( lhs )->appName, 
+           reinterpret_cast< const RecordItem*>( rhs )->appName);
 }
 
 // second compare param - uptimer

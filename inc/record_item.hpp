@@ -33,4 +33,6 @@ int RecordItemNameCompare( const void* lhs, const void* rhs, void* );
 int RecordItemUptimeCompare( const void* lhs, const void* rhs, void* );
 
 bool RecordItemNameLess( RecordItem* lhs, RecordItem* rhs );
-
+int RecordItemOnlyStrCmp(  const void* lhs, const void* rhs );
+bool RecordItemEqual( RecordItem* lhs, RecordItem* rhs );
+gboolean RecordItemNameEqual( gconstpointer lhs, gconstpointer rhs );
