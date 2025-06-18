@@ -11,7 +11,7 @@
 
 class Ips {
 	int _serverSocket;
-	char _addInfo[8];
+	char _addInfo[ MsgSize ];
 
 public:
 	Ips();

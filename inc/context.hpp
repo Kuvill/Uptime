@@ -1,9 +1,10 @@
 #pragma once
 
-#include "glib.h"
 #include "inc/time.hpp"
 #include "inc/record_item.hpp"
 #include "inc/db_out.hpp"
+#include "inc/settings.hpp"
+#include "inc/client.hpp"
 
 #include <gtk/gtk.h>
 
@@ -54,13 +55,9 @@ public:
     friend struct Context;
 };
 
-struct Settings {
-    // scanning application cooldown
-    std::chrono::seconds cd;
-};
-
 struct Context {
     DatabaseReader db;
+    Client ipc;
     State state;
     Settings settings;
 };

@@ -1,6 +1,9 @@
 #pragma once
 
-#define SOCK_PATH "/tmp/uptime.sock"
+// should it be static?
+static const char SOCK_PATH[] = "/tmp/uptime.sock";
+
+static const int MsgSize = 8;
 
 // it is char to simplify cast to message
 enum class MsgType : char {
@@ -13,6 +16,7 @@ enum class MsgType : char {
 
 
 // as it constexpr, std::string will allocate in compile-time
+// wtf i mean here ?)
 constexpr const char ReturnCode( MsgType code ) {
 	return static_cast<char>( code );
 }

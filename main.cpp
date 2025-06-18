@@ -4,6 +4,7 @@
 #include "inc/ram_storage.hpp"
 #include "inc/server.hpp"
 #include "inc/ipc_interface.hpp"
+#include "inc/settings.hpp"
 
 #include "inc/logger.hpp"
 
@@ -20,6 +21,7 @@ using namespace std::chrono_literals;
 // 7/10 ERROE FIXME! child process of terminals (pies?) are not closing on error (sock not found) (while it support only sway i should kill it on sway log out)
 
 // set path to project directory (now just ~/.local/share/uptimer)
+// UB btw. mb creating singletons in all global classes - better way
 static const ChangeDir ch;
 
 const char* dbName = "res/db/uptime.db";
@@ -53,6 +55,7 @@ int main() {
     // I also want to record browser tab name (or whatever, that contain tab name)
 	Database db( dbName );
 
+    Settings settings;
 	Storage storage;
 	Ips connect;
 

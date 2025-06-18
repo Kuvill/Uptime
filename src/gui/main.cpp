@@ -2,6 +2,7 @@
 #include <inc/record_item.hpp>
 #include <inc/column_view.hpp>
 #include <inc/lazy_load.hpp>
+#include "client.hpp"
 #include "inc/db_out.hpp"
 #include "inc/context.hpp"
 
@@ -54,10 +55,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 
     // btw i can pass it as data
     
-    Context* context = new Context{
-        DatabaseReader( dbName ),
-        State()
-    };
+    Context* context = static_cast<Context*>( data );
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
@@ -84,7 +82,14 @@ static void activate( GtkApplication* app, gpointer data ) {
 int main( int argc, char *argv[] ) {
 	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
 
-	g_signal_connect( app, "activate", G_CALLBACK( activate ), nullptr );
+    Context context{
+        DatabaseReader( dbName ),
+        Client(),
+        State(),
+        Settings()
+    };
+
+	g_signal_connect( app, "activate", G_CALLBACK( activate ), &context );
 
 	int stat = g_application_run( G_APPLICATION( app ), argc, argv );
 	g_object_unref( app );

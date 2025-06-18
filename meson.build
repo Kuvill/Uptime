@@ -30,7 +30,8 @@ gui_sources = [
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
   './src/gui/db_out.cpp',
-  './src/gui/context.cpp'
+  './src/gui/context.cpp',
+  './src/gui/client.cpp'
 ]
 
 gtkdeps = [
