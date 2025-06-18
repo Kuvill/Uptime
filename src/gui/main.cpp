@@ -53,8 +53,6 @@ static void activate( GtkApplication* app, gpointer data ) {
     // Holy Molly... I spend like 4 hours (((
     // to detect, that context dies on activate end
 
-    // btw i can pass it as data
-    
     Context* context = static_cast<Context*>( data );
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );

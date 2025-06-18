@@ -2,6 +2,12 @@
 
 ## How do you spend your time?
 
+### DE support
+
+- [-] SwayWM
+- [ ] Gnome
+
+
 ### How to build
 
 git clone --depth=1 https://github.com/Kuvill/Uptime.git

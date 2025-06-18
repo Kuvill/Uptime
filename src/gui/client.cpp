@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <cassert>
 
+// Have to be non-blocking btw, since it Gui app
 Client::Client() {
     logger.log(LogLvl::Info, "trying to create client socket...");
 
