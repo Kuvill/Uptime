@@ -4,8 +4,7 @@
 
 ### DE support
 
-- [-] SwayWM
-- [ ] Gnome
+- [x] SwayWM
 
 
 ### How to build
