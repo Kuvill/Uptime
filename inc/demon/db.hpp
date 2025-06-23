@@ -1,8 +1,8 @@
 #pragma once
 
-#include "inc/get_uptime.hpp"
-#include "inc/ram_storage.hpp"
-#include "inc/time.hpp"
+#include "demon/get_uptime.hpp"
+#include "demon/ram_storage.hpp"
+#include "common/time.hpp"
 
 #include <sqlite3.h>
 #include <type_traits>

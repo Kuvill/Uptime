@@ -1,6 +1,6 @@
-#include "inc/client.hpp"
-#include "inc/ipc_interface.hpp"
-#include "logger.hpp"
+#include "gui/client.hpp"
+#include "common/ipc_interface.hpp"
+#include "common/logger.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>

@@ -1,6 +1,6 @@
-#include "inc/logger.hpp"
-#include "inc/time.hpp"
-#include "inc/ram_storage.hpp"
+#include "common/logger.hpp"
+#include "common/time.hpp"
+#include "demon/ram_storage.hpp"
 
 #include <ctime>
 #include <functional>

@@ -1,9 +1,8 @@
-#include "glib.h"
-#include "inc/logger.hpp"
-#include "inc/record_item.hpp"
-#include "inc/column_view.hpp"
-#include "inc/lazy_load.hpp"
-#include "inc/time.hpp"
+#include "common/logger.hpp"
+#include "gui/record_item.hpp"
+#include "gui/column_view.hpp"
+#include "gui/lazy_load.hpp"
+#include "common/time.hpp"
 
 #include <gtk/gtk.h>
 #include <chrono>

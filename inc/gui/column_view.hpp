@@ -1,7 +1,7 @@
 #pragma once
 
-#include "inc/lazy_load.hpp"
-#include "inc/context.hpp"
+#include "gui/lazy_load.hpp"
+#include "gui/context.hpp"
 
 #include <gtk/gtk.h>
 

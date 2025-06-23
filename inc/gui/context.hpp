@@ -1,10 +1,10 @@
 #pragma once
 
-#include "inc/time.hpp"
-#include "inc/record_item.hpp"
-#include "inc/db_out.hpp"
-#include "inc/settings.hpp"
-#include "inc/client.hpp"
+#include "demon/settings.hpp"
+#include "gui/record_item.hpp"
+#include "gui/db.hpp"
+#include "gui/client.hpp"
+#include "common/time.hpp"
 
 #include <gtk/gtk.h>
 

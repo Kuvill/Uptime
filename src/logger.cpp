@@ -1,4 +1,4 @@
-#include "inc/logger.hpp"
+#include "common/logger.hpp"
 
 #include <unistd.h>
 #include <cstdlib>

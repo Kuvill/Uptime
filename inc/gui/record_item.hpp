@@ -1,7 +1,7 @@
 #pragma once
 
 #include "glib.h"
-#include "inc/time.hpp"
+#include "common/time.hpp"
 
 #include <gtk/gtk.h>
 

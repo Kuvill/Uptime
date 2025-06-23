@@ -1,8 +1,8 @@
+# i can use wayland module
+
 project( 'Uptimer', 'cpp' )
 
-add_project_arguments('-std=c++23', language: 'cpp')
-
-# i don't want to set compiler for gtk blueprint, so i need to set up CI
+### Sources
 
 incdir = include_directories('.', './inc', './third_party/')
 # incdir += include_directories('./inc')
@@ -22,17 +22,15 @@ gui_sources = [
   './src/logger.cpp',
   './src/time.cpp',
 
-  # ll. i have to unlock db_out from db
-  './src/demon/db.cpp',
-  './src/demon/ram_storage.cpp',
-
   './src/gui/column_view.cpp',
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
-  './src/gui/db_out.cpp',
+  './src/gui/db.cpp',
   './src/gui/context.cpp',
   './src/gui/client.cpp'
 ]
+
+### dependings
 
 gtkdeps = [
   dependency( 'gtk4' ),
@@ -43,6 +41,8 @@ dbdeps = [
     dependency( 'sqlite3' )
 ]
 
+### Resources
+
 ui_file = './res/gui/main.ui'
 custom_target(
   command: ['glib-compile-resources', 'prefetch.xml',
@@ -50,10 +50,16 @@ custom_target(
   output: 'ui.gresource'
 )
 
+### Compiler optpions
+
+add_project_arguments('-std=c++23', language: 'cpp')
+
 buildtype = get_option('buildtype')
 if buildtype == 'debug'
   add_project_arguments([ '-DDEBUG' ], language: 'cpp')
 endif
+
+### Targets 
 
 fs = import('fs')
 install_subdir( 'res', install_dir: fs.expanduser('~/.local/share/uptimer/' ) )

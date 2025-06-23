@@ -1,4 +1,4 @@
-#include "inc/time.hpp"
+#include "common/time.hpp"
 #include <chrono>
 
 recTime_t getCurrentTime() {

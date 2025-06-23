@@ -1,5 +1,5 @@
-#include "inc/context.hpp"
-#include "inc/logger.hpp"
+#include "gui/context.hpp"
+#include "common/logger.hpp"
 
 #include <algorithm>
 

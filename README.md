@@ -14,7 +14,7 @@ git clone --depth=1 https://github.com/Kuvill/Uptime.git
 cd Uptime;
 meson setup build/ --buildtype=release;
 cd build;
-ninja build;
+ninja;
 meson install;
 
 That's all!

@@ -1,8 +1,8 @@
 // to do: recive nubmer of interval
 
-#include <inc/ipc_interface.hpp>
-#include <inc/server.hpp>
-#include "inc/logger.hpp"
+#include <common/ipc_interface.hpp>
+#include <demon/server.hpp>
+#include "common/logger.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>

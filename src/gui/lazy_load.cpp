@@ -1,12 +1,10 @@
-#include <gio/gio.h>
 #include <print>
 
-#include "glib-object.h"
 #include "gtk/gtk.h"
-#include "inc/logger.hpp"
-#include "inc/lazy_load.hpp"
-#include "inc/context.hpp"
-#include "record_item.hpp"
+#include "common/logger.hpp"
+#include "gui/lazy_load.hpp"
+#include "gui/context.hpp"
+#include "gui/record_item.hpp"
 
 static const gchar* TABLE_PAGE = "table";
 static const gchar* CHARTS_PAGE = "charts";

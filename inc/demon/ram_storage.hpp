@@ -1,7 +1,7 @@
 #pragma once
 
-#include "inc/get_uptime.hpp"
-#include "inc/time.hpp"
+#include "demon/get_uptime.hpp"
+#include "common/time.hpp"
 
 #include <unordered_set>
 

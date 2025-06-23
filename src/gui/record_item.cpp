@@ -3,8 +3,8 @@
 
 // be careful with unrefs
 
-#include <inc/record_item.hpp>
-#include <inc/logger.hpp>
+#include <gui/record_item.hpp>
+#include <common/logger.hpp>
 #include "glib.h"
 
 #include <gtk/gtk.h>

@@ -2,9 +2,9 @@
 
 #include <gtk/gtk.h>
 
-#include "inc/time.hpp"
-#include "inc/record_item.hpp"
-#include "inc/db_out.hpp"
+#include "common/time.hpp"
+#include "gui/record_item.hpp"
+#include "gui/db.hpp"
 
 // that is strut hell imo. i have to orginize them.
 // never worked with gui befor, i have to change

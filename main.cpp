@@ -1,12 +1,12 @@
 #include <unistd.h>
-#include "inc/get_uptime.hpp"
-#include "inc/db.hpp"
-#include "inc/ram_storage.hpp"
-#include "inc/server.hpp"
-#include "inc/ipc_interface.hpp"
-#include "inc/settings.hpp"
+#include "demon/get_uptime.hpp"
+#include "demon/db.hpp"
+#include "demon/ram_storage.hpp"
+#include "demon/server.hpp"
+#include "common/ipc_interface.hpp"
+#include "demon/settings.hpp"
 
-#include "inc/logger.hpp"
+#include "common/logger.hpp"
 
 #include <cstdlib>
 #include <chrono>

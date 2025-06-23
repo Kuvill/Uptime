@@ -1,8 +1,8 @@
 #pragma once
 
 // lot of unused symbols, but guess this variant more readable
-#include "record_item.hpp"
-#include "inc/time.hpp"
+#include "gui/record_item.hpp"
+#include "common/time.hpp"
 
 #include <gtk/gtk.h>
 #include <sqlite3.h>

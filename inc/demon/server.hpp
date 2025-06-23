@@ -1,6 +1,6 @@
 #pragma once
 
-#include "inc/ipc_interface.hpp"
+#include "common/ipc_interface.hpp"
 
 #include <cerrno>
 

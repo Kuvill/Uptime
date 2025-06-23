@@ -1,7 +1,7 @@
-#include "inc/db.hpp"
-#include "inc/ram_storage.hpp"
-#include "inc/logger.hpp"
-#include "inc/time.hpp"
+#include "demon/db.hpp"
+#include "demon/ram_storage.hpp"
+#include "common/logger.hpp"
+#include "common/time.hpp"
 
 #include <sqlite3.h>
 

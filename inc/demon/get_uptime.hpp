@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-#include "inc/time.hpp"
+#include "common/time.hpp"
 
 // using Name = std::array<char, 40>;
 using Name = std::string;

@@ -1,8 +1,7 @@
-#include "glib.h"
-#include "inc/logger.hpp"
-#include "inc/record_item.hpp"
-#include "inc/time.hpp"
-#include "inc/db_out.hpp"
+#include "common/logger.hpp"
+#include "gui/record_item.hpp"
+#include "common/time.hpp"
+#include "gui/db.hpp"
 
 #include <gtk/gtk.h>
 #include <sqlite3.h>
