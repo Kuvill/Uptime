@@ -30,6 +30,12 @@ gui_sources = [
   './src/gui/client.cpp'
 ]
 
+server_sources = [
+  './src/logger.cpp',
+
+  './src/server/server.cpp'
+  ]
+
 ### dependings
 
 gtkdeps = [
@@ -73,6 +79,9 @@ executable( 'Gui',
   ['./src/gui/main.cpp', gui_sources], include_directories: incdir,
   dependencies : [gtkdeps, dbdeps],
   install: true )
+
+executable( 'Server',
+  ['./src/server/main.cpp', server_sources], include_directories: incdir )
 
 executable( 'Tests',
   ['tests/tests.cpp', demon_sources, gui_sources], include_directories: incdir,

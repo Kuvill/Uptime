@@ -4,8 +4,8 @@
 Logger logger( LogLvl::Error );
 
 int main() {
-    const int port = 666;
-    Server server;
+    const auto port = "666";
+    Server server( port );
 
     server.run();
 }

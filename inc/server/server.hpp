@@ -11,8 +11,9 @@ class Server {
     std::vector<Connection> _clients;
 
 public:
-    Server( const int port );
-    ~Server();
+    // protocol should be port
+    Server( const char* protocol );
+    ~Server() = default;
 
     void run();
 };
