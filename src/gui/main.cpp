@@ -15,7 +15,8 @@ Logger logger(LogLvl::Info);
 
 static const ChangeDir cd;
 
-const char* dbName = "res/db/uptime.db";
+// const char* dbName = "res/db/uptime.db";
+const char* dbName = "uptime.db";
 
 // chars that i want:
 // General
@@ -79,6 +80,9 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 int main( int argc, char *argv[] ) {
 	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
+    g_object_set(gtk_settings_get_default(),
+        "gtk-application-prefer-dark-theme", TRUE,
+        NULL);
 
     Context context{
         DatabaseReader( dbName ),

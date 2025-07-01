@@ -73,8 +73,8 @@ static void checkTables( sqlite3* db ) {
 
 // sqlite3_config befor any connection.
 // in GUI version, i have to use v2 and set flag read_only
-// mb i need here NOMUTEX for correct communication
 Database::Database( const char* dbName ) {
+    logger.log(LogLvl::Info, dbName);
 	if( sqlite3_open( dbName, &_db ) != SQLITE_OK )
 		throw std::runtime_error("Error while starting sqlite3");
 

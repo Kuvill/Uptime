@@ -24,8 +24,8 @@ using namespace std::chrono_literals;
 // UB btw. mb creating singletons in all global classes - better way
 static const ChangeDir ch;
 
-const char* dbName = "res/db/uptime.db";
-// const char* dbName = "uptime2.db";
+// const char* dbName = "res/db/uptime.db";
+const char* dbName = "uptime.db";
 
 Logger logger( LogLvl::Info );
 

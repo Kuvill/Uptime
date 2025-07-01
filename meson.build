@@ -4,7 +4,7 @@ project( 'Uptimer', 'cpp' )
 
 ### Sources
 
-incdir = include_directories('.', './inc', './third_party/')
+incdir = include_directories('.', './inc')
 # incdir += include_directories('./inc')
 # incdir += include_directories('./third_party/')
 
@@ -80,9 +80,9 @@ executable( 'Gui',
   dependencies : [gtkdeps, dbdeps],
   install: true )
 
-executable( 'Server',
-  ['./src/server/main.cpp', server_sources], include_directories: incdir )
+#executable( 'Server',
+#  ['./src/server/main.cpp', server_sources], include_directories: incdir )
 
-executable( 'Tests',
-  ['tests/tests.cpp', demon_sources, gui_sources], include_directories: incdir,
-  dependencies: [gtkdeps, dbdeps] )
+# executable( 'Tests',
+#  ['tests/tests.cpp', demon_sources, gui_sources], include_directories: incdir,
+#  dependencies: [gtkdeps, dbdeps] )

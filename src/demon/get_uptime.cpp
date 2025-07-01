@@ -12,6 +12,9 @@ static const char* getFocusedInfo = "swaymsg -t get_tree |  jq -r '.. | select(.
 
 static const char* getUptimeByPID = "ps -o etimes ";
 
+// i should talk with sway with socket over swaymsg
+// over jq use json lib
+
 // want to create Workspace info
 
 // irrational way. at least one copy. idle to change name back to array

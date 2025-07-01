@@ -28,8 +28,8 @@ Client::Client() {
     }
 
     char msg = ReturnCode( MsgType::start_record );
-    if( send(_clientSocket, &msg, 1, 0) )
-        throw std::runtime_error("error while sending message");
+    // if( send(_clientSocket, &msg, 1, 0) ) // since it non block it always thorw?
+        // throw std::runtime_error("error while sending message");
 
     logger.log(LogLvl::Info, "socket craeted and message sended!");
 }

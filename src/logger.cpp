@@ -1,12 +1,20 @@
 #include "common/logger.hpp"
 
-#include <unistd.h>
 #include <cstdlib>
 #include <fstream>
 
+#include <sys/stat.h>
+#include <unistd.h>
+
+// migrate to filesystem
 ChangeDir::ChangeDir() {
     std::string newPath = std::move(std::getenv("HOME"));
     newPath += "/.local/share/uptimer/";
+
+    struct stat st;
+    if (stat(newPath.c_str(), &st) == -1) {
+        mkdir(newPath.c_str(), 0777);
+    }
 
     if (chdir( newPath.c_str() ) != 0)
         exit(127);
