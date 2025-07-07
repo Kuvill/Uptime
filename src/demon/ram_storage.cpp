@@ -7,6 +7,7 @@
 #include <ostream>
 
 #define USER_ID 1
+const char NONAME[] = "";
 
 Record::Record( uint32_t usr, Name appName, recTime_t uptime, recTime_t recTime, std::string describe )
             : user(usr), info(appName, uptime, describe), recTime( recTime ) {}
@@ -37,7 +38,7 @@ void Storage::insert( const ProcessInfo& info, recTime_t time ) {
 		return;
 	}
 
-	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name, ", ", info.uptime, ", ", time.count() );
+	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name.data(), ", ", info.uptime, ", ", time.count() );
 
 	_storage.insert( Record(
 		USER_ID,
@@ -70,7 +71,7 @@ void Storage::clear() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-		os << a.user << ' ' << a.info.name << ' ' << a.info.uptime << ' '<< a.recTime.count() << '\n';
+        os << a.user << ' ' << a.info.name.data() << ' ' << a.info.uptime << ' '<< a.recTime.count() << '\n';
         os << a.info.describe << '\n';
 	}
 

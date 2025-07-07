@@ -111,7 +111,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
-		appId = insertApp( info.name.c_str() );
+		appId = insertApp( info.name.data() );
 
 
 	sqlite3_stmt* stmt;

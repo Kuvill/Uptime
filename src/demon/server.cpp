@@ -1,6 +1,7 @@
 // to do: recive nubmer of interval
 
 #include <common/ipc_interface.hpp>
+#include <cstddef>
 #include <demon/server.hpp>
 #include "common/logger.hpp"
 
@@ -9,10 +10,10 @@
 #include <unistd.h>
 
 #include <stdexcept>
+#include <bit>
 
 // this is really potential problem FIXME
 #include <cerrno>
-
 
 static MsgType TypeByMsg( char buf ) {
 	return static_cast<MsgType>( buf );
