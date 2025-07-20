@@ -34,7 +34,7 @@ server_sources = [
   './src/logger.cpp',
 
   './src/server/server.cpp'
-  ]
+]
 
 ### dependings
 

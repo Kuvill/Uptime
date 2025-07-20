@@ -1,5 +1,13 @@
 #pragma once
 
+#include <cstdint>
+
 class Connection {
-    bool connected;
+    uint32_t connectCount;
+
+    bool _connected;
+
+public:
+    void registrate();
+
 };

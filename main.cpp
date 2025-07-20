@@ -70,6 +70,7 @@ int main() {
 	signal( SIGABRT, SigHandler );
 	signal( SIGTERM, SigHandler );
 
+    // save connection with sway socket forever
 
 	try {
 		while( true ) {

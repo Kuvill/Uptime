@@ -1,9 +1,12 @@
-#include "server/server.hpp"
 #include "common/logger.hpp"
+#include "server/server.hpp"
+#include "server/coroutine.hpp"
 
+#include <cerrno>
 #include <cstdio>
 #include <cstdlib>
 
+#include <errno.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -16,8 +19,36 @@
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 
-Server::Server( const char* protocol ) {
-    /*
+// btw ipv6 more safity for home server. in ddos case i can just turn off server
+// and router will be good
+const char* LOCAL_IP = "192.168.31.79";
+const int CONNECTIONS_LIMIT = 1000;
+
+// btw i don't need coroutines here, but i want it just for fun
+
+Server::Server( unsigned short protocol ) {
+    _serverSocket = socket( AF_INET, SOL_SOCKET | SOCK_NONBLOCK, 0 );
+    if( _serverSocket < 0 ) {
+        logger.log(LogLvl::Error, "Unable to create server socket!");
+        exit(-1);
+    }
+
+    sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons( protocol );
+    addr.sin_addr.s_addr = inet_addr( LOCAL_IP );
+
+    if( bind( _serverSocket, (sockaddr*)&addr, sizeof(addr) == 0 ) ) {
+        logger.log(LogLvl::Error, "Unable to give and fd for socket!");
+        exit(-2);
+    }
+
+    listen(_serverSocket, CONNECTIONS_LIMIT);
+}
+
+/*
+Server::Server( const char* protocol, IPv6 ) {
+    *
     _serverSocket = socket( AF_INET6, SOCK_STREAM | SOCK_NONBLOCK, 0);
     if( _serverSocket < 0 ) {
         logger.log(LogLvl::Error, "Unable to create server socket!");
@@ -42,7 +73,7 @@ Server::Server( const char* protocol ) {
     // inet_pton( )
 
     freeaddrinfo(host);
-    */
+    /
 
     struct ifaddrs *ifaddr;
     char addr[INET6_ADDRSTRLEN];
@@ -85,12 +116,46 @@ Server::Server( const char* protocol ) {
         exit(-3);
     }
 }
+*/
 
+// sometimes i should save stat into db in case server reboot
 void Server::run( ) {
     int clientSocket = -1;
+
     while( true ) {
         // mb needed accept4 with nonblock
-        // clientSocket = accept( _serverSocket, )
-        exit(0);
+        clientSocket = accept( _serverSocket, nullptr, nullptr );
+        _clients[clientSocket].registrate();
+
+        char buf[64];
+        int rc;
+        
+        // Process desktop app message
+        {
+            Message msg;
+            rc = read(clientSocket, buf, 1);
+            if( rc > 0 )
+                switch( msg.type ) {
+                    case MessageType::SendDB:
+                        break;
+
+                    case MessageType::QuerryStat:
+                        logger.log(LogLvl::Error, "Querring stat in desktop application not in plan.");
+                        break;
+                }
+            else if( !( rc == -1 && (errno == EAGAIN || errno == EWOULDBLOCK) ) )
+                logger.log(LogLvl::Error, "Error with reading ");
+            
+        }
+
+        // Process site message
+        read( _siteSocket, buf, 1 );
+        
+        
+
+        // run corountime to be able listen next connection. 
+        // Should be hiden into 
+
+        // cowait
     }
 }
