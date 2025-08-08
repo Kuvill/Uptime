@@ -71,8 +71,11 @@ endif
 
 ### Targets 
 
-data_dir = get_option('datadir') / 'uptimer/'
-install_subdir( 'res/data', install_mode: 'copy', install_dir: data_dir )
+fs = import('fs')
+
+# data_dir = get_option('datadir') / 'uptimer/'
+data_dir1 = fs.expanduser('~/.local/share/') # i have to pass datadir into my code to support this feautre
+install_data( 'res/data/main.ui',  install_dir: data_dir1 / 'uptimer' )
 
 executable( 'Uptimer', 
   ['main.cpp', demon_sources], include_directories: incdir,
