@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "demon/get_uptime.hpp"
+#include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
@@ -58,7 +59,8 @@ int main() {
     Settings settings;
 	Storage storage;
 	Ips connect;
-
+    DesktopEnv* de = new DesktopEnv;
+    de = de->checkDE();
 	// should be ms
     auto sleepDuration = 5s;
 	bool useDB = false;
@@ -95,13 +97,26 @@ int main() {
 				}
 			}
 
-			if( useDB ) {
-				db.insertUptimeRecord( FocusInfo() );
+            // FIXME i wan't call checkDE every time, when it return empty state
+            // possible solutions:
+            // * reserve for de variable max possible space (union?) -> call change
+            //      realisation right when detected with placement new
+            // * return std::except with enum code error: empty, wrong de
+            // * use variant as polimorphism
+            auto info = de->getFocused();
 
-			} else {
-				storage.insert( FocusInfo() );
-			}
+            if( info != ProcessInfo{} ) {
+                if( useDB ) {
+                    db.insertUptimeRecord( de->getFocused() );
 
+                } else {
+                    storage.insert( de->getFocused() );
+                }
+
+            } else 
+                de = de->checkDE();
+
+            logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );
 		}
 	}

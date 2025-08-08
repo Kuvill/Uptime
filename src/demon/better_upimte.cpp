@@ -1,36 +1,47 @@
 #include "demon/get_uptime.hpp"
+#include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include <cstdio>
+#include <print>
+#include <stack>
 #include <cstdlib>
 #include <cstring>
+#include <cassert>
+#include <cstring>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <unistd.h>
 
-static const char* DE = "XDG_SESSION_DESKTOP";
+// !!!!! FIXME
+// on send to closed socket will be called SIGPIPE. i should catch it or ignore
+// (second will be faster guess)
+// MSG_NOSIGNAL
 
-static const char* getSockAdr();
+#include <nlohmann/json.hpp>
 
-static long ps_custon( pid_t pid );
+static const char* DE_ENV_VAR = "XDG_SESSION_DESKTOP";
 
-static long _ps_custon( pid_t pid ) {
+recTime_t ps( std::array<char, 6> pid ) {
     logger.log(LogLvl::Warning, "Internal. Used old ps function");
 
     FILE* mimic;
-    const char* ps = "ps -o etimes";
-    const char* strPid;
+    const char* ps = "ps -o etimes ";
 
-    sprintf(strPid, "%d", pid);
-
-    char getUptimePlusPID[20]{};
-    strcat(getUptimePlusPID, ps);
-    strcat(getUptimePlusPID, strPid);
+    char getUptimePlusPID[21]{};
+    strcat( getUptimePlusPID, ps );
+    strcat( getUptimePlusPID, pid.data() );
     mimic = popen( getUptimePlusPID, "r" );
 
-
+    std::array<char, 11> uptimeInStr{};
 
     // read line with garbage 
     fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
     fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
-    info.uptime = static_cast<recTime_t>( strtol(uptimeInStr.data(), NULL, 10) );
+
+    return static_cast<recTime_t>( strtol(uptimeInStr.data(), nullptr, 10) );
 }
+
+/* Version without Inheritance
 
 static ProcessInfo SwayFocusInfo();
 
@@ -39,7 +50,7 @@ static ProcessInfo HyprFocusInfo();
 // return empty struct if DE unrecognized
 ProcessInfo FocusInfo() {
 
-    const char* de = std::getenv( DE );
+    const char* de = std::getenv( DE_ENV_VAR );
 
     if( std::strcmp( de, "sway" ) == 0 )
         return SwayFocusInfo();
@@ -50,3 +61,66 @@ ProcessInfo FocusInfo() {
     else return {};
 }
 
+
+// for windows or macos we just use other impl if #if
+enum class _DE {
+    UNKNOWN,
+    SWAYWM,
+    HYPRLAND,
+    PLASMA,
+    GNOME
+};
+
+constexpr const char* _DEToString( _DE de ) {
+    switch( de ) {
+        case _DE::UNKNOWN:
+            return "Unknown";
+            break;
+
+        case _DE::SWAYWM:
+            return "Sway";
+            break;
+
+        case _DE::HYPRLAND:
+            return "Hyprland";
+            break;
+
+        case _DE::PLASMA:
+            return "KDE Plasma";
+            break;
+
+        case _DE::GNOME:
+            return "Gnome";
+            break;
+    }
+}
+
+*/
+
+
+
+// Press F to SOLID
+DesktopEnv* DesktopEnv::checkDE() {
+    logger.log(LogLvl::Info, "Recheck current DE");
+    const char* de = std::getenv( DE_ENV_VAR );
+
+    if( std::strcmp( de, "sway" ) == 0 ) {
+        delete( this );
+        return new _SwayDE;
+    }
+    
+    else if( std::strcmp( de, "Hyprland" ) == 0 ) {
+        delete( this );
+        return new _Hyprland;
+    }
+
+    else return this;
+}
+
+// I don't recall getFocused to prevent inf recursive
+ProcessInfo DesktopEnv::getFocused() {
+    logger.log(LogLvl::Warning, "Current Desktop enviroment didn't recognized!");
+    return {};
+}
+
+void DesktopEnv::castToBase() {}

@@ -101,6 +101,7 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
+    logger.log(LogLvl::Info, "_Start record inserting");
 	recTime_t recTime = getCurrentTime();
 
 	insertUptimeRecord( info, recTime );
@@ -108,6 +109,7 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 
 // i should use extended sql request to improve performance
 void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
+    logger.log(LogLvl::Info, "Start record inserting");
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 

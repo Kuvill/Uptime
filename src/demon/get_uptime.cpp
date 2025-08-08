@@ -9,6 +9,7 @@
 #include <array>
 #include <cstring>
 #include <cassert>
+#include <ostream>
 
 #include <stdexcept>
 #include <sys/times.h>
@@ -17,6 +18,13 @@
 static const char* getFocusedInfo = "swaymsg -t get_tree |  jq -r '.. | select(.focused? == true) | .app_id, .name, .pid'";
 
 static const char* getUptimeByPID = "ps -o etimes ";
+
+std::ostream& operator<<( std::ostream& os, const ProcessInfo& info ) {
+    os << "{'" << (info.name.data() ? info.name.data() : "") <<
+        "' (" << info.describe << "), " << info.uptime;
+
+    return os;
+}
 
 
 struct AUTOFILE {
@@ -41,6 +49,7 @@ static consteval const std::array<char, MSG_SIZE> GetWorkspacesQuerryNextgen() {
     const uint32_t len = 0, type = 1;
 
     std::string querry = "i3-ipc";
+    // should check endian btw
     querry.append( reinterpret_cast<const char*>(&len), sizeof(len) );
     querry.append( reinterpret_cast<const char*>(&type), sizeof(type) );
 
