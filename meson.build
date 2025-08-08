@@ -71,8 +71,8 @@ endif
 
 ### Targets 
 
-fs = import('fs')
-install_subdir( 'res', install_dir: fs.expanduser('~/.local/share/uptimer/' ) )
+data_dir = get_option('datadir') / 'uptimer/'
+install_subdir( 'res/data', install_mode: 'copy', install_dir: data_dir )
 
 executable( 'Uptimer', 
   ['main.cpp', demon_sources], include_directories: incdir,
