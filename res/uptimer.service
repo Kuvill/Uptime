@@ -1,0 +1,8 @@
+[Unit]
+Description=Analyze windows in foucus
+Documentation=https://github.com/Kuvill/Uptime
+
+[Service]
+ExecStart=/usr/local/bin/Uptimer
+Restart=enabled
+
