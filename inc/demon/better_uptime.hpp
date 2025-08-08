@@ -3,6 +3,8 @@
 #include "demon/get_uptime.hpp"
 
 recTime_t ps( std::array<char, 6> pid );
+recTime_t ps( const unsigned char* );
+recTime_t ps( const std::string& );
 
 class DesktopEnv {
 protected:

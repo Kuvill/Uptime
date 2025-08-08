@@ -4,7 +4,8 @@
 #include <string>
 #include "common/time.hpp"
 
-using Name = std::array<char, 40>;
+// using Name = std::array<char, 40>;
+using Name = std::string;
 
 struct ProcessInfo {
 	Name name{};

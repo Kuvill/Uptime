@@ -107,10 +107,10 @@ int main() {
 
             if( info != ProcessInfo{} ) {
                 if( useDB ) {
-                    db.insertUptimeRecord( de->getFocused() );
+                    db.insertUptimeRecord( info );
 
                 } else {
-                    storage.insert( de->getFocused() );
+                    storage.insert( info );
                 }
 
             } else 

@@ -1,6 +1,7 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 
+#include <cstdio>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -72,9 +73,7 @@ static ProcessInfo ParseSwayJson( nlohmann::json json ) {
             if( node["focused"] ) {
                 result.name = node["app_id"];
                 result.describe = node["name"];
-                result.uptime = ps( node["pid"] );
-                // looks scary, but works good
-                result.uptime = ps( node["pid"] );
+                result.uptime = ps( std::to_string( node["pid"].get<int>() ) );
 
             } // plase for recording all data
 

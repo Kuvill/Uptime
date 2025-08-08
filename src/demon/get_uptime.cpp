@@ -134,7 +134,7 @@ static long ps_custom( pid_t pid ) {
 ProcessInfo FocusInfo() {
 	ProcessInfo info;
 	// info.name.resize(40); info.name.clear();
-	std::array<char, 40>& appName = info.name;
+	Name& appName = info.name;
     std::array<char, 100> describe{}; 
 
     // just hope, that swaymsg member size - 256

@@ -41,6 +41,17 @@ recTime_t ps( std::array<char, 6> pid ) {
     return static_cast<recTime_t>( strtol(uptimeInStr.data(), nullptr, 10) );
 }
 
+recTime_t ps( const unsigned char* pid ) {
+    auto hacks = reinterpret_cast<const char*>( pid );
+    std::array<char, 6> hacks2{};
+    std::strncpy( hacks2.data(), hacks, 6 );
+    return ps( hacks2 );
+}
+
+recTime_t ps( const std::string& pid ) {
+    return ps( (unsigned char*)pid.c_str() );
+}
+
 /* Version without Inheritance
 
 static ProcessInfo SwayFocusInfo();
@@ -52,7 +63,7 @@ ProcessInfo FocusInfo() {
 
     const char* de = std::getenv( DE_ENV_VAR );
 
-    if( std::strcmp( de, "sway" ) == 0 )
+if( std::strcmp( de, "sway" ) == 0 )
         return SwayFocusInfo();
     
     else if( std::strcmp( de, "Hyprland" ) == 0 )
