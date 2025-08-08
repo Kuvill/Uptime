@@ -2,6 +2,8 @@
 
 #include "demon/get_uptime.hpp"
 
+#include <sys/un.h>
+
 recTime_t ps( std::array<char, 6> pid );
 recTime_t ps( const unsigned char* );
 recTime_t ps( const std::string& );
@@ -37,6 +39,7 @@ public:
 
 class _Hyprland final : public DesktopEnv {
     int _sock;
+    sockaddr_un addr{};
 
     void castToBase() override;
 

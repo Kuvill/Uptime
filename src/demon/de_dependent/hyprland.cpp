@@ -29,11 +29,6 @@ const int INIT_SIZE = 1'000;
 _Hyprland::_Hyprland() {
     logger.log(LogLvl::Info, "Hyprland detected!");
 
-    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
-        logger.log(LogLvl::Error, "Internal. Failed to create fd for socket");
-    }
-
-    sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
 
     char* sign = std::getenv("HYPRLAND_INSTANCE_SIGNATURE");
@@ -49,14 +44,14 @@ _Hyprland::_Hyprland() {
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1, sign, signSize );
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1 + signSize, SOCK, sizeof(SOCK) );
 
-    if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+   /* if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
-    }
+    } */
 }
 
 _Hyprland::~_Hyprland() {
     logger.log(LogLvl::Info, "Hyprland socket closed");
-    close( _sock );
+    // close( _sock );
 }
 
 void _Hyprland::castToBase() {
@@ -66,6 +61,14 @@ void _Hyprland::castToBase() {
 }
 
 ProcessInfo _Hyprland::getFocused() {
+    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
+        logger.log(LogLvl::Error, "Internal. Failed to create fd for socket");
+    }
+
+    if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+        logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
+    }
+
     ProcessInfo result;
     if( send( _sock, MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
@@ -94,7 +97,8 @@ ProcessInfo _Hyprland::getFocused() {
 
     // ----------------- class (name)------------------- //
     auto it = std::find( buffer.begin(), buffer.end(), '\n' );
-    for( int i = 1; i < 10; ++i ) {
+    ++it;
+    for( int i = 1; i < 9; ++i ) {
         it = std::find( it, buffer.end(), '\n' );
         ++it;
     }
@@ -104,8 +108,10 @@ ProcessInfo _Hyprland::getFocused() {
     it += 2;
 
     auto end = std::find( it, buffer.end(), '\n' );
-    std::strncpy( result.name.data(), it.base(),
-            std::min( result.name.size(), (unsigned long)(end - it) ) );
+    result.name = { it, end };
+    // std::strncpy( result.name.data(), it.base(),
+    //        std::min( result.name.size(), (unsigned long)(end - it) ) );
+
 
     // --------------- title (descriton) --------------- //
     it = std::find( end, buffer.end(), ':' );
@@ -114,7 +120,7 @@ ProcessInfo _Hyprland::getFocused() {
     end = std::find( it, buffer.end(), '\n' );
     result.describe = { it, end };
 
-    // ------------------------ Uptimer ------------------- //
+    // ------------------------ Uptime ------------------- //
     for( int i = 0; i < 3; ++i ) {
         it = std::find( it, buffer.end(), '\n' );
         ++it;
@@ -125,12 +131,13 @@ ProcessInfo _Hyprland::getFocused() {
 
     end = std::find( it, buffer.end(), '\n' );
 
+
     std::array<char, 6> pid{};
     std::memcpy( pid.data(), it.base(), end - it );
     result.uptime = ps( pid );
 
     logger.log(LogLvl::Info, "tueried data: ", result);
-    std::this_thread::sleep_for( std::chrono::seconds( 5 ) );
+    close( _sock );
 
     return result;
 }
