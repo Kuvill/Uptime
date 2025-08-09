@@ -2,6 +2,7 @@
 #include "demon/ram_storage.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
+#include "common/change_dir.hpp"
 
 #include <sqlite3.h>
 
@@ -9,7 +10,6 @@
 #include <stdexcept>
 #include <cstring>
 #include <ctime>
-#include <type_traits>
 
 // does move Tables name to defines - good idea?
 
@@ -71,26 +71,18 @@ static void checkTables( sqlite3* db ) {
 		throw std::runtime_error(zErrMsg);
 }
 
+Database::Database() {
+    CheckDirectory();
+}
+
 // sqlite3_config befor any connection.
 // in GUI version, i have to use v2 and set flag read_only
-Database::Database( const char* dbName ) {
-    logger.log(LogLvl::Info, dbName);
+Database::Database( const char* dbName ) : Database() {
+    logger.log(LogLvl::Info, "creating db:  ", dbName);
 	if( sqlite3_open( dbName, &_db ) != SQLITE_OK )
 		throw std::runtime_error("Error while starting sqlite3");
 
 	checkTables( _db );
-}
-
-Database::Database( const std::string& dbName, std::true_type createInHomeDir ) {
-    std::string homePath = std::getenv( "HOME" );
-    homePath.push_back('/');
-    homePath.append( dbName );
-
-    logger.log(LogLvl::Info, "DB path: ", homePath );
-    if( sqlite3_open( homePath.c_str(), &_db ) != SQLITE_OK ) 
-        throw std::runtime_error("Error while starting sqlite3");
-
-    checkTables( _db );
 }
 
 Database::~Database() {

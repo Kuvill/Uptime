@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include "demon/get_uptime.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
@@ -8,6 +7,7 @@
 #include "demon/settings.hpp"
 
 #include "common/logger.hpp"
+#include "common/change_dir.hpp"
 
 #include <cstdlib>
 #include <chrono>
@@ -16,6 +16,7 @@
 #include <thread>
 
 #include <csignal>
+#include <unistd.h>
 
 using namespace std::chrono_literals;
 
@@ -23,8 +24,6 @@ using namespace std::chrono_literals;
 
 // set path to project directory (now just ~/.local/share/uptimer)
 // UB btw. mb creating singletons in all global classes - better way
-static const ChangeDir ch;
-
 // const char* dbName = "res/db/uptime.db";
 const char* dbName = "uptime.db";
 

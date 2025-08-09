@@ -1,6 +1,7 @@
 #include "common/logger.hpp"
 #include "gui/record_item.hpp"
 #include "common/time.hpp"
+#include "common/change_dir.hpp"
 #include "gui/db.hpp"
 
 #include <gtk/gtk.h>
@@ -47,25 +48,15 @@ static int countRows( sqlite3_stmt *stmt ) {
     return count;
 }
 
+DatabaseReader::DatabaseReader() {
+    CheckDirectory();
+}
 
-
-DatabaseReader::DatabaseReader( const char* dbName ) {
+DatabaseReader::DatabaseReader( const char* dbName ) : DatabaseReader() {
     if( sqlite3_open_v2( dbName, &_db, SQLITE_OPEN_READONLY, nullptr ) != SQLITE_OK ) {
 		const char* zErrMsg = sqlite3_errmsg(_db);
 		throw std::runtime_error(zErrMsg);
     }
-}
-
-DatabaseReader::DatabaseReader( const char* dbName, std::true_type ) {
-    std::string homePath = std::getenv( "HOME" );
-    homePath.push_back('/');
-    homePath.append( dbName );
-
-    logger.log(LogLvl::Info, "DB path: ", homePath );
-    if( sqlite3_open_v2( homePath.c_str(), &_db, SQLITE_OPEN_READONLY, nullptr ) != SQLITE_OK ) {
-        throw std::runtime_error("Error while opening sqlite3");
-    }
-
 }
 
 DatabaseReader::~DatabaseReader() {

@@ -30,11 +30,6 @@ constexpr const char* toStr( LogLvl lvl ) {
 	}
 }
 
-class ChangeDir {
-public:
-    ChangeDir();
-};
-
 std::string pushFrontHome( std::string&& );
 
 class Logger {

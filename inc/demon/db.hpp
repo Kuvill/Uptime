@@ -31,9 +31,10 @@ class Database {
 protected:
     sqlite3* _db;
 
+    Database();
+
 public:
 	Database( const char* dbName );
-    Database( const std::string& dbName, std::true_type CreateInHomeDir );
 	~Database();
 
 	bool insertUser( const char* userName );

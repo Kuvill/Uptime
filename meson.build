@@ -11,6 +11,7 @@ incdir = include_directories('.', './inc')
 demon_sources = [
   './src/logger.cpp',
   './src/time.cpp',
+  './src/change_dir.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -25,6 +26,7 @@ demon_sources = [
 gui_sources = [
   './src/logger.cpp',
   './src/time.cpp',
+  './src/change_dir.cpp',
 
   './src/gui/column_view.cpp',
   './src/gui/record_item.cpp',

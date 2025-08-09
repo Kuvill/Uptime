@@ -24,9 +24,10 @@ class DatabaseReader {
 protected:
     sqlite3* _db;
 
+    DatabaseReader();
+
 public:
     DatabaseReader( const char* dbName );
-    DatabaseReader( const char* dbName, std::true_type );
     ~DatabaseReader();
 
     std::tuple<RecordItem**, int> getRecords( Operators op, recTime_t );

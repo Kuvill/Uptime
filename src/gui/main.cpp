@@ -1,4 +1,5 @@
 #include <common/logger.hpp>
+#include <common/change_dir.hpp>
 #include <gui/record_item.hpp>
 #include <gui/column_view.hpp>
 #include <gui/lazy_load.hpp>
@@ -12,8 +13,6 @@
 
 
 Logger logger(LogLvl::Info);
-
-static const ChangeDir cd;
 
 // const char* dbName = "res/db/uptime.db";
 const char* dbName = "uptime.db";
@@ -56,6 +55,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 
     Context* context = static_cast<Context*>( data );
 
+    CheckDirectory();
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
 	setup_column_view( builder, *context );
