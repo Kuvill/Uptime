@@ -119,6 +119,10 @@ AppInfo::AppInfo() {
     }
 }
 
+AppInfo::AppInfo( std::string_view additionalPath ) : AppInfo() {
+    paths.emplace_back( additionalPath );
+}
+
 // TODO
 DesktopEntryInfo AppInfo::getDesktopEntryInfo( std::string_view appName ) {
     std::ifstream file( getDesktopEntryPath( appName ) );

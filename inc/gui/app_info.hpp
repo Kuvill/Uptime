@@ -29,6 +29,9 @@ class AppInfo {
 public:
     AppInfo();
 
+    // just for tests. second one should take vector or some like 
+    AppInfo( std::string_view additional_path );
+
     DesktopEntryInfo getDesktopEntryInfo( std::string_view appName );
 
     std::string getComment( std::string_view appName );
