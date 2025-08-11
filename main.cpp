@@ -1,3 +1,4 @@
+#include "common/check_unique.hpp"
 #include "demon/get_uptime.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
@@ -7,7 +8,6 @@
 #include "demon/settings.hpp"
 
 #include "common/logger.hpp"
-#include "common/change_dir.hpp"
 
 #include <cstdlib>
 #include <chrono>
@@ -20,11 +20,6 @@
 
 using namespace std::chrono_literals;
 
-// 7/10 ERROE FIXME! child process of terminals (pies?) are not closing on error (sock not found) (while it support only sway i should kill it on sway log out)
-
-// set path to project directory (now just ~/.local/share/uptimer)
-// UB btw. mb creating singletons in all global classes - better way
-// const char* dbName = "res/db/uptime.db";
 const char* dbName = "uptime.db";
 
 Logger logger( LogLvl::Info );
@@ -38,21 +33,20 @@ void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
 	g_db->dumpStorage( *g_storage );
+    delete_lock_file();
 	exit(0);
 }
 
 // i should use switch row and from toolbar view for settings
 
-// as moder cpp way i should to pick as socket boost.asio or ZeroMQ
+// as moder cpp way i should to pick as socket dbus, boost.asio or ZeroMQ
 
 // one more todo: 3) set class of exception:
 	// free sqlite memory
 
-// it take 20 years to 10 gb. so i can just contain. Idle, on day end i want to compose by morning, day eveninng. or custom
-// Prevent run several times: use file (create .lock or read an file)
-// if locked - brut force all opened program (if i be able to do  this) // to prevent kill -9
 int main() {
-    // I also want to record browser tab name (or whatever, that contain tab name)
+    check_unique();
+
 	Database db( dbName );
 
     Settings settings;
@@ -70,8 +64,6 @@ int main() {
 	signal( SIGINT, SigHandler );
 	signal( SIGABRT, SigHandler );
 	signal( SIGTERM, SigHandler );
-
-    // save connection with sway socket forever
 
 	try {
 		while( true ) {
@@ -126,5 +118,6 @@ int main() {
 
 	logger.log( LogLvl::Info, "memory dump: ", storage );
 	db.dumpStorage( storage );
+    delete_lock_file();
 	return 0;
 }

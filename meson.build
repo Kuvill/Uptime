@@ -12,6 +12,7 @@ demon_sources = [
   './src/logger.cpp',
   './src/time.cpp',
   './src/change_dir.cpp',
+  './src/check_unique.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
