@@ -101,7 +101,6 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 
 // i should use extended sql request to improve performance
 void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
-    logger.log(LogLvl::Info, "Start record inserting");
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
@@ -131,8 +130,6 @@ void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	}
 
 	sqlite3_finalize( stmt );
-
-	logger.log(LogLvl::Info, "an record inserted");
 }
 
 int Database::getAppId( const ProcessInfo& info ) {
