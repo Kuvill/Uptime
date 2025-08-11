@@ -1,8 +1,14 @@
 [Unit]
 Description=Analyze windows in foucus
+# also good graphical.target
+After=multi-user.target
 Documentation=https://github.com/Kuvill/Uptime
 
 [Service]
+Type=simple
 ExecStart=/usr/local/bin/Uptimer
-Restart=enabled
+Restart=no
+Environment=HOME=/path/to/home
 
+[Install]
+WantedBy=multi-user.target
