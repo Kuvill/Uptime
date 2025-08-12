@@ -1,5 +1,6 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
+#include "common/aliases.hpp"
 
 #include <cstring>
 #include <print>
@@ -31,9 +32,9 @@ _Hyprland::_Hyprland() {
 
     addr.sun_family = AF_UNIX;
 
-    char* sign = std::getenv("HYPRLAND_INSTANCE_SIGNATURE");
+    char* sign( std::getenv("HYPRLAND_INSTANCE_SIGNATURE") );
     // should be quered once
-    char* xdg = std::getenv("XDG_RUNTIME_DIR");
+    char* xdg( std::getenv("XDG_RUNTIME_DIR"));
 
     const auto signSize = strlen( sign );
     const auto xdgSize = strlen( xdg );

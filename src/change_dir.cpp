@@ -1,5 +1,6 @@
 #include <common/change_dir.hpp>
 #include <common/logger.hpp>
+#include <common/aliases.hpp>
 
 #include <cstdlib>
 #include <exception>
@@ -15,12 +16,12 @@ void CheckDirectory() {
     if( !changed ) {
         changed = true;
 
-        const char* homeDir = std::getenv("HOME");
+        char* homeDir( std::getenv("HOME") );
 
         if( !homeDir ) {
-            logger.log(LogLvl::Error, "Unable to get Home env!");
-            std::terminate();
+            throw std::runtime_error("Unable to get Home env!");
         }
+
         fs::path newPath = ( homeDir );
         newPath += "/.local/share/uptimer/";
 
@@ -32,14 +33,11 @@ void CheckDirectory() {
         if( (stat.permissions() & fs::perms::owner_read) == fs::perms::none ||
                 (stat.permissions() & fs::perms::owner_write) == fs::perms::none ) {
 
-            logger.log(LogLvl::Error, "Not enought permissions (", newPath, ")");
             throw std::runtime_error("Not enought permissions in directory");
         }
 
         // should catch error here guess and try to use other path
         fs::current_path( newPath );
-        logger.log(LogLvl::Info, "Directory changed (", newPath, ")");
-
     }
 }
 

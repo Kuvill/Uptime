@@ -22,7 +22,12 @@ using namespace std::chrono_literals;
 
 const char* dbName = "uptime.db";
 
-Logger logger( LogLvl::Info );
+#ifdef DEBUG
+Logger logger(LogLvl::Info);
+#else
+// it still require supervisoring
+Logger logger("logs.log", LogLvl::Info );
+#endif
 
 // only for signals
 // use them instead of db and storage - scary. mb after 1.0 i will do that

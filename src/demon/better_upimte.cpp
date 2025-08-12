@@ -1,9 +1,9 @@
 #include "demon/get_uptime.hpp"
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
+#include "common/aliases.hpp"
+
 #include <cstdio>
-#include <print>
-#include <stack>
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
@@ -113,7 +113,7 @@ constexpr const char* _DEToString( _DE de ) {
 // Press F to SOLID
 DesktopEnv* DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
-    const char* de = std::getenv( DE_ENV_VAR );
+    char* de( std::getenv( DE_ENV_VAR ) );
 
     if( std::strcmp( de, "sway" ) == 0 ) {
         delete( this );

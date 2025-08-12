@@ -12,7 +12,12 @@
 #include <unistd.h>
 
 
+#ifdef DEBUG
 Logger logger(LogLvl::Info);
+#else
+// it still require supervisoring
+Logger logger("logs.log", LogLvl::Info);
+#endif
 
 // const char* dbName = "res/db/uptime.db";
 const char* dbName = "uptime.db";

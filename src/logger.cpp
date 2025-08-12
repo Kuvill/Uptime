@@ -1,5 +1,6 @@
 #include "common/logger.hpp"
 #include "common/change_dir.hpp"
+#include "common/aliases.hpp"
 
 #include <cstdlib>
 #include <fstream>
@@ -8,13 +9,14 @@
 #include <unistd.h>
 
 std::string pushFrontHome( const std::string& path ) {
-    std::string homePath = std::getenv("HOME");
+    char* homePath( std::getenv("HOME") );
+    std::string resultPath( homePath );
 
-    homePath.append( std::move( path ));
+    resultPath.append( std::move( path ));
 
     std::cerr << "I return this shit: " << homePath << '\n';
 
-    return homePath;
+    return resultPath;
 }
 
 
