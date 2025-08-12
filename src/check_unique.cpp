@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 static const fs::path lockFile = "in_use.lock";
 static const fs::path procFile = "/proc/";
 
-void check_unique() {
+CheckUnique::CheckUnique() {
     CheckDirectory();
 
     if( fs::exists( lockFile ) ) {
@@ -38,6 +38,11 @@ void check_unique() {
 
     file << pid;
     logger.log(LogLvl::Info, "Application instace is unique.");
+
+}
+
+CheckUnique::~CheckUnique() {
+    delete_lock_file();
 }
 
 void delete_lock_file() {

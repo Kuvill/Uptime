@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cassert>
 #include <cstring>
+#include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -19,7 +20,7 @@
 
 #include <nlohmann/json.hpp>
 
-static const char* DE_ENV_VAR = "XDG_SESSION_DESKTOP";
+static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
 recTime_t ps( std::array<char, 6> pid ) {
     logger.log(LogLvl::Warning, "Internal. Used old ps function");
@@ -114,6 +115,14 @@ constexpr const char* _DEToString( _DE de ) {
 DesktopEnv* DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
     char* de( std::getenv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    if( strstr(de, ";") != nullptr ) 
+        logger.log(LogLvl::Warning, "Deteced multi entry in ", DE_ENV_VAR, " that is unsupporeted yet!");
 
     if( std::strcmp( de, "sway" ) == 0 ) {
         delete( this );

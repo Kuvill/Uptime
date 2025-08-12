@@ -1,7 +1,7 @@
 #pragma once
 
 // should it be static?
-static const char SOCK_PATH[] = "/tmp/uptime.sock";
+static const char SOCK_PATH[] = "uptime.sock";
 
 static const int MsgSize = 8;
 

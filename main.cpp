@@ -38,6 +38,8 @@ void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
 	g_db->dumpStorage( *g_storage );
+
+    // mb not needed
     delete_lock_file();
 	exit(0);
 }
@@ -50,8 +52,12 @@ void SigHandler( int code ) {
 	// free sqlite memory
 
 int main() {
-    check_unique();
+    CheckUnique __uniqueChecker__;
 
+    // cringe? Cringe
+    // I use it make sure, that DE is init
+    // Better solution - spin this time after failed getenv
+    std::this_thread::sleep_for(9s);
 	Database db( dbName );
 
     Settings settings;
@@ -123,6 +129,5 @@ int main() {
 
 	logger.log( LogLvl::Info, "memory dump: ", storage );
 	db.dumpStorage( storage );
-    delete_lock_file();
 	return 0;
 }

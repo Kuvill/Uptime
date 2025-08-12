@@ -1,5 +1,9 @@
 #pragma once
 
-// should be an empty class with const and destr
-void check_unique();
+// check application instance unique
+struct CheckUnique {
+    CheckUnique(); 
+    ~CheckUnique();
+};
+
 void delete_lock_file();

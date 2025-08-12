@@ -2,6 +2,7 @@
 
 #include <common/ipc_interface.hpp>
 #include <cstddef>
+#include <cstdio>
 #include <demon/server.hpp>
 #include "common/logger.hpp"
 
