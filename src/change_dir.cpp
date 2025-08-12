@@ -1,9 +1,7 @@
 #include <common/change_dir.hpp>
-#include <common/logger.hpp>
 #include <common/aliases.hpp>
 
 #include <cstdlib>
-#include <exception>
 #include <stdexcept>
 #include <filesystem>
 

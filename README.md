@@ -1,10 +1,7 @@
 # Uptimer
 
 ## How do you spend your time?
-
-### DE support
-
-- [x] SwayWM
+The set of applications record focused window uptime into db and provide tools to view processed results via gui or cli
 
 
 ### How to build
@@ -19,6 +16,14 @@ meson install;
 
 That's all!
 
+<details>
+<summary>Installation details</summary>
+
+* Copy binary into /usr/local/bin/
+* Copy Gtk scheme into ~/.local/share/uptimer/res/
+
+</details>
+
 #### Dependencies
 
 Demon:
@@ -27,3 +32,9 @@ Demon:
 GUI:
 - gtk4
 - adwaita-1
+
+### DE support
+
+- [x] SwayWM
+- [x] Hyprland
+
