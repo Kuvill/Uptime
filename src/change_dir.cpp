@@ -1,6 +1,8 @@
 #include <common/change_dir.hpp>
 #include <common/logger.hpp>
 
+#include <cstdlib>
+#include <exception>
 #include <stdexcept>
 #include <filesystem>
 
@@ -13,7 +15,13 @@ void CheckDirectory() {
     if( !changed ) {
         changed = true;
 
-        fs::path newPath = std::move(std::getenv("HOME"));
+        const char* homeDir = std::getenv("HOME");
+
+        if( !homeDir ) {
+            logger.log(LogLvl::Error, "Unable to get Home env!");
+            std::terminate();
+        }
+        fs::path newPath = ( homeDir );
         newPath += "/.local/share/uptimer/";
 
         if( !fs::exists(newPath) ) 
