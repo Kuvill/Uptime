@@ -10,9 +10,14 @@
 #define COL_YEL "\033[33m"
 #define COL_GRY "\033[90m"
 
+// to read logs you can use less -R 
+
 // add GUI / DEMON befor message
 
 // use std::source_location
+
+// TODO
+// send wayland notification on warrning/error?
 
 enum class LogLvl {
 	Info = 0,

@@ -22,36 +22,11 @@ Logger logger("logs.log", LogLvl::Info);
 // const char* dbName = "res/db/uptime.db";
 const char* dbName = "uptime.db";
 
-// chars that i want:
-// General
-//  just rectangles with values as length
-//  pie chart
-// By app:
-//  app uptime change by {date.*}
-// By Category:
-//  like from AI course: polygon. that more value that acute the angle
-
-// i should contain as third class general settings
-// (State shoude contain visual settings, guess)
-
 static guint SetupTimer( Context& context ) {
     context.state.createTimer();
 
     return g_timeout_add_seconds( 1, update_data, &context );
 }
-
-#ifdef DEBUG
-static void clicked( GtkButton* self, gpointer data ) {
-    GListStore* store = (GListStore*)data;
-
-    RecordItem** items = new RecordItem*[2];
-
-    RecordItem* item = record_item_new( "TES", 1 );
-    items[0] = item;
-    g_list_store_splice( store, 0, 0, (void**)(items), 1 );
-    g_object_unref( item );
-}
-#endif
 
 // Tip: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
@@ -68,16 +43,6 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 	context->state.mergeStoreUnique( context->db.getRecords(Operators::Eqal, {}) );
     SetupTimer( *context );
-
-    // ----
-#ifdef DEBUG
-    GtkWidget* TEST_BTN = gtk_button_new();
-    g_signal_connect(TEST_BTN, "clicked", G_CALLBACK(clicked), context->state.getStore());
-    auto* window2 = gtk_window_new();
-    gtk_window_present( GTK_WINDOW(window2) );
-    gtk_window_set_child( GTK_WINDOW(window2), TEST_BTN );
-#endif
-    // ---
 
 	gtk_window_set_application( window , app );
 	gtk_window_present( window );
