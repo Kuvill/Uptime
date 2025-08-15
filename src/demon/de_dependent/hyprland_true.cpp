@@ -1,0 +1,3 @@
+// The all i did before - nothings. i record summary uptime, not time in focus...
+// even if you don't use telegram( for example ) and it is in background, fater focus it usage will be big.
+// i need reorgonize whole project
