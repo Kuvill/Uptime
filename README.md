@@ -37,4 +37,6 @@ GUI:
 
 - [x] SwayWM
 - [x] Hyprland
+[-] KDE (kwin scripting unusable. js just haven't functions from documentation. Native doesn't have documentation for use or even build)
+[-] Gnome (In plan)
 

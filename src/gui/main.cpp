@@ -11,16 +11,15 @@
 #include <libadwaita-1/adwaita.h>
 #include <unistd.h>
 
+const char* dbName = "uptime.db";
+
 
 #ifdef DEBUG
-Logger logger(LogLvl::Info);
+    Logger logger(LogLvl::Info);
 #else
-// it still require supervisoring
-Logger logger("logs.log", LogLvl::Info);
+    // it still require supervisoring
+    Logger logger("logs.log", LogLvl::Info);
 #endif
-
-// const char* dbName = "res/db/uptime.db";
-const char* dbName = "uptime.db";
 
 static guint SetupTimer( Context& context ) {
     context.state.createTimer();
@@ -28,11 +27,8 @@ static guint SetupTimer( Context& context ) {
     return g_timeout_add_seconds( 1, update_data, &context );
 }
 
-// Tip: Add alias into App table
+// TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    // Holy Molly... I spend like 4 hours (((
-    // to detect, that context dies on activate end
-
     Context* context = static_cast<Context*>( data );
 
     CheckDirectory();
