@@ -1,8 +1,5 @@
 # Uptimer
 
-Require big refactor. I did this project with idea to record time in focus, but it not works like this (except hyprland). Mb project will be freezed
-
----
 
 ## How do you spend your time?
 The set of applications record focused window uptime into db and provide tools to view processed results via gui or cli
