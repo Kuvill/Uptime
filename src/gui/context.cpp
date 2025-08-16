@@ -1,7 +1,9 @@
 #include "gui/context.hpp"
 #include "common/logger.hpp"
+#include "common/time.hpp"
 
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std::chrono;
 
@@ -85,6 +87,41 @@ using namespace std::chrono;
 
         // here i delete 2 pointers. Not items
         delete std::get<0>(items);
+    }
+
+    void State::mergeStoreRightVersion( std::tuple<RecordItem**, int> items ) {
+        std::unordered_map<gchar*, recTime_t> result;
+
+        RecordItem** records = std::get<0>( items );
+        int count = std::get<1>( items );
+
+        // when after app launch it opened first time
+        // should use bool over -1?
+        recTime_t startUse = toRecTime(-1);
+
+        for( int i = 0; i < count - 1; ++i ) {
+            auto item = records[i];
+            auto nextItem = records[i+1];
+
+            if( item->appName == nextItem->appName ) {
+                logger.log(LogLvl::Info, "elem[i].uptime: ", item->uptime, "elem[i+1].uptime: ", (item+1)->uptime );
+
+                // when apps are contigous but they are difference instances
+                if( nextItem->uptime - item->uptime > nextItem->recTimer - item->recTimer ) {
+
+                               
+                } else {
+                    // normal contigous app usage. first app launch already saved
+                    continue;
+                }
+
+            } else {
+                startUse = item->uptime;
+            }
+        }
+
+        auto item = records[count-1];
+        //...
     }
 
     // not so fast. Have to change Model to improve performance

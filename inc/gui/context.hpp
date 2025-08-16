@@ -39,6 +39,9 @@ public:
 
     void createTimer();
 
+    // fucking slave
+    void mergeStoreRightVersion( std::tuple<RecordItem**, int> );
+
     void mergeStore( std::tuple<RecordItem**, int> );
     void mergeStoreUnique(  std::tuple<RecordItem**, int> );
     void setStore( GListStore* );

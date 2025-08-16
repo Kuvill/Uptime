@@ -96,7 +96,7 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
             // i don't want to call notify. Guess this is misstake
             item->appName = g_strdup( (gchar*)appName );
             item->uptime = toRecTime( sqlite3_column_int(stmt, 1) );
-            // rec.recTime = sqlite3_column_int(stmt, 2);
+            item->recTimer = toRecTime( sqlite3_column_int(stmt, 2) );
 
             items[i] = item;
 		}

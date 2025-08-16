@@ -13,6 +13,7 @@ struct _RecordItem {
     GObject parent;
     gchar* appName;
     recTime_t uptime;
+    recTime_t recTimer;
 };
 
 struct _RecordItemClass {
