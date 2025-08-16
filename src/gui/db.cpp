@@ -25,9 +25,9 @@ WHERE rec_date > datetime('2025-04-26 08:00:00');
 
 // to get last record, i can Order by rec_time with LIMIT 1
 // (BEFOR I HAVE to check, is there spetific function (mb with WAL))
-static const char sqlGetRecords[] = "SELECT app_name, uptime, datetime(rec_time, 'unixepoch') AS rec_date " \
+static const char sqlGetRecords[] = "SELECT app_name, rec_time AS rec_date " \
                                     "FROM " REC_TABLE " JOIN " APP_TABLE " ON " REC_TABLE ".app_id = " APP_TABLE ".app_id " \
-                                    "WHERE rec_date > datetime(?1, 'unixepoch');";
+                                    "WHERE datetime(rec_date, 'unixepoch') > datetime(?1, 'unixepoch');";
 
 static const char sqlGetAppName[] = "SELECT app_name FROM " APP_TABLE " WHERE app_id = ?1;";
 
@@ -65,9 +65,9 @@ DatabaseReader::~DatabaseReader() {
 }
 
 // @yru have to delete returned value;
-std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_t time ) {
+std::tuple<RawRecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_t time ) {
     logger.log(LogLvl::Info, "Trying to get all records...");
-	RecordItem** items;
+	RawRecordItem** items;
     int count;
 
 	sqlite3_stmt* stmt;
@@ -81,22 +81,21 @@ std::tuple<RecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_
         // count = 200;
         logger.log(LogLvl::Info, "loaded ", count, " record" );
 
-        items = new RecordItem*[ count ];
+        items = new RawRecordItem*[ count ];
 
 		//--for( int i = 0; i < count; ++i ) {
             //-- if( sqlite3_step( stmt ) != SQLITE_ROW ) throw std::runtime_error("unexpected number of rows");
 
         int i = 0;
         for(; sqlite3_step( stmt ) == SQLITE_ROW; ++i ) {
-            RecordItem* item = record_item_new();
+            RawRecordItem* item = raw_record_item_new();
 
             // auto a = getAppName( sqlite3_column_int(stmt, 0) );
             auto appName = (sqlite3_column_text( stmt, 0 ));
 
             // i don't want to call notify. Guess this is misstake
             item->appName = g_strdup( (gchar*)appName );
-            item->uptime = toRecTime( sqlite3_column_int(stmt, 1) );
-            item->recTimer = toRecTime( sqlite3_column_int(stmt, 2) );
+            item->recTimer = toRecTime( sqlite3_column_int(stmt, 1) );
 
             items[i] = item;
 		}

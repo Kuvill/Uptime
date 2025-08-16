@@ -1,4 +1,5 @@
 # i can use wayland module
+# btw i should install main.ui and create dir without installation?
 
 project( 'Uptimer', 'cpp' )
 

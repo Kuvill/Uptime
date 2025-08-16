@@ -12,6 +12,7 @@
 /* Record Item */
 
 G_DEFINE_TYPE( RecordItem, record_item, G_TYPE_OBJECT );
+G_DEFINE_TYPE( RawRecordItem, raw_record_item, G_TYPE_OBJECT );
 
 bool RecordItemEqual( RecordItem* lhs, RecordItem* rhs ) {
     return RecordItemOnlyStrCmp(lhs, rhs) == 0 &&
@@ -139,4 +140,38 @@ RecordItem* record_item_new( const char* appName, guint64 uptime ) {
 // c++ function overload, but since i use logger it is ok
 RecordItem* record_item_new() {
 	return static_cast<RecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
+}
+
+// --------- RAW
+
+void raw_record_item_init( RawRecordItem* item ) {
+	item->appName = nullptr;
+	item->recTimer = toRecTime(0);
+}
+
+void raw_record_item_finalize( GObject* object ) {
+	RawRecordItem* item = (RawRecordItem*)object;
+
+	if( item->appName )
+		g_free( item->appName );
+
+	G_OBJECT_CLASS(record_item_parent_class)->finalize(object);
+}
+
+void raw_record_item_class_init( RawRecordItemClass* klass ) {
+	G_OBJECT_CLASS(klass)->finalize = raw_record_item_finalize;
+}
+
+RawRecordItem* raw_record_item_new( const char* appName, guint64 uptime ) {
+	RawRecordItem* item = static_cast<RawRecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
+
+	item->appName = g_strdup( appName );
+	item->recTimer = toRecTime(uptime);
+
+	return item;
+}
+
+// c++ function overload, but since i use logger it is ok
+RawRecordItem* raw_record_item_new() {
+	return static_cast<RawRecordItem*>( g_object_new( RECORD_ITEM_TYPE, nullptr ) );
 }

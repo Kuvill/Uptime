@@ -1,8 +1,11 @@
 #include "gui/context.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
+#include "glib.h"
+#include "gui/record_item.hpp"
 
 #include <algorithm>
+#include <iterator>
 #include <unordered_map>
 
 using namespace std::chrono;
@@ -81,7 +84,7 @@ using namespace std::chrono;
     }
 
     // mb resive in first pointer will be greater
-    void State::mergeStore( std::tuple<RecordItem**, int> items ) {
+    void State::mergeStore( std::tuple<RawRecordItem**, int> items ) {
         g_list_store_splice(_store, 0, 0, (void**)(std::get<0>(items)), std::get<1>(items));
         g_list_store_sort( _store, RecordItemUptimeCompare , nullptr );
 
@@ -89,42 +92,89 @@ using namespace std::chrono;
         delete std::get<0>(items);
     }
 
-    void State::mergeStoreRightVersion( std::tuple<RecordItem**, int> items ) {
-        std::unordered_map<gchar*, recTime_t> result;
+namespace {
+    struct strEqual {
+        bool operator()( gchar* lhs, gchar* rhs ) const {
+            return g_strcmp0(lhs, rhs) == 0;
+        }
+    };
 
-        RecordItem** records = std::get<0>( items );
+    struct hashGstr {
+        unsigned long operator()( gchar* str ) const {
+            unsigned long hash = 5381;
+            int c;
+
+            while ((c = *str++))
+                hash = ((hash << 5) + hash) + c;
+
+            return hash;
+
+        }
+    };
+}
+
+    /* 
+       What, do i need uptime?) mb for guards but idk
+
+       There is 3 situations:
+       1. Contigous usage of one app.
+       2. Switch focus to other app.
+       3. Same app after poweroff. (or filler since i haven't this one)
+   */
+    //  FIXME Very blowed
+    void State::mergeStoreRightVersion( std::tuple<RawRecordItem**, int> items ) {
+        std::unordered_map<gchar*, recTime_t, hashGstr, strEqual> result;
+
+        RawRecordItem** records = std::get<0>( items );
         int count = std::get<1>( items );
+
+        logger.log(LogLvl::Warning, records[0]->recTimer, "; ", records[5]->recTimer);
 
         // when after app launch it opened first time
         // should use bool over -1?
-        recTime_t startUse = toRecTime(-1);
+        recTime_t startUse = records[0]->recTimer;
 
         for( int i = 0; i < count - 1; ++i ) {
             auto item = records[i];
             auto nextItem = records[i+1];
 
             if( item->appName == nextItem->appName ) {
-                logger.log(LogLvl::Info, "elem[i].uptime: ", item->uptime, "elem[i+1].uptime: ", (item+1)->uptime );
 
-                // when apps are contigous but they are difference instances
-                if( nextItem->uptime - item->uptime > nextItem->recTimer - item->recTimer ) {
-
-                               
-                } else {
-                    // normal contigous app usage. first app launch already saved
+                // 1.
+                if( nextItem->recTimer - item->recTimer <= 5s + 5s/2 ) {
                     continue;
+                    
+                // 3
+                } else {
+                    result[item->appName] += item->recTimer - startUse + 5s;
+                    startUse = nextItem->recTimer;
                 }
 
             } else {
-                startUse = item->uptime;
-            }
+                // 2.
+                result[item->appName] += item->recTimer - startUse + 5s;
+                startUse = nextItem->recTimer;
+}
         }
 
         auto item = records[count-1];
-        //...
-    }
+        result[item->appName] += item->recTimer - startUse + 5s;
 
-    // not so fast. Have to change Model to improve performance
+        RecordItem** store = new RecordItem*[result.size()];
+        logger.log(LogLvl::Info, result.size(), " unique applications loaded");
+
+        auto elem = result.begin();
+        for( int i = 0; i < result.size(); ++i, ++elem ) {
+            if( elem->first == nullptr ) logger.log(LogLvl::Warning, i);
+            store[i] = record_item_new( g_strdup( elem->first), elem->second.count() );
+        }
+
+        delete[] records;
+
+        g_list_store_splice(_store, 0, 0, (gpointer*)store, result.size());
+}
+
+    /*
     void State::mergeStoreUnique( std::tuple<RecordItem**, int> items ) {
         std::sort( std::get<0>(items), std::get<0>(items) + std::get<1>(items), RecordItemNameLess );
 
@@ -148,6 +198,8 @@ using namespace std::chrono;
         // here i delete 2 pointers. Not items
         delete std::get<0>(items);
     }
+*/
+
     void State::setStore( GListStore* store ) {
         _store = store;
     }
