@@ -106,11 +106,6 @@ GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
     GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
     context.state.setStore( store );
 
-    // test
-    RecordItem* item = record_item_new( "firefox", 10 );
-    g_list_store_append( store, item);
-    g_object_unref( item );
-
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
 	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );
 

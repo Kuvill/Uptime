@@ -34,11 +34,11 @@ static void activate( GtkApplication* app, gpointer data ) {
     CheckDirectory();
 	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-	//setup_column_view( builder, *context );
-	//g_object_unref( builder );
+	setup_column_view( builder, *context );
+	g_object_unref( builder );
 
-	//context->state.mergeStoreRightVersion( context->db.getRecords(Operators::Eqal, {}) );
-    //SetupTimer( *context );
+	context->state.mergeStoreRightVersion( context->db.getRecords(Operators::Eqal, {}) );
+    // SetupTimer( *context );
 
 	gtk_window_set_application( window , app );
 	gtk_window_present( window );
@@ -46,9 +46,9 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 int main( int argc, char *argv[] ) {
 	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
-    g_object_set(gtk_settings_get_default(),
-        "gtk-application-prefer-dark-theme", TRUE,
-        NULL);
+    // g_object_set(gtk_settings_get_default(),
+    //    "gtk-application-prefer-dark-theme", TRUE,
+    //    NULL);
 
     Context context{
         DatabaseReader( dbName ),
