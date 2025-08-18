@@ -5,10 +5,15 @@
 #include "gui/record_item.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <iterator>
 #include <unordered_map>
 
 using namespace std::chrono;
+
+Bound::Bound() {
+    from = sys_days(to) - days(1);
+}
 
 // OOP way: create state pattern class, that remember state.
 // more cheap way: create static function getDif
@@ -20,25 +25,28 @@ using namespace std::chrono;
         // but will it appearance?
         switch (_bound.model) {
             case Duration::ByYear:
-                _bound.from = duration_cast<years>( getCurrentTime() );
-                _bound.to = _bound.from + years(1);
+                _bound.to = getCurrentDate();
+                _bound.from = _bound.to - years(1);
                 break;
 
             case Duration::ByMonth:
-                _bound.from = duration_cast<months>( getCurrentTime() );
-                _bound.to = _bound.from + months(1);
+                _bound.to = getCurrentDate();
+                _bound.from = _bound.to - months(1);
                 break;
 
-            case Duration::ByDay: _bound.from = duration_cast<days>( getCurrentTime() ); _bound.to = _bound.from + days(1);
+            case Duration::ByDay: 
+                _bound.to = getCurrentDate();
+                _bound.from = sys_days(_bound.to) - days(1);
                 break;
                 
             case Duration::All:
-                _bound.from = recTime_t::min();
-                _bound.to = recTime_t::max();
+                _bound.from = std::numeric_limits<year_month_day>::min();
+                _bound.to = _bound.from = std::numeric_limits<year_month_day>::max();
                 break;
         }
     }
 
+    /*
     void State::next() {
         switch (_bound.model) {
             case Duration::ByYear:
@@ -75,6 +83,7 @@ using namespace std::chrono;
                 break;
         }
     }
+    */
 
     void State::setFrom() {
 

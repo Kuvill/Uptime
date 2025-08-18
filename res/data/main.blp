@@ -65,11 +65,19 @@ Adw.Window window {
 
           Box {
             orientation: horizontal;
+            margin-top: 5;
+            halign: center;
+            homogeneous: true;
+            spacing: 15;
 
-            [start]
+            Label DateFrom {}
+            
             MenuButton DurationBtn {
               menu-model: setDuration;
             }
+            
+            Label DateTo {}
+
           }
 
           Stack body {
@@ -177,3 +185,4 @@ menu setDuration {
     }
   }
 }
+

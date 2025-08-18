@@ -1,4 +1,5 @@
 #include "common/logger.hpp"
+#include "gui/context.hpp"
 #include "gui/record_item.hpp"
 #include "gui/column_view.hpp"
 #include "gui/lazy_load.hpp"
@@ -127,6 +128,8 @@ GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
     auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
     g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), &context );
     on_stack_page_changed(stack, 0, nullptr);
+
+    
 
     // setup menu
     // here is invalide pointer instance and type check errors
