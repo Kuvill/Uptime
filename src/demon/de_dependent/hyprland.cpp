@@ -94,8 +94,6 @@ ProcessInfo _Hyprland::getFocused() {
         rc = read( _sock, buffer.data() + size, size );
     }
 
-    std::println(" buffer: {}", buffer);
-
     // ----------------- class (name)------------------- //
     auto it = std::find( buffer.begin(), buffer.end(), '\n' );
     ++it;

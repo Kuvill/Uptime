@@ -128,8 +128,6 @@ namespace {
         RawRecordItem** records = std::get<0>( items );
         int count = std::get<1>( items );
 
-        logger.log(LogLvl::Warning, records[0]->recTimer, "; ", records[5]->recTimer);
-
         // when after app launch it opened first time
         // should use bool over -1?
         recTime_t startUse = records[0]->recTimer;
