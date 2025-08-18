@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Uptime Viewer
+Comment=Visualizer for Uptimer data
+Exec=/usr/local/bin/Gui
+Icon=steam_icon_1091500
+Terminal=false
+Type=Application
+Categories=Chart;
+

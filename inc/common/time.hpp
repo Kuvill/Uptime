@@ -7,6 +7,7 @@
 using recTime_t = std::chrono::seconds;
 
 recTime_t getCurrentTime();
+std::chrono::year_month_day getCurrentDate();
 
 template< typename T >
 concept integral = std::is_integral_v<T>;

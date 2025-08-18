@@ -1,5 +1,6 @@
 #include <common/logger.hpp>
 #include <common/change_dir.hpp>
+#include <filesystem>
 #include <gui/record_item.hpp>
 #include <gui/column_view.hpp>
 #include <gui/lazy_load.hpp>
@@ -9,6 +10,7 @@
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
+#include <stdexcept>
 #include <unistd.h>
 
 const char* dbName = "uptime.db";
@@ -29,15 +31,20 @@ static guint SetupTimer( Context& context ) {
 
 // TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    Context* context = static_cast<Context*>( data );
-
     CheckDirectory();
-	GtkBuilder* builder = gtk_builder_new_from_file( "res/gui/main.ui" );
+	GtkBuilder* builder = gtk_builder_new_from_file( "main.ui" );
+    
+    // hide error handling into builder setup func?
+    if( builder == nullptr ) {
+        logger.log(LogLvl::Error, "main.ui file was not found! use ninja install or copy it manualy into ", std::filesystem::current_path() );
+        throw std::runtime_error("");
+    }
+
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-	setup_column_view( builder, *context );
+	setup_column_view( builder );
 	g_object_unref( builder );
 
-	context->state.mergeStoreRightVersion( context->db.getRecords(Operators::Eqal, {}) );
+    GContext::ctx->state.mergeStoreRightVersion( GContext::ctx->db.getRecords(Operators::Eqal, {}) );
     // SetupTimer( *context );
 
 	gtk_window_set_application( window , app );
@@ -50,6 +57,7 @@ int main( int argc, char *argv[] ) {
     //    "gtk-application-prefer-dark-theme", TRUE,
     //    NULL);
 
+    // make it global?
     Context context{
         DatabaseReader( dbName ),
         Client(),
@@ -57,7 +65,9 @@ int main( int argc, char *argv[] ) {
         Settings()
     };
 
-	g_signal_connect( app, "activate", G_CALLBACK( activate ), &context );
+    GContext::ctx = &context;
+
+	g_signal_connect( app, "activate", G_CALLBACK( activate ), nullptr );
 
 	int stat = g_application_run( G_APPLICATION( app ), argc, argv );
 	g_object_unref( app );

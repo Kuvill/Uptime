@@ -5,4 +5,4 @@
 
 #include <gtk/gtk.h>
 
-GListStore* setup_column_view( GtkBuilder* builder, Context& );
+GListStore* setup_column_view( GtkBuilder* builder );

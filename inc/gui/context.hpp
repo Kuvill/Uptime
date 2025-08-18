@@ -8,29 +8,28 @@
 
 #include <gtk/gtk.h>
 
-enum class Duration { ByDay,
+enum class Duration { 
+    ByDay,
     ByMonth,
     ByYear,
     All
 };
 
 struct Bound {
-    // mb should be yaer_month_day, idk
-    recTime_t from = getCurrentTime();
-    recTime_t to = from + std::chrono::days(1);
+    std::chrono::year_month_day to = getCurrentDate();
+    std::chrono::year_month_day from = getCurrentDate();
+    
     Duration model = Duration::ByDay;
 
+    Bound();
 };
 
-// It should be init once at start and then on Bound changings
 class State {
-    // sorted
     GListStore* _store;
     Bound _bound;
 
     GTimer* _timer;
 
-    // should be just guint64, but i don't query it from db
     RecordItem* _lastItem = nullptr;
 
 public:
@@ -46,6 +45,8 @@ public:
     void mergeStoreUnique(  std::tuple<RawRecordItem**, int> );
     void setStore( GListStore* );
     GListStore* getStore();
+
+    // --- Bound
 
     void changeModel( Duration );
 
@@ -65,4 +66,6 @@ struct Context {
     Settings settings;
 };
 
-
+struct GContext {
+    static Context* ctx;
+};

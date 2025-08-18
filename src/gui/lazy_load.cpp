@@ -21,7 +21,6 @@ static void load_charts() {
 void on_stack_page_changed( GtkStack* stack, GParamSpec* pspec, gpointer data ) {
     logger.log(LogLvl::Info, "Stack page switched" );
 
-    Context& context = *static_cast<Context*>(data);
     const gchar* newPage = gtk_stack_get_visible_child_name( stack );
 
     if( g_strcmp0( newPage, TABLE_PAGE ) == 0 ) {
