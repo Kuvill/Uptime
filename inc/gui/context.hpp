@@ -66,4 +66,6 @@ struct Context {
     Settings settings;
 };
 
-
+struct GContext {
+    static Context* ctx;
+};

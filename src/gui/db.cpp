@@ -65,6 +65,7 @@ DatabaseReader::~DatabaseReader() {
 }
 
 // @yru have to delete returned value;
+// btw all param i should take from context
 std::tuple<RawRecordItem**, int> DatabaseReader::getRecords( Operators op, recTime_t time ) {
     logger.log(LogLvl::Info, "Trying to get all records...");
 	RawRecordItem** items;

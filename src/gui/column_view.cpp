@@ -98,14 +98,14 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     gtk_label_set_text( GTK_LABEL( label ), timeToStr( rec->uptime ).c_str() );
 }
 
-GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
+GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
 	auto* appNameCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "app_name_col" ));
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
     GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
-    context.state.setStore( store );
+    GContext::ctx->state.setStore( store );
 
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
 	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );
@@ -126,7 +126,7 @@ GListStore* setup_column_view( GtkBuilder* builder, Context& context ) {
 
     // Fill table from db
     auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
-    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), &context );
+    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), nullptr );
     on_stack_page_changed(stack, 0, nullptr);
 
     
