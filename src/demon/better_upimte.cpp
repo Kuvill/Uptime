@@ -112,6 +112,7 @@ constexpr const char* _DEToString( _DE de ) {
 
 
 // Press F to SOLID
+// change strstr to iterating by ':' as in sway 
 DesktopEnv* DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
     char* de( std::getenv( DE_ENV_VAR ) );
@@ -121,15 +122,12 @@ DesktopEnv* DesktopEnv::checkDE() {
         throw std::runtime_error("Unable to detect current DE!");
     }
 
-    if( strstr(de, ";") != nullptr ) 
-        logger.log(LogLvl::Warning, "Deteced multi entry in ", DE_ENV_VAR, " that is unsupporeted yet!");
-
-    if( std::strcmp( de, "sway" ) == 0 ) {
+    if( std::strstr( de, "sway" ) != 0 ) {
         delete( this );
         return new _SwayDE;
     }
     
-    else if( std::strcmp( de, "Hyprland" ) == 0 ) {
+    else if( std::strstr( de, "Hyprland" ) != 0 ) {
         delete( this );
         return new _Hyprland;
     }

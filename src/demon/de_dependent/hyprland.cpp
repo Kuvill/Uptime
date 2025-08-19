@@ -133,7 +133,7 @@ ProcessInfo _Hyprland::getFocused() {
 
     std::array<char, 6> pid{};
     std::memcpy( pid.data(), it.base(), end - it );
-    result.uptime = ps( pid );
+    // result.uptime = ps( pid );
 
     logger.log(LogLvl::Info, "tueried data: ", result);
     close( _sock );

@@ -73,7 +73,7 @@ static ProcessInfo ParseSwayJson( nlohmann::json json ) {
             if( node["focused"] ) {
                 result.name = node["app_id"];
                 result.describe = node["name"];
-                result.uptime = ps( std::to_string( node["pid"].get<int>() ) );
+                // result.uptime = ps( std::to_string( node["pid"].get<int>() ) );
 
             } // plase for recording all data
 
