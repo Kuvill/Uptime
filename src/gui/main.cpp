@@ -15,6 +15,7 @@
 
 const char* dbName = "uptime.db";
 
+Context* GContext::ctx = nullptr; 
 
 #ifdef DEBUG
     Logger logger(LogLvl::Info);
