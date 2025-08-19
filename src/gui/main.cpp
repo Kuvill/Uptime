@@ -21,7 +21,7 @@ Context* GContext::ctx = nullptr;
     Logger logger(LogLvl::Info);
 #else
     // it still require supervisoring
-    Logger logger("logs.log", LogLvl::Info);
+    Logger logger("gui.log", LogLvl::Info);
 #endif
 
 static guint SetupTimer( Context& context ) {
