@@ -57,7 +57,8 @@ int main() {
     // cringe? Cringe
     // I use it make sure, that DE is init
     // Better solution - spin this time after failed getenv
-    std::this_thread::sleep_for(9s);
+    logger.log(LogLvl::Info, "Fall asleep for a while to give DE load...");
+    std::this_thread::sleep_for(4s);
 	Database db( dbName );
 
     Settings settings;
