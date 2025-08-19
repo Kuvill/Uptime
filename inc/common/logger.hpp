@@ -3,16 +3,12 @@
 #include <iostream>
 #include <fstream>
 
-#define LOG_PATH ".local/share/uptimer/";
-
 #define COL_DEF "\033[0m"
 #define COL_RED "\033[31m"
 #define COL_YEL "\033[33m"
 #define COL_GRY "\033[90m"
 
 // to read logs you can use less -R 
-
-// add GUI / DEMON befor message
 
 // use std::source_location
 
@@ -38,7 +34,7 @@ constexpr const char* toStr( LogLvl lvl ) {
 std::string pushFrontHome( std::string&& );
 
 class Logger {
-	std::ostream* _out = &std::cout;
+	std::ostream* _out = &std::clog;
 	LogLvl _lvl;
 
 	template <typename Head, typename... Tail>
