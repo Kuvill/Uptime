@@ -4,3 +4,4 @@
 // use constr for init
 // @note this .get so annoying
 using C_string = std::unique_ptr<char[]>;
+using ulong = unsigned long;

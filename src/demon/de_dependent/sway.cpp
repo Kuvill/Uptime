@@ -2,6 +2,7 @@
 #include "common/logger.hpp"
 
 #include <cstdio>
+#include <cstring>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -18,7 +19,6 @@ static const std::byte WorkspacesQuerry[] = {
     std::byte(0), std::byte(0), std::byte(0), std::byte(0), // 0
     std::byte(4), std::byte(0), std::byte(0), std::byte(0), // 4
 };
-
 
 // have to be free
 static const char* getSwaySockAddr() {
@@ -134,4 +134,22 @@ ProcessInfo _SwayDE::getFocused() {
 
 DesktopEnv* _SwayDE::checkDE() {
     return this;
+}
+
+ulong _SwayDE::getSizeof() {
+    return sizeof(*this);
+}
+
+static bool SwayCastCondition( std::string_view env ) {
+    return strstr( "sway", env.data() ) != nullptr;
+}
+
+static void SwayInplaceCast( DesktopEnv* self ) {
+    self->~DesktopEnv();
+
+    new( self ) _SwayDE;
+} 
+
+CastRule _SwayDE::returnCastRule() const {
+    return { SwayCastCondition, SwayInplaceCast };
 }

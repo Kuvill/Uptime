@@ -57,13 +57,16 @@ int main() {
     // cringe? Cringe
     // I use it make sure, that DE is init
     // Better solution - spin this time after failed getenv
-    std::this_thread::sleep_for(9s);
+    std::this_thread::sleep_for(4s);
 	Database db( dbName );
 
     Settings settings;
 	Storage storage;
 	Ips connect;
-    DesktopEnv* de = new DesktopEnv;
+    // To make it unique_ptr i need some hacks
+    // But it needn't
+    void* reserve = malloc(DE_maxSize());
+    DesktopEnv* de = new(reserve) DesktopEnv; 
     de = de->checkDE();
 	// should be ms
     auto sleepDuration = 5s;
@@ -114,9 +117,7 @@ int main() {
                 } else {
                     storage.insert( info );
                 }
-
-            } else 
-                de = de->checkDE();
+            } 
 
             logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );

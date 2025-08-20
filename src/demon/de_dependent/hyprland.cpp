@@ -144,3 +144,20 @@ ProcessInfo _Hyprland::getFocused() {
 DesktopEnv* _Hyprland::checkDE() {
     return this;
 }
+
+ulong _Hyprland::getSizeof() {
+    return sizeof(*this);
+}
+
+static bool HyprCastCondition( std::string_view env ) {
+    return strstr( "Hyprland", env.data() ) != nullptr;
+}
+
+static void HyprInplaceCast( DesktopEnv* self ) {
+    self->~DesktopEnv();
+    new( self ) _Hyprland;
+}
+
+CastRule _Hyprland::returnCastRule() const {
+    return { HyprCastCondition, HyprInplaceCast };
+}

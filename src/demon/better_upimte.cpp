@@ -1,14 +1,10 @@
-#include "demon/get_uptime.hpp"
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
-#include "common/aliases.hpp"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cassert>
-#include <cstring>
+#include <memory>
+#include <typeinfo>
 #include <stdexcept>
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -22,114 +18,66 @@
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
-recTime_t ps( std::array<char, 6> pid ) {
-    logger.log(LogLvl::Warning, "Internal. Used old ps function");
+// YOO, SOLID, i recived you ^^
+// Task for fun (not to impl): Make it dynamic without recompile
 
-    FILE* mimic;
-    const char* ps = "ps -o etimes ";
+// coast of SOLID - really big. not sure, that it was relevant
 
-    char getUptimePlusPID[21]{};
-    strcat( getUptimePlusPID, ps );
-    strcat( getUptimePlusPID, pid.data() );
-    mimic = popen( getUptimePlusPID, "r" );
+// Can it be std::tuple to avoid allocation and make all constexpr ?)
+// alter way - use vectors. (create it with lambda)
+// +: clear it to call destructors; space
 
-    std::array<char, 11> uptimeInStr{};
+// List of supported DE. Change it to add custom 
+// Order make a sence
 
-    // read line with garbage 
-    fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
-    fgets(uptimeInStr.data(), uptimeInStr.size(), mimic);
+namespace {
+    static auto __De_instances__ =
+        std::to_array<std::unique_ptr<DesktopEnv>>({
+           
+            std::make_unique<_SwayDE>(),
+            std::make_unique<_Hyprland>()
+    });
 
-    return static_cast<recTime_t>( strtol(uptimeInStr.data(), nullptr, 10) );
+    // auto + -> {type} look better, but harder to get, that it not a lamda
+    static std::array<CastRule, std::size(__De_instances__)> __Rules__ = []() constexpr {
+        std::array<CastRule, std::size(__De_instances__)> result;
+
+        for( int i = 0; i < __De_instances__.size(); ++i ) {
+            result[i] = __De_instances__[i]->returnCastRule();
+        }
+
+        return result;
+    }();
 }
 
-recTime_t ps( const unsigned char* pid ) {
-    auto hacks = reinterpret_cast<const char*>( pid );
-    std::array<char, 6> hacks2{};
-    std::strncpy( hacks2.data(), hacks, 6 );
-    return ps( hacks2 );
-}
+ulong DE_maxSize() {
+    unsigned long result = 0;
 
-recTime_t ps( const std::string& pid ) {
-    return ps( (unsigned char*)pid.c_str() );
-}
+    logger.log(LogLvl::Info, "Supported Desktop enviroments: ");
 
-/* Version without Inheritance
-
-static ProcessInfo SwayFocusInfo();
-
-static ProcessInfo HyprFocusInfo();
-
-// return empty struct if DE unrecognized
-ProcessInfo FocusInfo() {
-
-    const char* de = std::getenv( DE_ENV_VAR );
-
-if( std::strcmp( de, "sway" ) == 0 )
-        return SwayFocusInfo();
-    
-    else if( std::strcmp( de, "Hyprland" ) == 0 )
-        return HyprFocusInfo();
-
-    else return {};
-}
-
-
-// for windows or macos we just use other impl if #if
-enum class _DE {
-    UNKNOWN,
-    SWAYWM,
-    HYPRLAND,
-    PLASMA,
-    GNOME
-};
-
-constexpr const char* _DEToString( _DE de ) {
-    switch( de ) {
-        case _DE::UNKNOWN:
-            return "Unknown";
-            break;
-
-        case _DE::SWAYWM:
-            return "Sway";
-            break;
-
-        case _DE::HYPRLAND:
-            return "Hyprland";
-            break;
-
-        case _DE::PLASMA:
-            return "KDE Plasma";
-            break;
-
-        case _DE::GNOME:
-            return "Gnome";
-            break;
+    for( const auto& DE : __De_instances__ ) {
+        result = std::max( DE->getSizeof(), result );
+        logger.log(LogLvl::Info, '\t', typeid(DE).name() );
     }
-}
 
-*/
+    return result;
+} 
 
-
-
-// Press F to SOLID
-// change strstr to iterating by ':' as in sway 
+// change strstr to iterating by ':' as in sway:wlroot:swayfx 
+// allow function itself to call getenv? Can't see why not
 DesktopEnv* DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
     char* de( std::getenv( DE_ENV_VAR ) );
 
+    for( int i = 0; i < __Rules__.size(); ++i ) {
+        if( __Rules__[i].cond( de ) ) {
+            __Rules__[i].cast( this );
+        }
+    }
+
     if( !de ) {
         logger.log(LogLvl::Error, "Unable to detect current DE!");
         throw std::runtime_error("Unable to detect current DE!");
-    }
-
-    if( std::strstr( de, "sway" ) != 0 ) {
-        delete( this );
-        return new _SwayDE;
-    }
-    
-    else if( std::strstr( de, "Hyprland" ) != 0 ) {
-        delete( this );
-        return new _Hyprland;
     }
 
     else return this;
@@ -142,3 +90,11 @@ ProcessInfo DesktopEnv::getFocused() {
 }
 
 void DesktopEnv::castToBase() {}
+
+CastRule DesktopEnv::returnCastRule() const {
+    throw std::runtime_error("Internal. Base DE class passed to registering");
+}
+
+size_t DesktopEnv::getSizeof() {
+    throw std::runtime_error("Internal. Base DE class passed to registering");
+}
