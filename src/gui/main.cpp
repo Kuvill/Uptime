@@ -2,7 +2,7 @@
 #include <common/change_dir.hpp>
 #include <filesystem>
 #include <gui/record_item.hpp>
-#include <gui/column_view.hpp>
+#include <gui/builder.hpp>
 #include <gui/lazy_load.hpp>
 #include <gui/client.hpp>
 #include "gui/db.hpp"
@@ -42,7 +42,7 @@ static void activate( GtkApplication* app, gpointer data ) {
     }
 
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
-	setup_column_view( builder );
+	setup_builder( builder );
 	g_object_unref( builder );
 
     GContext::ctx->state.mergeStoreRightVersion( GContext::ctx->db.getRecords(Operators::Eqal, {}) );

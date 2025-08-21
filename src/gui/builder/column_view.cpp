@@ -124,13 +124,6 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 
 	gtk_column_view_column_set_factory( uptimeCol, uptimeFactory );
 
-    // Fill table from db
-    auto* stack = GTK_STACK( gtk_builder_get_object( builder, "body" ) );
-    g_signal_connect( stack, "notify::visible-child", G_CALLBACK(on_stack_page_changed), nullptr );
-    on_stack_page_changed(stack, 0, nullptr);
-
-    
-
     // setup menu
     // here is invalide pointer instance and type check errors
     // auto* year_item = G_MENU_ITEM( gtk_builder_get_object( builder, "years" ) );

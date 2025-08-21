@@ -54,8 +54,8 @@ gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data 
 }
 
 gint RecordItemUptimeCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
-    return reinterpret_cast<const RecordItem*>( lhs )->uptime <
-           reinterpret_cast< const RecordItem*>( rhs )->uptime;
+    return reinterpret_cast<const RecordItem*>( lhs )->uptime.count() -
+           reinterpret_cast< const RecordItem*>( rhs )->uptime.count();
 }
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };

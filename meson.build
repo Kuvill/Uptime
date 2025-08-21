@@ -30,12 +30,15 @@ gui_sources = [
   './src/time.cpp',
   './src/change_dir.cpp',
 
-  './src/gui/column_view.cpp',
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
   './src/gui/db.cpp',
   './src/gui/context.cpp',
-  './src/gui/client.cpp'
+  './src/gui/client.cpp',
+
+  './src/gui/builder.cpp',
+  './src/gui/builder/column_view.cpp',
+  './src/gui/builder/stack.cpp'
 ]
 
 server_sources = [

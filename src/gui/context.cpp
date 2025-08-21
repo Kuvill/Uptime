@@ -1,6 +1,7 @@
 #include "gui/context.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
+#include "gio/gio.h"
 #include "glib.h"
 #include "gui/record_item.hpp"
 
@@ -179,6 +180,8 @@ namespace {
         delete[] records;
 
         g_list_store_splice(_store, 0, 0, (gpointer*)store, result.size());
+
+        g_list_store_sort(_store, RecordItemUptimeCompare, nullptr );
 }
 
     /*
