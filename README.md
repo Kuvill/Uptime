@@ -41,3 +41,10 @@ GUI:
 - [ ] Gnome (In plan)
 - [ ] KDE (kwin scripting unusable. js just haven't functions from documentation. Native doesn't have documentation for use or even build)
 
+## Documentation
+
+### Add your DE support
+
+Implement DesktopEnv ( example declarations are in better_uptimer.hpp, defines - in de_dependent file )
+include header file into better_uptimer.cpp, call registerate<{your class}>(); in registrateAll func;
+write path to your source file in meason.build: demon_sources
