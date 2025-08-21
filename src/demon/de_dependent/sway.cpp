@@ -13,6 +13,8 @@
 #include <stack>
 #include <array>
 
+static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
+
 static const std::byte WorkspacesQuerry[] = {
     std::byte(105), std::byte(51), std::byte(45), // i3-
     std::byte(105), std::byte(112), std::byte(99), // ipc
@@ -112,7 +114,7 @@ ProcessInfo _SwayDE::getFocused() {
         logger.log(LogLvl::Error, "Internal. Failed to read message");
 
     const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
-    const uint32_t type = *reinterpret_cast<uint32_t*>( msgSize.data()+10 );
+    // const uint32_t type = *reinterpret_cast<uint32_t*>( msgSize.data()+10 );
 
     // string don't allow non-init creation (just use raw char*? or create from it)
     std::string data( size, '\0' );
@@ -132,24 +134,19 @@ ProcessInfo _SwayDE::getFocused() {
     return result;
 }
 
-DesktopEnv* _SwayDE::checkDE() {
-    return this;
+bool _SwayDE::CastCondition() {
+    char* de( std::getenv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    return strstr( "sway", de ) != nullptr;
 }
 
-ulong _SwayDE::getSizeof() {
-    return sizeof(*this);
-}
-
-static bool SwayCastCondition( std::string_view env ) {
-    return strstr( "sway", env.data() ) != nullptr;
-}
-
-static void SwayInplaceCast( DesktopEnv* self ) {
+void _SwayDE::InplaceCast( DesktopEnv* self ) {
     self->~DesktopEnv();
 
     new( self ) _SwayDE;
 } 
-
-CastRule _SwayDE::returnCastRule() const {
-    return { SwayCastCondition, SwayInplaceCast };
-}

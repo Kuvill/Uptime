@@ -93,7 +93,6 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-    logger.log(LogLvl::Info, "_Start record inserting");
 	recTime_t recTime = getCurrentTime();
 
 	insertUptimeRecord( info, recTime );

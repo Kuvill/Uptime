@@ -65,10 +65,11 @@ int main() {
 	Ips connect;
     // To make it unique_ptr i need some hacks
     // But it needn't
-    void* reserve = malloc(DE_maxSize());
+    registrateAll();
+    void* reserve = malloc(sizeForDE());
     DesktopEnv* de = new(reserve) DesktopEnv; 
-    de = de->checkDE();
-	// should be ms
+    de->checkDE();
+
     auto sleepDuration = 5s;
 	bool useDB = false;
 
@@ -117,7 +118,10 @@ int main() {
                 } else {
                     storage.insert( info );
                 }
-            } 
+            } else {
+            		logger.log(LogLvl::Warning,
+                            "The app has no app_id, skipping. (describe: ", info.describe, ")");
+            }
 
             logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );
@@ -132,3 +136,4 @@ int main() {
 	db.dumpStorage( storage );
 	return 0;
 }
+

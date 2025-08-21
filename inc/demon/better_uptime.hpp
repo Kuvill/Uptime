@@ -8,7 +8,7 @@
 class DesktopEnv;
 
 // using in header?
-using CastCondition = bool (*)( std::string_view env );
+using CastCondition = bool (*)();
 using InplaceCast = void (*)( DesktopEnv* self );
 
 struct CastRule {
@@ -16,7 +16,9 @@ struct CastRule {
     InplaceCast cast;
 };
 
-ulong DE_maxSize();
+void registrateAll();
+
+size_t sizeForDE();
 
 class DesktopEnv {
 protected:
@@ -26,17 +28,9 @@ public:
     DesktopEnv() = default;
     virtual ~DesktopEnv() = default;
 
-    // functional
-
     virtual ProcessInfo getFocused();
 
-    virtual DesktopEnv* checkDE();
-    
-    // SOLID support functions
-
-    virtual ulong getSizeof();
-
-    [[noreturn]] virtual CastRule returnCastRule() const;
+    void checkDE();
 };
 
 class _SwayDE final : public DesktopEnv {
@@ -52,13 +46,11 @@ public:
 
     ProcessInfo getFocused() override;
 
-    DesktopEnv* checkDE() override;
-
     // SOLID support functions
 
-    ulong getSizeof() override;
+    static bool CastCondition();
 
-    virtual CastRule returnCastRule() const override;
+    static void InplaceCast( DesktopEnv* self );
 };
 
 class _Hyprland final : public DesktopEnv {
@@ -75,11 +67,9 @@ public:
 
     ProcessInfo getFocused() override;
 
-    DesktopEnv* checkDE() override;
-
     // SOLID support functions
 
-    ulong getSizeof() override;
+    static bool CastCondition();
 
-    virtual CastRule returnCastRule() const override;
+    static void InplaceCast( DesktopEnv* self );
 };

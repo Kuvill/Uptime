@@ -3,10 +3,8 @@
 #include "common/aliases.hpp"
 
 #include <cstring>
-#include <print>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <thread>
 #include <unistd.h>
 
 #include <cstdlib>
@@ -14,10 +12,8 @@
 // FIXME!!!
 // that freak close connect after a few ??? of inactive. 
 // idle i want to find disscusion about it in github
-// or create new
 
-// After a few tests (1) i resume, that sign size - 62
-// (no documentation kekwait)
+static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
 const char HYPR[] = "/hypr/";
 const char SOCK[] = "/.socket.sock";
@@ -141,23 +137,19 @@ ProcessInfo _Hyprland::getFocused() {
     return result;
 }
 
-DesktopEnv* _Hyprland::checkDE() {
-    return this;
+bool _Hyprland::CastCondition() {
+    char* de( std::getenv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    return strstr( "Hyprland", de ) != nullptr;
 }
 
-ulong _Hyprland::getSizeof() {
-    return sizeof(*this);
-}
-
-static bool HyprCastCondition( std::string_view env ) {
-    return strstr( "Hyprland", env.data() ) != nullptr;
-}
-
-static void HyprInplaceCast( DesktopEnv* self ) {
+void _Hyprland::InplaceCast( DesktopEnv* self ) {
     self->~DesktopEnv();
-    new( self ) _Hyprland;
-}
 
-CastRule _Hyprland::returnCastRule() const {
-    return { HyprCastCondition, HyprInplaceCast };
+    new( self ) _Hyprland;
 }

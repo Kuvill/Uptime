@@ -1,10 +1,6 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 
-#include <memory>
-#include <typeinfo>
-#include <stdexcept>
-
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -16,12 +12,9 @@
 
 #include <nlohmann/json.hpp>
 
-static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
 // YOO, SOLID, i recived you ^^
 // Task for fun (not to impl): Make it dynamic without recompile
-
-// coast of SOLID - really big. not sure, that it was relevant
 
 // Can it be std::tuple to avoid allocation and make all constexpr ?)
 // alter way - use vectors. (create it with lambda)
@@ -30,57 +23,50 @@ static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 // List of supported DE. Change it to add custom 
 // Order make a sence
 
-namespace {
-    static auto __De_instances__ =
-        std::to_array<std::unique_ptr<DesktopEnv>>({
-           
-            std::make_unique<_SwayDE>(),
-            std::make_unique<_Hyprland>()
-    });
+static std::vector<size_t> __Sizes__;
+static std::vector<CastRule> __Rules__;
 
-    // auto + -> {type} look better, but harder to get, that it not a lamda
-    static std::array<CastRule, std::size(__De_instances__)> __Rules__ = []() constexpr {
-        std::array<CastRule, std::size(__De_instances__)> result;
+template< typename T >
+concept CompleteDE = requires( DesktopEnv* self ) { 
+    std::derived_from<T, DesktopEnv>;
 
-        for( int i = 0; i < __De_instances__.size(); ++i ) {
-            result[i] = __De_instances__[i]->returnCastRule();
-        }
+    { T::CastCondition() } -> std::same_as<bool>;
+    { T::InplaceCast( self ) } -> std::same_as<void>;
+};
 
-        return result;
-    }();
+template< CompleteDE T >
+constexpr static void registrate() {
+    __Sizes__.push_back( sizeof(T) );
+    __Rules__.push_back( CastRule{T::CastCondition, T::InplaceCast} );
 }
 
-ulong DE_maxSize() {
-    unsigned long result = 0;
+// constexpr ...(
+void registrateAll() {
+    registrate<_SwayDE>();
+    registrate<_Hyprland>();
+}
 
-    logger.log(LogLvl::Info, "Supported Desktop enviroments: ");
+size_t sizeForDE() {
+    size_t result = 0;
 
-    for( const auto& DE : __De_instances__ ) {
-        result = std::max( DE->getSizeof(), result );
-        logger.log(LogLvl::Info, '\t', typeid(DE).name() );
+    for( auto size : __Sizes__ ) {
+        result = std::max( result, size );
     }
 
     return result;
-} 
+}
 
 // change strstr to iterating by ':' as in sway:wlroot:swayfx 
 // allow function itself to call getenv? Can't see why not
-DesktopEnv* DesktopEnv::checkDE() {
+void DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
-    char* de( std::getenv( DE_ENV_VAR ) );
 
     for( int i = 0; i < __Rules__.size(); ++i ) {
-        if( __Rules__[i].cond( de ) ) {
+        if( __Rules__[i].cond() ) {
             __Rules__[i].cast( this );
+            return;
         }
     }
-
-    if( !de ) {
-        logger.log(LogLvl::Error, "Unable to detect current DE!");
-        throw std::runtime_error("Unable to detect current DE!");
-    }
-
-    else return this;
 }
 
 // I don't recall getFocused to prevent inf recursive
@@ -90,11 +76,3 @@ ProcessInfo DesktopEnv::getFocused() {
 }
 
 void DesktopEnv::castToBase() {}
-
-CastRule DesktopEnv::returnCastRule() const {
-    throw std::runtime_error("Internal. Base DE class passed to registering");
-}
-
-size_t DesktopEnv::getSizeof() {
-    throw std::runtime_error("Internal. Base DE class passed to registering");
-}
