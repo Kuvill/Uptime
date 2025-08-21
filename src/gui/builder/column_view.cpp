@@ -2,7 +2,6 @@
 #include "gui/context.hpp"
 #include "gui/record_item.hpp"
 #include "gui/column_view.hpp"
-#include "gui/lazy_load.hpp"
 #include "common/time.hpp"
 
 #include <gtk/gtk.h>
@@ -63,9 +62,9 @@ static void on_uptime_changed(GObject *object, GParamSpec *pspec, GtkWidget *lab
     g_object_set(label, "label", timeToStr( recTime_t( new_name ) ).c_str(), NULL);
 }
 
-// fill an created by setup widget
+// update an created by setup widget
 // @factory - GtkFactory, that will create an widget
-// @item_list - here store our items for MODEL, not factor.
+// @item_list - here store our items by MODEL, not factor.
 // so just change in list will not present on widget
 static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem ) {
     logger.log(LogLvl::Info, "an record(appname) was binded to ColumnView");
