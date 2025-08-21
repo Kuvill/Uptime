@@ -40,12 +40,6 @@ static std::string timeToStr( const recTime_t& time ) {
     return oneUnitTime( time );
 }
 
-static void on_year_selected( Context* data ) {
-    logger.log(LogLvl::Error, "mb double: changed to year");
-    data->state.changeModel(Duration::ByYear);
-}
-
-
 // create widget for an field of RecordItem
 // @factory - GtkFactory, that will create an widget
 // @item_list - here store our items for MODEL, not factor.
@@ -104,7 +98,7 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* appNameCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "app_name_col" ));
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
-    GListStore* store = g_list_store_new( RECORD_ITEM_TYPE );
+    auto* store = g_list_store_new( RECORD_ITEM_TYPE );
     GContext::ctx->state.setStore( store );
 
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
@@ -123,12 +117,6 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 	g_signal_connect( uptimeFactory, "bind", G_CALLBACK(bind_update_cb), nullptr );
 
 	gtk_column_view_column_set_factory( uptimeCol, uptimeFactory );
-
-    // setup menu
-    // here is invalide pointer instance and type check errors
-    // auto* year_item = G_MENU_ITEM( gtk_builder_get_object( builder, "years" ) );
-    // g_signal_connect(year_item, "activate", G_CALLBACK(on_year_selected), &context);
-
 
     return store;
 }
