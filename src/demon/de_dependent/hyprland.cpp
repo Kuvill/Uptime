@@ -69,7 +69,8 @@ ProcessInfo _Hyprland::getFocused() {
     ProcessInfo result;
     if( send( _sock, MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
-        castToBase();
+        checkDE();
+        return {};
     }
 
     // God damn, it is csv or some like
@@ -138,6 +139,7 @@ ProcessInfo _Hyprland::getFocused() {
 }
 
 bool _Hyprland::CastCondition() {
+    logger.log(LogLvl::Info, "Checking does Hyprland running...");
     char* de( std::getenv( DE_ENV_VAR ) );
 
     if( !de ) {

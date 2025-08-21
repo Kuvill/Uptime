@@ -1,8 +1,10 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
+#include "common/aliases.hpp"
 
 #include <cstdio>
 #include <cstring>
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -22,13 +24,18 @@ static const std::byte WorkspacesQuerry[] = {
     std::byte(4), std::byte(0), std::byte(0), std::byte(0), // 4
 };
 
-// have to be free
 static const char* getSwaySockAddr() {
     auto result = std::getenv( "SWAYSOCK" );
 
     if( result )
         return result;
+    return nullptr;
+}
 
+// must be free
+static const char* getSwaySockAddrAlter() {
+    const char* result;
+    
     FILE* mimic = popen( "sway --get-socketpath", "r" );
     assert( mimic != nullptr );
 
@@ -49,7 +56,19 @@ _SwayDE::_SwayDE() {
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
-    strcat( addr.sun_path, getSwaySockAddr() );
+    const char* sockAddr = getSwaySockAddr();
+
+    if( !sockAddr ) [[unlikely]] {
+        c_string trueAddr { getSwaySockAddrAlter() };
+        sockAddr = trueAddr.get();
+
+        if( !trueAddr ) {
+            logger.log(LogLvl::Error, "With seted session env on sway, sockadr wasn't found!");
+            exit(1);
+        }
+    }
+
+    strcat( addr.sun_path, sockAddr );
 
     if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
 
@@ -105,7 +124,11 @@ ProcessInfo _SwayDE::getFocused() {
     if( rc < 0 ) {
         // btw i should check errno FIXME
         logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
-        this->castToBase();
+
+        // if i want call here getFocused, i have to prevent inf loop.
+        // IMHO i don't have to do that coz it take time to select new DE
+        // (1 more reason why i should call sleep not it begin of program, but after getenv == nullptr)
+        checkDE();
         return {};
     }
 
@@ -135,6 +158,8 @@ ProcessInfo _SwayDE::getFocused() {
 }
 
 bool _SwayDE::CastCondition() {
+    logger.log(LogLvl::Info, "Checking does sway running...");
+
     char* de( std::getenv( DE_ENV_VAR ) );
 
     if( !de ) {
@@ -142,7 +167,7 @@ bool _SwayDE::CastCondition() {
         throw std::runtime_error("Unable to detect current DE!");
     }
 
-    return strstr( "sway", de ) != nullptr;
+    return strstr( de, "sway" ) != nullptr;
 }
 
 void _SwayDE::InplaceCast( DesktopEnv* self ) {

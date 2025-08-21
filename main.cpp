@@ -34,7 +34,7 @@ Logger logger("logs.log", LogLvl::Info );
 static Database* g_db;
 static Storage* g_storage;
 
-void SigHandler( int code ) {
+static void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
 	g_db->dumpStorage( *g_storage );
