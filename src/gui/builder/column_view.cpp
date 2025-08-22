@@ -1,4 +1,5 @@
 #include "common/logger.hpp"
+#include "glib-object.h"
 #include "gui/context.hpp"
 #include "gui/record_item.hpp"
 #include "gui/column_view.hpp"
@@ -9,17 +10,6 @@
 #include <cstdio>
 #include <format>
 
-
-/* 
-   // Should be in context 
-   struct Resources {
-    GtkWidget* stack;
-    GtkWidget* page1;
-    GtkWidget* page2;
-    gboolean page1_loaded;
-    gboolean page2_loaded;
-   }
-*/
 
 static std::string oneUnitTime( const recTime_t& time ) {
     using namespace std::literals::chrono_literals;
@@ -39,15 +29,29 @@ static std::string timeToStr( const recTime_t& time ) {
     return oneUnitTime( time );
 }
 
+static void table_right_click( GtkGestureClick* self, gint n_press, 
+            gdouble x, gdouble y, gpointer data ) {
+    
+    logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
+    auto* b = gtk_menu_button_new();
+}
+
 // create widget for an field of RecordItem
 // @factory - GtkFactory, that will create an widget
 // @item_list - here store our items for MODEL, not factor.
 // so just change in list will not present on widget
 static void setup_cb( GtkSignalListItemFactory* factory, GtkListItem* item_list ) {
     logger.log(LogLvl::Info, "Columnn view setup called");
+
+    auto* eventHandler = gtk_gesture_click_new();
+    gtk_gesture_single_set_button( GTK_GESTURE_SINGLE( eventHandler ), GDK_BUTTON_SECONDARY );
+    g_signal_connect( eventHandler, "pressed", G_CALLBACK(table_right_click), nullptr );
+
 	GtkWidget* label = gtk_label_new( nullptr );
 	gtk_label_set_xalign( GTK_LABEL( label ), 0.0f );
 	gtk_list_item_set_child( item_list, label );
+
+    gtk_widget_add_controller( label, GTK_EVENT_CONTROLLER(eventHandler) );
 }
 
 static void on_name_changed(GObject *object, GParamSpec *pspec, GtkWidget *label) {
