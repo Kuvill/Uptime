@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="GtkPopover" id="table_popover">
+    <child>
+      <object class="GtkBox" id="popover_vbox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">4</property>
+        <child>
+          <object class="GtkButton" id="copy">
+            <property name="label">copy</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="delete">
+            <property name="label">delete</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
+

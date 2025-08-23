@@ -1,6 +1,7 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 
+#include <algorithm>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -50,13 +51,7 @@ void registrateAll() {
 }
 
 size_t sizeForDE() {
-    size_t result = 0;
-
-    for( auto size : __Sizes__ ) {
-        result = std::max( result, size );
-    }
-
-    return result;
+    return *std::max_element( __Sizes__.begin(), __Sizes__.end() );
 }
 
 void DesktopEnv::checkDE() {

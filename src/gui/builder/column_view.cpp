@@ -33,7 +33,11 @@ static void table_right_click( GtkGestureClick* self, gint n_press,
             gdouble x, gdouble y, gpointer data ) {
     
     logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
-    auto* b = gtk_menu_button_new();
+    GtkPopover* popover = GTK_POPOVER( data );
+
+    GdkRectangle rec; rec.x = x; rec.y = y;
+    gtk_popover_set_pointing_to( popover, &rec );
+    gtk_popover_popup( popover );
 }
 
 // create widget for an field of RecordItem
@@ -70,9 +74,12 @@ static void on_uptime_changed(GObject *object, GParamSpec *pspec, GtkWidget *lab
 // @factory - GtkFactory, that will create an widget
 // @item_list - here store our items by MODEL, not factor.
 // so just change in list will not present on widget
-static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem ) {
+
+// FIXME check multi connection by using id or do connect in setup funcion using static variablej
+static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem, gpointer data ) {
     logger.log(LogLvl::Info, "an record(appname) was binded to ColumnView");
     GtkWidget* label = gtk_list_item_get_child( listItem );
+
     RecordItem* rec = static_cast<RecordItem*>( gtk_list_item_get_item( listItem ) );
 
     g_signal_connect(rec, "notify::name", G_CALLBACK(on_name_changed), label); 
@@ -95,6 +102,8 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     gtk_label_set_text( GTK_LABEL( label ), timeToStr( rec->uptime ).c_str() );
 }
 
+// ----------------------------------------
+
 GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
@@ -106,6 +115,15 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
 	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );
+
+    // Menu setup
+    {
+        auto* builder = gtk_builder_new_from_file( "table_menu.ui" );
+        auto* popover = gtk_builder_get_object( builder, "table_popover" );
+        auto* copy_action = gtk_builder_get_object( builder, "copy" );
+        auto* delete_action = gtk_builder_get_object( builder, "delete" );
+        g_signal_connect( copy, "copy_action", G_CALLBACK())
+    }
 
 	// App name factory
 	GtkListItemFactory* appNameFactory = gtk_signal_list_item_factory_new();
