@@ -33,7 +33,7 @@ gui_sources = [
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
   './src/gui/db.cpp',
-  './src/gui/context.cpp',
+  './src/gui/state.cpp',
   './src/gui/client.cpp',
 
   './src/gui/builder.cpp',

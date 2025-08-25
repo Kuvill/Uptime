@@ -23,7 +23,7 @@ Bound::Bound() {
 
         // looks really ugly
         // only way that i see - use variant over enum 
-        // but will it appearance?
+        // but will it more appearance?
         switch (_bound.model) {
             case Duration::ByYear:
                 _bound.to = getCurrentDate();

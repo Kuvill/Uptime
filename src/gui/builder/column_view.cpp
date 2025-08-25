@@ -33,7 +33,7 @@ static void table_right_click( GtkGestureClick* self, gint n_press,
             gdouble x, gdouble y, gpointer data ) {
     
     logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
-    GtkPopover* popover = GTK_POPOVER( data );
+    GtkPopover* popover = GContext::ctx->utils.table_menu.popover;
 
     GdkRectangle rec; rec.x = x; rec.y = y;
     gtk_popover_set_pointing_to( popover, &rec );
@@ -115,15 +115,6 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
 	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );
-
-    // Menu setup
-    {
-        auto* builder = gtk_builder_new_from_file( "table_menu.ui" );
-        auto* popover = gtk_builder_get_object( builder, "table_popover" );
-        auto* copy_action = gtk_builder_get_object( builder, "copy" );
-        auto* delete_action = gtk_builder_get_object( builder, "delete" );
-        g_signal_connect( copy, "copy_action", G_CALLBACK())
-    }
 
 	// App name factory
 	GtkListItemFactory* appNameFactory = gtk_signal_list_item_factory_new();
