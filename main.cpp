@@ -111,7 +111,7 @@ int main() {
             // * use variant as polimorphism
             auto info = de->getFocused();
 
-            if( info.name.empty() ) {
+            if( !info.name.empty() ) {
                 if( useDB ) {
                     db.insertUptimeRecord( info );
 
