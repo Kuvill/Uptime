@@ -1,19 +1,16 @@
 #pragma once
 
+#include "common/logger.hpp"
+
 #include <gtk/gtk.h>
 
 struct TableMenu {
     GtkPopover* popover;
+    // btw i should store not only Item, but possition to have access to 
+    // helper members as rec_time to find the record in db
+    GtkListItem* selected;
 
-    TableMenu() {
-        auto* builder = gtk_builder_new_from_file( "table_menu.ui" );
+    TableMenu();
 
-        popover = GTK_POPOVER( gtk_builder_get_object( builder, "table_menu" ) );
-
-        g_object_unref( builder );
-    }
-
-    ~TableMenu() {
-        g_object_unref( popover );
-    }
+    ~TableMenu();
 };

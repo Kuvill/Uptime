@@ -15,8 +15,6 @@
 
 const char* dbName = "uptime.db";
 
-Context* GContext::ctx = nullptr; 
-
 #ifdef DEBUG
     Logger logger(LogLvl::Info);
 #else
@@ -33,6 +31,7 @@ static guint SetupTimer( Context& context ) {
 // TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
     CheckDirectory();
+
 	GtkBuilder* builder = gtk_builder_new_from_file( "main.ui" );
     
     // hide error handling into builder setup func?
@@ -45,7 +44,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 	setup_builder( builder );
 	g_object_unref( builder );
 
-    GContext::ctx->state.mergeStoreRightVersion( GContext::ctx->db.getRecords(Operators::Eqal, {}) );
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords(Operators::Eqal, {}) );
     // SetupTimer( *context );
 
 	gtk_window_set_application( window , app );
@@ -54,24 +53,12 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 int main( int argc, char *argv[] ) {
 	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
-    // g_object_set(gtk_settings_get_default(),
-    //    "gtk-application-prefer-dark-theme", TRUE,
-    //    NULL);
-
-    // make it global?
-    Context context{
-        DatabaseReader( dbName ),
-        Client(),
-        State(),
-        Settings()
-    };
-
-    GContext::ctx = &context;
-
 	g_signal_connect( app, "activate", G_CALLBACK( activate ), nullptr );
 
 	int stat = g_application_run( G_APPLICATION( app ), argc, argv );
 	g_object_unref( app );
+
+    delete Context::self;
 
 	return stat;
 }

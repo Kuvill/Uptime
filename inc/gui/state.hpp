@@ -54,7 +54,7 @@ public:
     void setFrom();
     void setTo();
 
-    friend struct Context;
+    friend class Context;
 };
 
 

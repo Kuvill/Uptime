@@ -33,7 +33,10 @@ static void table_right_click( GtkGestureClick* self, gint n_press,
             gdouble x, gdouble y, gpointer data ) {
     
     logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
-    GtkPopover* popover = GContext::ctx->utils.table_menu.popover;
+    GtkPopover* popover = Context::get()->utils.table_menu.popover;
+
+    auto* item = GTK_LIST_ITEM(data);
+    Context::get()->utils.table_menu.selected = item;
 
     GdkRectangle rec; rec.x = x; rec.y = y;
     gtk_popover_set_pointing_to( popover, &rec );
@@ -49,7 +52,7 @@ static void setup_cb( GtkSignalListItemFactory* factory, GtkListItem* item_list 
 
     auto* eventHandler = gtk_gesture_click_new();
     gtk_gesture_single_set_button( GTK_GESTURE_SINGLE( eventHandler ), GDK_BUTTON_SECONDARY );
-    g_signal_connect( eventHandler, "pressed", G_CALLBACK(table_right_click), nullptr );
+    g_signal_connect( eventHandler, "pressed", G_CALLBACK(table_right_click), item_list );
 
 	GtkWidget* label = gtk_label_new( nullptr );
 	gtk_label_set_xalign( GTK_LABEL( label ), 0.0f );
@@ -111,7 +114,7 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
     auto* store = g_list_store_new( RECORD_ITEM_TYPE );
-    GContext::ctx->state.setStore( store );
+    Context::get()->state.setStore( store );
 
     GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
 	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );

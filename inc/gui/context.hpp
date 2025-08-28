@@ -6,15 +6,18 @@
 #include "gui/state.hpp"
 #include "gui/utils.hpp"
 
-struct Context {
+class Context {
+    static Context* self;
+
+    friend int main( int, char** );
+
+public:
     DatabaseReader db;
     Client ipc;
     State state;
     Settings settings;
 
     Utils utils;
-};
 
-struct GContext {
-    static Context* ctx;
+    static Context* get();
 };

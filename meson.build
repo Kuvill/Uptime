@@ -35,10 +35,13 @@ gui_sources = [
   './src/gui/db.cpp',
   './src/gui/state.cpp',
   './src/gui/client.cpp',
+  './src/gui/context.cpp',
 
   './src/gui/builder.cpp',
   './src/gui/builder/column_view.cpp',
-  './src/gui/builder/stack.cpp'
+  './src/gui/builder/stack.cpp',
+
+  './src/gui/utils/table_menu.cpp'
 ]
 
 server_sources = [
