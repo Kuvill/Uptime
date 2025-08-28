@@ -2,7 +2,6 @@
 #include "gui/context.hpp"
 #include "gui/record_item.hpp"
 #include "gui/column_view.hpp"
-#include "gui/lazy_load.hpp"
 #include "common/time.hpp"
 
 #include <gtk/gtk.h>
@@ -101,8 +100,16 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
     auto* store = g_list_store_new( RECORD_ITEM_TYPE );
     GContext::ctx->state.setStore( store );
 
-    GtkSingleSelection* model = gtk_single_selection_new( G_LIST_MODEL(store) );
-	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( model ) );
+    auto* viewSorter = gtk_column_view_get_sorter( columnView ); // allow sorting by clicking on name
+    auto* model = gtk_sort_list_model_new( G_LIST_MODEL(store), viewSorter );
+    GtkSingleSelection* selection = gtk_single_selection_new( G_LIST_MODEL(model) ); // do i need selection?
+	gtk_column_view_set_model(columnView, GTK_SELECTION_MODEL( selection ) );
+
+    auto* appNameSorter = GTK_SORTER(gtk_custom_sorter_new( RecordItemNameCompare, nullptr, nullptr ));
+    auto* uptimeSorter = GTK_SORTER(gtk_custom_sorter_new( RecordItemUptimeCompare, nullptr, nullptr ));
+
+    gtk_column_view_column_set_sorter( appNameCol, appNameSorter );
+    gtk_column_view_column_set_sorter( uptimeCol, uptimeSorter );
 
 	// App name factory
 	GtkListItemFactory* appNameFactory = gtk_signal_list_item_factory_new();

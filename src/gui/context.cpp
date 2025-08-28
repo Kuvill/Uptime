@@ -181,7 +181,7 @@ namespace {
 
         g_list_store_splice(_store, 0, 0, (gpointer*)store, result.size());
 
-        g_list_store_sort(_store, RecordItemUptimeCompare, nullptr );
+        // g_list_store_sort(_store, RecordItemUptimeCompare, nullptr );
 }
 
     /*
