@@ -11,6 +11,7 @@
 
 // Have to be non-blocking btw, since it Gui app
 Client::Client() {
+    return;
     logger.log(LogLvl::Info, "trying to create client socket...");
 
     _clientSocket = socket(AF_UNIX, SOCK_STREAM, 0);

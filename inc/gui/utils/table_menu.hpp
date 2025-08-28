@@ -1,7 +1,5 @@
 #pragma once
 
-#include "common/logger.hpp"
-
 #include <gtk/gtk.h>
 
 struct TableMenu {

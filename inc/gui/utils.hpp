@@ -6,4 +6,7 @@
 
 struct Utils {
     TableMenu table_menu;
+
+    // so ugly
+    GtkWindow* window;
 };
