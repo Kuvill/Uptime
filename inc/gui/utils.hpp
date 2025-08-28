@@ -5,7 +5,7 @@
 #include "gui/utils/table_menu.hpp"
 
 struct Utils {
-    TableMenu table_menu;
+    // TableMenu table_menu;
 
     // so ugly
     GtkWindow* window;

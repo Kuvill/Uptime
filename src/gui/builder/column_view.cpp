@@ -29,22 +29,20 @@ static std::string timeToStr( const recTime_t& time ) {
     return oneUnitTime( time );
 }
 
+// I Have to create custom class, that is Gesture and contain popover
 static void table_right_click( GtkGestureClick* self, gint n_press, 
             gdouble x, gdouble y, gpointer data ) {
     
     logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
-    auto* popover = Context::get()->utils.table_menu.popover;
-
-    logger.log(LogLvl::Error, "Addr of funny thing: ", (void*)popover, "\nOf context: ", (void*)Context::get());
-    logger.log(LogLvl::Error, "Css class", gtk_widget_get_css_name( GTK_WIDGET(popover)) );
+    // auto* popover = Context::get()->utils.table_menu.popover;
 
     auto* item = GTK_LIST_ITEM(data);
-    Context::get()->utils.table_menu.selected = item;
+    // Context::get()->utils.table_menu.selected = item;
 
     GdkRectangle rec; rec.x = x; rec.y = y;
-    gtk_popover_set_pointing_to( popover, &rec );
+    // gtk_popover_set_pointing_to( popover, &rec );
     // gtk_popover_popup( popover );
-    gtk_popover_present( popover );
+    // gtk_popover_present( popover );
 }
 
 // create widget for an field of RecordItem

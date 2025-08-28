@@ -21,7 +21,7 @@ TableMenu::TableMenu() {
     g_object_ref( popover );
     g_object_unref( builder );
 
-    logger.log(LogLvl::Error, gtk_widget_get_css_name( GTK_WIDGET(popover)));
+    // logger.log(LogLvl::Error, gtk_widget_get_css_name( GTK_WIDGET(popover)));
 
     auto* copyBtn = gtk_builder_get_object( builder, "copy" );
     g_signal_connect( copyBtn, "clicked", G_CALLBACK(CopyAction), selected );
