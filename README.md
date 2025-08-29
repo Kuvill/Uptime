@@ -4,7 +4,7 @@
 ## How do you spend your time?
 Uptimer (work title) - tools for recording some PC usage information (like on-screen (focused) window uptimes, browser focused tab and media in future) and present it with GUI or TUI.
 
-All data is stored localy, what makes Uptimer completely privacy
+All data is stored locally, what makes Uptimer completely privacy
 
 
 ### How to build
