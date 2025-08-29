@@ -40,6 +40,7 @@ gui_sources = [
   './src/gui/builder.cpp',
   './src/gui/builder/column_view.cpp',
   './src/gui/builder/stack.cpp',
+  './src/gui/builder/table_navigation.cpp',
 
   './src/gui/utils/table_menu.cpp'
 ]

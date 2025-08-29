@@ -65,21 +65,65 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                     <property name="orientation">1</property>
                     <child>
                       <object class="GtkBox">
-                        <property name="orientation">0</property>
-                        <property name="margin-top">5</property>
-                        <property name="halign">3</property>
-                        <property name="homogeneous">true</property>
-                        <property name="spacing">15</property>
+                        <property name="orientation">1</property>
+                        <property name="valign">0</property>
+                        <property name="spacing">4</property>
                         <child>
-                          <object class="GtkLabel" id="DateFrom"></object>
-                        </child>
-                        <child>
-                          <object class="GtkMenuButton" id="DurationBtn">
-                            <property name="menu-model">setDuration</property>
+                          <object class="GtkBox">
+                            <property name="valign">1</property>
+                            <property name="orientation">0</property>
+                            <property name="margin-top">5</property>
+                            <property name="halign">3</property>
+                            <property name="spacing">15</property>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="icon-name">arrow</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuButton" id="DurationBtn">
+                                <property name="menu-model">setDuration</property>
+                                <property name="label" translatable="yes">Years</property>
+                                <property name="primary">true</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="icon-name">arrow</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="DateTo"></object>
+                          <object class="GtkBox">
+                            <property name="orientation">0</property>
+                            <property name="hexpand">true</property>
+                            <property name="halign">3</property>
+                            <property name="spacing">128</property>
+                            <property name="homogeneous">true</property>
+                            <property name="margin-start">20</property>
+                            <property name="margin-end">20</property>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="halign">1</property>
+                                <child>
+                                  <object class="GtkLabel" id="DateFrom">
+                                    <property name="label" translatable="yes">01.01.01</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton">
+                                <property name="halign">2</property>
+                                <child>
+                                  <object class="GtkLabel" id="DateTo">
+                                    <property name="label" translatable="yes">02.02.02</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
                         </child>
                       </object>
                     </child>
@@ -94,7 +138,7 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
                               <object class="GtkBox">
                                 <property name="orientation">1</property>
                                 <property name="halign">3</property>
-                                <property name="margin-top">32</property>
+                                <property name="margin-top">16</property>
                                 <child>
                                   <object class="GtkScrolledWindow">
                                     <property name="height-request">340</property>
@@ -196,14 +240,22 @@ corresponding .blp file and regenerate this file with blueprint-compiler.
       <item>
         <attribute name="name">years</attribute>
         <attribute name="label" translatable="yes">Years</attribute>
+        <attribute name="action">app.years</attribute>
       </item>
       <item>
         <attribute name="name">months</attribute>
         <attribute name="label" translatable="yes">Months</attribute>
+        <attribute name="action">app.months</attribute>
       </item>
       <item>
         <attribute name="name">days</attribute>
         <attribute name="label" translatable="yes">Days</attribute>
+        <attribute name="action">app.days</attribute>
+      </item>
+      <item>
+        <attribute name="name">all</attribute>
+        <attribute name="label" translatable="yes">All</attribute>
+        <attribute name="action">app.all</attribute>
       </item>
     </section>
   </menu>

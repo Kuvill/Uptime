@@ -4,7 +4,6 @@
 #include <gui/record_item.hpp>
 
 #include <gtk/gtk.h>
-#include <chrono>
 
 enum class Duration { 
     ByDay,
@@ -14,23 +13,26 @@ enum class Duration {
 };
 
 struct Bound {
-    std::chrono::year_month_day to = getCurrentDate();
-    std::chrono::year_month_day from = getCurrentDate();
+    // i want to use year_month_day,
+    // but guess sqlite can make better optimizations, that just 2 bite save
+    recTime_t to = getCurrentTime();
+    recTime_t from = getCurrentTime();
     
-    Duration model = Duration::ByDay;
+    Duration model = Duration::All;
 
     Bound();
 };
 
 class State {
     GListStore* _store;
-    Bound _bound;
 
     GTimer* _timer;
 
     RecordItem* _lastItem = nullptr;
 
 public:
+    Bound _bound;
+
     RecordItem* getLastItem() { return _lastItem; }
     void setLastItem( RecordItem* item ) { _lastItem = item; }
 

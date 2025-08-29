@@ -26,11 +26,13 @@ protected:
 
     DatabaseReader();
 
+    std::tuple<RawRecordItem**, int> getAllRecords();
+    std::tuple<RawRecordItem**, int> getBoundedRecords( recTime_t from, recTime_t to );
 public:
     DatabaseReader( const char* dbName );
     ~DatabaseReader();
 
-    std::tuple<RawRecordItem**, int> getRecords( Operators op, recTime_t );
+    std::tuple<RawRecordItem**, int> getRecords();
     RecordItem* getLastRecord();
     const unsigned char* getAppName( int appId );
     void checkErr( const char* = "" );
