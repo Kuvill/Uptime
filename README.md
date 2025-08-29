@@ -2,7 +2,9 @@
 
 
 ## How do you spend your time?
-The set of applications record focused window uptime into db and provide tools to view processed results via gui or cli
+Uptimer (work title) - tools for recording some PC usage information (like on-screen (focused) window uptimes, browser focused tab and media in future) and present it with GUI or TUI.
+
+All data is stored localy, what makes Uptimer completely privacy
 
 
 ### How to build
@@ -38,8 +40,12 @@ GUI:
 
 - [x] SwayWM
 - [x] Hyprland
+- [ ] X11 (In plan)
 - [ ] Gnome (In plan)
 - [ ] KDE (kwin scripting unusable. js just haven't functions from documentation. Native doesn't have documentation for use or even build)
+
+- [ ] Windows (On request)
+- [ ] MacOS (On request)
 
 ## Documentation
 
@@ -48,3 +54,13 @@ GUI:
 Implement DesktopEnv ( example declarations are in better_uptimer.hpp, defines - in de_dependent file )
 include header file into better_uptimer.cpp, call registerate<{your class}>(); in registrateAll func;
 write path to your source file in meason.build: demon_sources
+
+### Architecture summary
+
+**Sway** - Request current focused window every *n* seconds
+**Hyprland** - Request current focused window every *n* seconds (temporarily)
+
+## Screenshots
+
+![Gui early edition](./summer_condition.svg);
+
