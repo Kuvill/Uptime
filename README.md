@@ -62,5 +62,4 @@ write path to your source file in meason.build: demon_sources
 
 ## Screenshots
 
-![Gui early edition](./summer_condition.png);
-
+![Gui early edition](./summer_condition.png)
