@@ -1,31 +1,41 @@
 #include "gio/gio.h"
 #include "gui/context.hpp"
-#include "common/logger.hpp"
 
 #include "gtk/gtk.h"
 
-static void test( GSimpleAction* action, GVariant* param, gpointer data ) {
-    logger.log(LogLvl::Error, "Works well!");
-}
+// Make one function and pass data with variant?
 
 static void on_year_duration_choose( GSimpleAction* action, GVariant* param, gpointer data ) {
     Context::get()->state.changeModel( Duration::ByYear );
+
+    g_list_store_remove_all( Context::get()->state.getStore() );
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords() );
 }
 
 static void on_month_duration_choose( GSimpleAction* action, GVariant* param, gpointer data ) {
-    Context::get()->state.changeModel( Duration::ByYear );
+    Context::get()->state.changeModel( Duration::ByMonth );
+
+    g_list_store_remove_all( Context::get()->state.getStore() );
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords() );
 }
 static void on_day_duration_choose( GSimpleAction* action, GVariant* param, gpointer data ) { Context::get()->state.changeModel( Duration::ByYear );
+    Context::get()->state.changeModel( Duration::ByDay );
+
+    g_list_store_remove_all( Context::get()->state.getStore() );
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords() );
 }
 static void on_all_duration_choose( GSimpleAction* action, GVariant* param, gpointer data ) {
-    Context::get()->state.changeModel( Duration::ByYear );
+    Context::get()->state.changeModel( Duration::All );
+
+    g_list_store_remove_all( Context::get()->state.getStore() );
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords() );
 }
 
 static GActionEntry app_entries[] = {
-    {"years", test, nullptr, nullptr, nullptr},
-    {"months", test, nullptr, nullptr, nullptr},
-    {"days", test, nullptr, nullptr, nullptr},
-    {"all", test, nullptr, nullptr, nullptr},
+    {"years", on_year_duration_choose, nullptr, nullptr, nullptr},
+    {"months", on_month_duration_choose, nullptr, nullptr, nullptr},
+    {"days", on_day_duration_choose, nullptr, nullptr, nullptr},
+    {"all", on_all_duration_choose, nullptr, nullptr, nullptr},
 };
 
 void setup_table_navigation( GtkApplication* app, GtkBuilder* builder ) {

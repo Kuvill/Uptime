@@ -180,7 +180,10 @@ namespace {
             store[i] = record_item_new( g_strdup( elem->first), elem->second.count() );
         }
 
-        delete[] records;
+        if( records ) {
+            delete[] records;
+            records = nullptr;
+        }
 
         g_list_store_splice(_store, 0, 0, (gpointer*)store, result.size());
 

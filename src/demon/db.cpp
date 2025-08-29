@@ -182,6 +182,7 @@ int Database::insertApp( const char* appName ) {
 void Database::dumpStorage( Storage& store ) {
 	logger.log(LogLvl::Info, "dumped: ", std::distance( store.begin(), store.end()));
 
+    // Create function for spice insert. Now it is VERY slow FIXME
 	for( auto& record : store ) {
 		insertUptimeRecord( record.info, record.recTime );
 	}

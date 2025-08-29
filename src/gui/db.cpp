@@ -2,6 +2,7 @@
 #include "common/time.hpp"
 #include "common/change_dir.hpp"
 #include "gui/db.hpp"
+#include "glib.h"
 #include "gui/record_item.hpp"
 #include "gui/context.hpp"
 
@@ -48,6 +49,7 @@ static const char sqlGetLastRecord[] = "SELECT app_name, uptime, datetime(rec_ti
 
 
 // O(n)
+// !! require call step if stmt require bindings
 static int countRows( sqlite3_stmt *stmt ) {
     int count = 0;
     while (sqlite3_step( stmt ) == SQLITE_ROW)
@@ -100,9 +102,14 @@ std::tuple<RawRecordItem**, int> DatabaseReader::getAllRecords() {
         count = countRows( stmt );
         logger.log(LogLvl::Info, "loaded ", count, " record" );
 
+        if( !count )
+            return {};
+
         items = new RawRecordItem*[ count ];
 
         for( int i = 0; sqlite3_step( stmt ) == SQLITE_ROW; ++i ) {
+            logger.log(LogLvl::Info, i);
+            g_assert( i < count );
             RawRecordItem* item = raw_record_item_new();
 
             // auto a = getAppName( sqlite3_column_int(stmt, 0) );
@@ -135,8 +142,14 @@ std::tuple<RawRecordItem**, int> DatabaseReader::getAllRecords() {
 // i should think about more base function for all those
 std::tuple<RawRecordItem**, int> DatabaseReader::getBoundedRecords( recTime_t from, recTime_t to ) {
     logger.log(LogLvl::Info, "Trying to get records in a bound...");
-	RawRecordItem** items;
-    int count = 0;
+
+    if( to <= from ) {
+        logger.log(LogLvl::Warning, "to less then from!");
+        return {};
+    }
+
+	RawRecordItem** items = nullptr;
+    int count;
 
 	sqlite3_stmt* stmt;
 	int rc = sqlite3_prepare_v2( _db, sqlGetBoundedRecords, sizeof(sqlGetBoundedRecords), &stmt, nullptr );
@@ -144,21 +157,26 @@ std::tuple<RawRecordItem**, int> DatabaseReader::getBoundedRecords( recTime_t fr
 	if( rc == SQLITE_OK ) {
         sqlite3_bind_int64( stmt, 1, from.count() );
         sqlite3_bind_int64( stmt, 2, to.count() );
-        g_assert( from < to );
 
 		if( (rc = sqlite3_step(stmt)); rc == SQLITE_ROW ) { 
             count = countRows( stmt );
+            sqlite3_step( stmt ); // I loose data? Yes. But i didn't get misterious count+1 record
+            // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME 
+
             logger.log(LogLvl::Info, "loaded ", count, " record" );
+
+            if( !count )
+                return {};
 
             items = new RawRecordItem*[ count ];
 
             for( int i = 0; sqlite3_step( stmt ) == SQLITE_ROW; ++i ) {
+                g_assert( i < count );
                 RawRecordItem* item = raw_record_item_new();
 
-                // auto a = getAppName( sqlite3_column_int(stmt, 0) );
                 auto appName = (sqlite3_column_text( stmt, 0 ));
 
-                // i don't want to call notify. Guess this is misstake
+                // i don't want to cal notify. Guess this is misstake
                 item->appName = g_strdup( (gchar*)appName );
                 item->recTimer = toRecTime( sqlite3_column_int(stmt, 1) );
 
