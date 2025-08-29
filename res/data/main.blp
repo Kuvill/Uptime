@@ -82,6 +82,7 @@ Adw.Window window {
               MenuButton DurationBtn {
                 menu-model: setDuration;
                 label: _("Years");
+                primary: true;
               }
 
               Button {
@@ -208,16 +209,25 @@ menu setDuration {
     item {
       name: "years";
       label: _("Years");
+      action: "app.years";
     }
 
     item {
       name: "months";
       label: _("Months");
+      action: "app.months";
     }
 
     item {
       name: "days";
       label: _("Days");
+      action: "app.days";
+    }
+
+    item {
+      name: "all";
+      label: _("All");
+      action: "app.all";
     }
   }
 }

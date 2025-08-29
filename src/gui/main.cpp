@@ -32,7 +32,7 @@ static void activate( GtkApplication* app, gpointer data ) {
     CheckDirectory();
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "main.ui" );
-	setup_builder( builder );
+	setup_builder( app, builder );
 
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));
 	gtk_window_set_application( window , app );
