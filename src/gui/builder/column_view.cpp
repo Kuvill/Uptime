@@ -1,4 +1,5 @@
 #include "common/logger.hpp"
+#include "glib-object.h"
 #include "gui/context.hpp"
 #include "gui/record_item.hpp"
 #include "gui/column_view.hpp"
@@ -9,17 +10,6 @@
 #include <cstdio>
 #include <format>
 
-
-/* 
-   // Should be in context 
-   struct Resources {
-    GtkWidget* stack;
-    GtkWidget* page1;
-    GtkWidget* page2;
-    gboolean page1_loaded;
-    gboolean page2_loaded;
-   }
-*/
 
 static std::string oneUnitTime( const recTime_t& time ) {
     using namespace std::literals::chrono_literals;
@@ -39,15 +29,38 @@ static std::string timeToStr( const recTime_t& time ) {
     return oneUnitTime( time );
 }
 
+// I Have to create custom class, that is Gesture and contain popover
+static void table_right_click( GtkGestureClick* self, gint n_press, 
+            gdouble x, gdouble y, gpointer data ) {
+    
+    logger.log(LogLvl::Warning, "Lol, why did you pressed here?");
+    // auto* popover = Context::get()->utils.table_menu.popover;
+
+    auto* item = GTK_LIST_ITEM(data);
+    // Context::get()->utils.table_menu.selected = item;
+
+    GdkRectangle rec; rec.x = x; rec.y = y;
+    // gtk_popover_set_pointing_to( popover, &rec );
+    // gtk_popover_popup( popover );
+    // gtk_popover_present( popover );
+}
+
 // create widget for an field of RecordItem
 // @factory - GtkFactory, that will create an widget
 // @item_list - here store our items for MODEL, not factor.
 // so just change in list will not present on widget
 static void setup_cb( GtkSignalListItemFactory* factory, GtkListItem* item_list ) {
     logger.log(LogLvl::Info, "Columnn view setup called");
+
+    auto* eventHandler = gtk_gesture_click_new();
+    gtk_gesture_single_set_button( GTK_GESTURE_SINGLE( eventHandler ), GDK_BUTTON_SECONDARY );
+    g_signal_connect( eventHandler, "pressed", G_CALLBACK(table_right_click), item_list );
+
 	GtkWidget* label = gtk_label_new( nullptr );
 	gtk_label_set_xalign( GTK_LABEL( label ), 0.0f );
 	gtk_list_item_set_child( item_list, label );
+
+    gtk_widget_add_controller( label, GTK_EVENT_CONTROLLER(eventHandler) );
 }
 
 static void on_name_changed(GObject *object, GParamSpec *pspec, GtkWidget *label) {
@@ -62,13 +75,16 @@ static void on_uptime_changed(GObject *object, GParamSpec *pspec, GtkWidget *lab
     g_object_set(label, "label", timeToStr( recTime_t( new_name ) ).c_str(), NULL);
 }
 
-// fill an created by setup widget
+// update an created by setup widget
 // @factory - GtkFactory, that will create an widget
-// @item_list - here store our items for MODEL, not factor.
+// @item_list - here store our items by MODEL, not factor.
 // so just change in list will not present on widget
-static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem ) {
+
+// FIXME check multi connection by using id or do connect in setup funcion using static variablej
+static void bind_appName_cb( GtkListItemFactory* factory, GtkListItem* listItem, gpointer data ) {
     logger.log(LogLvl::Info, "an record(appname) was binded to ColumnView");
     GtkWidget* label = gtk_list_item_get_child( listItem );
+
     RecordItem* rec = static_cast<RecordItem*>( gtk_list_item_get_item( listItem ) );
 
     g_signal_connect(rec, "notify::name", G_CALLBACK(on_name_changed), label); 
@@ -91,6 +107,8 @@ static void bind_update_cb( GtkListItemFactory* factory, GtkListItem* listItem )
     gtk_label_set_text( GTK_LABEL( label ), timeToStr( rec->uptime ).c_str() );
 }
 
+// ----------------------------------------
+
 GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* columnView =  GTK_COLUMN_VIEW(gtk_builder_get_object( builder, "column_view" ));
 
@@ -98,7 +116,7 @@ GListStore* setup_column_view( GtkBuilder* builder ) {
 	auto* uptimeCol = GTK_COLUMN_VIEW_COLUMN(gtk_builder_get_object( builder, "uptime_col" ));
 
     auto* store = g_list_store_new( RECORD_ITEM_TYPE );
-    GContext::ctx->state.setStore( store );
+    Context::get()->state.setStore( store );
 
     auto* viewSorter = gtk_column_view_get_sorter( columnView ); // allow sorting by clicking on name
     auto* model = gtk_sort_list_model_new( G_LIST_MODEL(store), viewSorter );
