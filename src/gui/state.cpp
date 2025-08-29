@@ -1,48 +1,47 @@
-#include "gui/context.hpp"
+#include "gui/state.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
 #include "gio/gio.h"
 #include "glib.h"
 #include "gui/record_item.hpp"
 
-#include <algorithm>
 #include <chrono>
-#include <iterator>
 #include <unordered_map>
 
 using namespace std::chrono;
 
 Bound::Bound() {
-    from = sys_days(to) - days(1);
+    from = to - days(1);
 }
 
 // OOP way: create state pattern class, that remember state.
 // more cheap way: create static function getDif
-    void State::changeModel( Duration ) {
+    void State::changeModel( Duration model ) {
         logger.log(LogLvl::Info, "Changing view model");
+        _bound.model = model;
 
         // looks really ugly
         // only way that i see - use variant over enum 
         // but will it more appearance?
         switch (_bound.model) {
             case Duration::ByYear:
-                _bound.to = getCurrentDate();
+                _bound.to = getCurrentTime();
                 _bound.from = _bound.to - years(1);
                 break;
 
             case Duration::ByMonth:
-                _bound.to = getCurrentDate();
+                _bound.to = getCurrentTime();
                 _bound.from = _bound.to - months(1);
                 break;
 
             case Duration::ByDay: 
-                _bound.to = getCurrentDate();
-                _bound.from = sys_days(_bound.to) - days(1);
+                _bound.to = getCurrentTime();
+                _bound.from = _bound.to - days(1);
                 break;
                 
             case Duration::All:
-                _bound.from = std::numeric_limits<year_month_day>::min();
-                _bound.to = _bound.from = std::numeric_limits<year_month_day>::max();
+                // _bound.from = std::numeric_limits<recTime_t>::min();
+                // _bound.to = _bound.from = std::numeric_limits<recTime_t>::max();
                 break;
         }
     }
@@ -133,10 +132,14 @@ namespace {
    */
     //  FIXME Very blowed
     void State::mergeStoreRightVersion( std::tuple<RawRecordItem**, int> items ) {
+        logger.log(LogLvl::Info, "Inserting reconrds");
         std::unordered_map<gchar*, recTime_t, hashGstr, strEqual> result;
 
         RawRecordItem** records = std::get<0>( items );
         int count = std::get<1>( items );
+
+        if( !count )
+            return;
 
         // when after app launch it opened first time
         // should use bool over -1?
@@ -162,7 +165,7 @@ namespace {
                 // 2.
                 result[item->appName] += item->recTimer - startUse + 5s;
                 startUse = nextItem->recTimer;
-}
+            }
         }
 
         auto item = records[count-1];

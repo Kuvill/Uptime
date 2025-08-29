@@ -6,10 +6,10 @@
 #include <gui/client.hpp>
 #include "gui/db.hpp"
 #include "gui/context.hpp"
+#include "gui/state.hpp"
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
-#include <stdexcept>
 #include <unistd.h>
 
 const char* dbName = "uptime.db";
@@ -40,7 +40,10 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 	g_object_unref( builder );
 
-    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords(Operators::Eqal, {}) );
+    // Context::get()->state.changeModel( Duration::ByDay );
+    // logger.log(LogLvl::Warning, "Dates: ", Context::get()->state._bound.from, "-", Context::get()->state._bound.to);
+
+    Context::get()->state.mergeStoreRightVersion( Context::get()->db.getRecords() );
     // SetupTimer( *context );
 
 	gtk_window_present( window );

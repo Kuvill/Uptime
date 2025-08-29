@@ -64,20 +64,56 @@ Adw.Window window {
           orientation: vertical;
 
           Box {
-            orientation: horizontal;
-            margin-top: 5;
-            halign: center;
-            homogeneous: true;
-            spacing: 15;
+            orientation: vertical;
+            valign: fill;
+            spacing: 4;
 
-            Label DateFrom {}
-            
-            MenuButton DurationBtn {
-              menu-model: setDuration;
+            Box {
+              valign: start;
+              orientation: horizontal;
+              margin-top: 5;
+              halign: center;
+              spacing: 15;
+
+              Button {
+                icon-name: "arrow";
+              }
+
+              MenuButton DurationBtn {
+                menu-model: setDuration;
+                label: _("Years");
+              }
+
+              Button {
+                icon-name: "arrow";
+              }
             }
-            
-            Label DateTo {}
 
+            Box {
+              orientation: horizontal;
+              hexpand: true;
+              halign: center;
+              spacing: 128;
+              homogeneous: true;
+              margin-start: 20;
+              margin-end: 20;
+
+              Button {
+                halign: start;
+
+                Label DateFrom {
+                  label: _("01.01.01");
+                }
+              }
+
+              Button {
+                halign: end;
+
+                Label DateTo {
+                  label: _("02.02.02");
+                }
+              }
+            }
           }
 
           Stack body {
@@ -90,7 +126,7 @@ Adw.Window window {
               child: Box {
                 orientation: vertical;
                 halign: center;
-                margin-top: 32;
+                margin-top: 16;
 
                 ScrolledWindow {
                   height-request: 340;
@@ -185,4 +221,5 @@ menu setDuration {
     }
   }
 }
+
 
