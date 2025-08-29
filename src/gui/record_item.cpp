@@ -56,8 +56,6 @@ gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data 
 }
 
 gint RecordItemUptimeCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
-    logger.log( LogLvl::Info, "Uptime sort triggered!" );
-
     return reinterpret_cast<const RecordItem*>( lhs )->uptime.count() -
            reinterpret_cast< const RecordItem*>( rhs )->uptime.count();
 }
