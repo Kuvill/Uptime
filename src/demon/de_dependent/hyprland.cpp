@@ -104,6 +104,7 @@ ProcessInfo _Hyprland::getFocused() {
     it += 2;
 
     auto end = std::find( it, buffer.end(), '\n' );
+    if( it >= end ) return {};
     result.name = { it, end };
     // std::strncpy( result.name.data(), it.base(),
     //        std::min( result.name.size(), (unsigned long)(end - it) ) );
