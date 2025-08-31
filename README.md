@@ -64,5 +64,6 @@ write path to your source file in meason.build: demon_sources
 
 ![Gui early edition](./summer_condition.png);
 
-[^1]: Btw those date picker buttons and labels are fiction, except duration model( e.g. years ), that show info util today
+#### P.S.
+Those date picker buttons and labels are fictional, except for the duration model( e.g. years ), which shows info up to today
 
