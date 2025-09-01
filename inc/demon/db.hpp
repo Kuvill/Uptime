@@ -5,7 +5,6 @@
 #include "common/time.hpp"
 
 #include <sqlite3.h>
-#include <type_traits>
 
 
 // 2 variants:
@@ -27,6 +26,7 @@ class Database {
 	int insertApp(const char* appName );
 	int getAppId( const ProcessInfo& info );
 	void insertUptimeRecord( const ProcessInfo&, recTime_t );
+    void insertManyUptimeRecords( std::string_view );
     
 protected:
     sqlite3* _db;

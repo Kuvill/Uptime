@@ -98,6 +98,13 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 	insertUptimeRecord( info, recTime );
 }
 
+// Take serrialized string:
+// "({appid}, {time}, {uptimer (deprecated btw)}, {describe}),".
+// last one have ; instead of , at the end
+void Database::insertManyUptimeRecords( std::string_view data ) {
+    
+}
+
 // i should use extended sql request to improve performance
 void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	int appId = getAppId( info );
