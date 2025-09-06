@@ -25,12 +25,10 @@ const char* dbName = "uptime.db";
 #ifdef DEBUG
 Logger logger(LogLvl::Info);
 #else
-// it still require supervisoring
 Logger logger("logs.log", LogLvl::Info );
 #endif
 
 // only for signals
-// use them instead of db and storage - scary. mb after 1.0 i will do that
 static Database* g_db;
 static Storage* g_storage;
 
@@ -39,12 +37,9 @@ void SigHandler( int code ) {
 
 	g_db->dumpStorage( *g_storage );
 
-    // mb not needed
     delete_lock_file();
 	exit(0);
 }
-
-// i should use switch row and from toolbar view for settings
 
 // as moder cpp way i should to pick as socket dbus, boost.asio or ZeroMQ
 
@@ -56,17 +51,18 @@ int main() {
 
     // cringe? Cringe
     // I use it make sure, that DE is init
-    // Better solution - spin this time after failed getenv
+    // Better solution - sleep after failed getenv
     logger.log(LogLvl::Info, "Fall asleep for a while to give DE load...");
     std::this_thread::sleep_for(4s);
 	Database db( dbName );
 
-    Settings settings;
+    [[maybe_unused]] Settings settings;
 	Storage storage;
 	Ips connect;
     DesktopEnv* de = new DesktopEnv;
     de = de->checkDE();
-	// should be ms
+
+    // should be part of settings
     auto sleepDuration = 5s;
 	bool useDB = false;
 
@@ -100,15 +96,9 @@ int main() {
 				}
 			}
 
-            // FIXME i wan't call checkDE every time, when it return empty state
-            // possible solutions:
-            // * reserve for de variable max possible space (union?) -> call change
-            //      realisation right when detected with placement new
-            // * return std::except with enum code error: empty, wrong de
-            // * use variant as polimorphism
             auto info = de->getFocused();
 
-            if( info != ProcessInfo{} ) {
+            if( !info.name.empty() ) {
                 if( useDB ) {
                     db.insertUptimeRecord( info );
 
@@ -117,7 +107,7 @@ int main() {
                 }
 
             } else 
-                de = de->checkDE();
+                logger.log(LogLvl::Warning, "Unrecognized application");
 
             logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );
