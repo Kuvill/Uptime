@@ -1,17 +1,27 @@
 #pragma once
 
 #include "demon/get_uptime.hpp"
+#include <common/aliases.hpp>
 
 #include <sys/un.h>
 
-recTime_t ps( std::array<char, 6> pid );
-recTime_t ps( const unsigned char* );
-recTime_t ps( const std::string& );
+class DesktopEnv;
+
+// using in header?
+using CastCondition = bool (*)();
+using InplaceCast = void (*)( DesktopEnv* self );
+
+struct CastRule {
+    CastCondition cond;
+    InplaceCast cast;
+};
+
+void registrateAll();
+
+size_t sizeForDE();
 
 class DesktopEnv {
 protected:
-    // +: interface
-    // -: small overhead
     virtual void castToBase();
 
 public:
@@ -20,7 +30,7 @@ public:
 
     virtual ProcessInfo getFocused();
 
-    virtual DesktopEnv* checkDE();
+    void checkDE();
 };
 
 class _SwayDE final : public DesktopEnv {
@@ -32,9 +42,15 @@ public:
     _SwayDE();
     ~_SwayDE();
 
+    // functional
+
     ProcessInfo getFocused() override;
 
-    DesktopEnv* checkDE() override;
+    // SOLID support functions
+
+    static bool CastCondition();
+
+    static void InplaceCast( DesktopEnv* self );
 };
 
 class _Hyprland final : public DesktopEnv {
@@ -47,7 +63,13 @@ public:
     _Hyprland();
     ~_Hyprland();
 
+    // functional
+
     ProcessInfo getFocused() override;
 
-    DesktopEnv* checkDE() override;
+    // SOLID support functions
+
+    static bool CastCondition();
+
+    static void InplaceCast( DesktopEnv* self );
 };

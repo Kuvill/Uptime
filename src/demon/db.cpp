@@ -93,10 +93,18 @@ Database::~Database() {
 #define USER_ID 1
 // in future i have to pass user id. not it just 1
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-    logger.log(LogLvl::Info, "_Start record inserting");
 	recTime_t recTime = getCurrentTime();
 
 	insertUptimeRecord( info, recTime );
+}
+
+// just create enum for tables
+
+// Take serrialized string:
+// "({appid}, {time}, {uptimer (deprecated btw)}, {describe}),".
+// last one have ; instead of , at the end
+void Database::insertManyUptimeRecords( std::string_view data ) {
+    
 }
 
 // i should use extended sql request to improve performance
@@ -183,6 +191,7 @@ int Database::insertApp( const char* appName ) {
 void Database::dumpStorage( Storage& store ) {
 	logger.log(LogLvl::Info, "dumped: ", std::distance( store.begin(), store.end()));
 
+    // Create function for spice insert. Now it is VERY slow FIXME
 	for( auto& record : store ) {
 		insertUptimeRecord( record.info, record.recTime );
 	}

@@ -28,7 +28,7 @@ Logger logger("logs.log", LogLvl::Info );
 static Database* g_db;
 static Storage* g_storage;
 
-void SigHandler( int code ) {
+static void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
 	g_db->dumpStorage( *g_storage );
@@ -59,21 +59,6 @@ void frequncyPolling( const LockNotifier& notifier ) {
         }
 
         else {
-           auto info = de->getFocused();
-
-            if( !info.name.empty() ) {
-                if( useDB ) {
-                    db.insertUptimeRecord( info );
-
-                } else {
-                    storage.insert( info );
-                }
-
-            } else 
-                logger.log(LogLvl::Warning, "Unrecognized application");
-
-            logger.log(LogLvl::Info, "Fall asleep...");
-			std::this_thread::sleep_for( sleepDuration );
         }
 
     }
@@ -94,12 +79,15 @@ int main() {
 
     [[maybe_unused]] Settings settings;
 	Storage storage;
-    DesktopEnv* de = new DesktopEnv;
 	Ips connect;
+    // To make it unique_ptr i need some hacks
+    // But it needn't
+    registrateAll();
+    void* reserve = malloc(sizeForDE());
+    DesktopEnv* de = new(reserve) DesktopEnv; 
     LockNotifier notifier;
-    de = de->checkDE();
+    de->checkDE();
 
-    // should be part of settings
     auto sleepDuration = 5s;
 	bool useDB = false;
 
@@ -132,7 +120,30 @@ int main() {
                 if( fds[i].revents & POLLHUP ) {
 
                 }
+			}
+
+            // FIXME i wan't call checkDE every time, when it return empty state
+            // possible solutions:
+            // * reserve for de variable max possible space (union?) -> call change
+            //      realisation right when detected with placement new
+            // * return std::except with enum code error: empty, wrong de
+            // * use variant as polimorphism
+            auto info = de->getFocused();
+
+            if( !info.name.empty() ) {
+                if( useDB ) {
+                    db.insertUptimeRecord( info );
+
+                } else {
+                    storage.insert( info );
+                }
+            } else {
+            		logger.log(LogLvl::Warning,
+                            "The app has no app_id, skipping. (describe: ", info.describe, ")");
             }
+
+            logger.log(LogLvl::Info, "Fall asleep...");
+			std::this_thread::sleep_for( sleepDuration );
 		}
 	}
 
@@ -150,6 +161,20 @@ int main() {
 }
 
 /*
-   DE module:
+              auto info = de->getFocused();
 
-*/
+            if( !info.name.empty() ) {
+                if( useDB ) {
+                    db.insertUptimeRecord( info );
+
+                } else {
+                    storage.insert( info );
+                }
+
+            } else 
+                logger.log(LogLvl::Warning, "Unrecognized application");
+
+            logger.log(LogLvl::Info, "Fall asleep...");
+			std::this_thread::sleep_for( sleepDuration );
+
+            */

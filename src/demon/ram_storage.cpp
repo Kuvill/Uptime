@@ -7,7 +7,6 @@
 #include <ostream>
 
 #define USER_ID 1
-const char NONAME[] = "";
 
 Record::Record( uint32_t usr, Name appName, recTime_t uptime, recTime_t recTime, std::string describe )
             : user(usr), info(appName, uptime, describe), recTime( recTime ) {}
@@ -33,11 +32,6 @@ void Storage::insert( const ProcessInfo& info ) {
 }
 
 void Storage::insert( const ProcessInfo& info, recTime_t time ) {
-	if( info.name[0] == '\0' ) {
-		logger.log(LogLvl::Warning, "The app has no app_id, skipping. (describe: ", info.describe, ")");
-		return;
-	}
-
 	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name.data(), ", ", info.uptime, ", ", time.count() );
 
 	_storage.insert( Record(

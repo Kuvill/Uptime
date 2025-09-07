@@ -42,6 +42,7 @@ gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data 
             reinterpret_cast< const RecordItem*>( rhs )->appName );
 
     // if name is same, compare by uptime
+    /*
     if( result == 0 ) {
         if( reinterpret_cast<const RecordItem*>( lhs )->uptime >
             reinterpret_cast<const RecordItem*>( rhs )->uptime ) {
@@ -49,13 +50,14 @@ gint RecordItemNameCompare( gconstpointer lhs, gconstpointer rhs, gpointer data 
         } else
             return -1;
     }
+    */
 
     return result;
 }
 
 gint RecordItemUptimeCompare( gconstpointer lhs, gconstpointer rhs, gpointer data ) {
-    return reinterpret_cast<const RecordItem*>( lhs )->uptime <
-           reinterpret_cast< const RecordItem*>( rhs )->uptime;
+    return reinterpret_cast<const RecordItem*>( lhs )->uptime.count() -
+           reinterpret_cast< const RecordItem*>( rhs )->uptime.count();
 }
 
 static GParamSpec *obj_properties[N_PROPERTIES] = { NULL, };

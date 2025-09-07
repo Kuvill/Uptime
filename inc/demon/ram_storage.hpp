@@ -26,10 +26,6 @@ struct std::hash<Record> {
 	size_t operator()( const Record& rec ) const;
 };
 
-struct Ranges {
-	std::unordered_set<Record>::const_iterator begin, end;
-};
-
 class Storage {
 	std::unordered_set<Record> _storage;
 	using It = std::unordered_set<Record>::iterator;
@@ -49,6 +45,5 @@ public:
 
 	cIt end() const;
 
-	// clear storage here
 	void clear();
 };

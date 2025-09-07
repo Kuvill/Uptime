@@ -1,7 +1,10 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
+#include "common/aliases.hpp"
 
 #include <cstdio>
+#include <cstring>
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -12,6 +15,8 @@
 #include <stack>
 #include <array>
 
+static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
+
 static const std::byte WorkspacesQuerry[] = {
     std::byte(105), std::byte(51), std::byte(45), // i3-
     std::byte(105), std::byte(112), std::byte(99), // ipc
@@ -19,14 +24,18 @@ static const std::byte WorkspacesQuerry[] = {
     std::byte(4), std::byte(0), std::byte(0), std::byte(0), // 4
 };
 
-
-// have to be free
 static const char* getSwaySockAddr() {
     auto result = std::getenv( "SWAYSOCK" );
 
     if( result )
         return result;
+    return nullptr;
+}
 
+// must be free
+static const char* getSwaySockAddrAlter() {
+    const char* result;
+    
     FILE* mimic = popen( "sway --get-socketpath", "r" );
     assert( mimic != nullptr );
 
@@ -47,7 +56,19 @@ _SwayDE::_SwayDE() {
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
-    strcat( addr.sun_path, getSwaySockAddr() );
+    const char* sockAddr = getSwaySockAddr();
+
+    if( !sockAddr ) [[unlikely]] {
+        c_string trueAddr { getSwaySockAddrAlter() };
+        sockAddr = trueAddr.get();
+
+        if( !trueAddr ) {
+            logger.log(LogLvl::Error, "With seted session env on sway, sockadr wasn't found!");
+            exit(1);
+        }
+    }
+
+    strcat( addr.sun_path, sockAddr );
 
     if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
 
@@ -103,7 +124,11 @@ ProcessInfo _SwayDE::getFocused() {
     if( rc < 0 ) {
         // btw i should check errno FIXME
         logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
-        this->castToBase();
+
+        // if i want call here getFocused, i have to prevent inf loop.
+        // IMHO i don't have to do that coz it take time to select new DE
+        // (1 more reason why i should call sleep not it begin of program, but after getenv == nullptr)
+        checkDE();
         return {};
     }
 
@@ -112,7 +137,7 @@ ProcessInfo _SwayDE::getFocused() {
         logger.log(LogLvl::Error, "Internal. Failed to read message");
 
     const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
-    const uint32_t type = *reinterpret_cast<uint32_t*>( msgSize.data()+10 );
+    // const uint32_t type = *reinterpret_cast<uint32_t*>( msgSize.data()+10 );
 
     // string don't allow non-init creation (just use raw char*? or create from it)
     std::string data( size, '\0' );
@@ -132,6 +157,21 @@ ProcessInfo _SwayDE::getFocused() {
     return result;
 }
 
-DesktopEnv* _SwayDE::checkDE() {
-    return this;
+bool _SwayDE::CastCondition() {
+    logger.log(LogLvl::Info, "Checking does sway running...");
+
+    char* de( std::getenv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    return strstr( de, "sway" ) != nullptr;
 }
+
+void _SwayDE::InplaceCast( DesktopEnv* self ) {
+    self->~DesktopEnv();
+
+    new( self ) _SwayDE;
+} 

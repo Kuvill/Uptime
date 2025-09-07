@@ -3,10 +3,8 @@
 #include "common/aliases.hpp"
 
 #include <cstring>
-#include <print>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <thread>
 #include <unistd.h>
 
 #include <cstdlib>
@@ -14,10 +12,8 @@
 // FIXME!!!
 // that freak close connect after a few ??? of inactive. 
 // idle i want to find disscusion about it in github
-// or create new
 
-// After a few tests (1) i resume, that sign size - 62
-// (no documentation kekwait)
+static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
 const char HYPR[] = "/hypr/";
 const char SOCK[] = "/.socket.sock";
@@ -73,7 +69,8 @@ ProcessInfo _Hyprland::getFocused() {
     ProcessInfo result;
     if( send( _sock, MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
-        castToBase();
+        checkDE();
+        return {};
     }
 
     // God damn, it is csv or some like
@@ -107,6 +104,7 @@ ProcessInfo _Hyprland::getFocused() {
     it += 2;
 
     auto end = std::find( it, buffer.end(), '\n' );
+    if( it >= end ) return {};
     result.name = { it, end };
     // std::strncpy( result.name.data(), it.base(),
     //        std::min( result.name.size(), (unsigned long)(end - it) ) );
@@ -141,6 +139,20 @@ ProcessInfo _Hyprland::getFocused() {
     return result;
 }
 
-DesktopEnv* _Hyprland::checkDE() {
-    return this;
+bool _Hyprland::CastCondition() {
+    logger.log(LogLvl::Info, "Checking does Hyprland running...");
+    char* de( std::getenv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    return strstr( "Hyprland", de ) != nullptr;
+}
+
+void _Hyprland::InplaceCast( DesktopEnv* self ) {
+    self->~DesktopEnv();
+
+    new( self ) _Hyprland;
 }

@@ -7,6 +7,9 @@ tests/
 .clangd
 .cache/
 
-
 # remove later!
 third_party/*
+./inc/site
+./inc/server
+./src/site
+./src/server
