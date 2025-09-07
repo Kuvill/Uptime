@@ -11,13 +11,15 @@
 #include <unistd.h>
 
 #include <stdexcept>
-#include <bit>
 
-// this is really potential problem FIXME
 #include <cerrno>
 
 static MsgType TypeByMsg( char buf ) {
 	return static_cast<MsgType>( buf );
+}
+
+void LockNotifier::sensitiveSleep( long time ) {
+    _stat.wait( LockStatus::NoLock );
 }
 
 Ips::Ips() {

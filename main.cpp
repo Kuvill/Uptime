@@ -7,13 +7,14 @@
 
 #include "common/logger.hpp"
 
-#include <chrono>
+#include <cassert>
 #include <exception>
 #include <stdexcept>
 #include <sys/poll.h>
 #include <thread>
 
 #include <csignal>
+#include <csetjmp>
 
 using namespace std::chrono_literals;
 
@@ -25,17 +26,14 @@ Logger logger(LogLvl::Info);
 Logger logger("logs.log", LogLvl::Info );
 #endif
 
-// only for signals
-static Database* g_db;
-static Storage* g_storage;
+// Add begin and commit into sqlite
 
-static void SigHandler( int code ) {
+static std::jmp_buf signalHandler;
+
+[[noreturn]] static void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
-	g_db->dumpStorage( *g_storage );
-
-    delete_lock_file();
-	exit(0);
+    std::longjmp( signalHandler, true );
 }
 
 // as moder cpp way i should to pick as socket dbus, boost.asio or ZeroMQ
@@ -43,7 +41,7 @@ static void SigHandler( int code ) {
 // one more todo: 3) set class of exception:
 	// free sqlite memory
 
-void frequncyPolling( LockNotifier& notifier ) {
+void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
     logger.log(LogLvl::Info, "Createing second thread");
 
     auto de = initDE();
@@ -51,6 +49,7 @@ void frequncyPolling( LockNotifier& notifier ) {
     Storage store; // on extand i will merge those in module class
 
     while( true ) {
+        logger.log(LogLvl::Info, "New iteration");
         auto status = notifier._stat.load( std::memory_order::acquire );
 
         if( status == LockStatus::Terminate )
@@ -75,7 +74,8 @@ void frequncyPolling( LockNotifier& notifier ) {
     }
 
     logger.log(LogLvl::Info, "Terminate second thread");
-    // here move ram_storage into heap inter thread variables (mb this will be an tip for opitmizer)
+    externalStore = std::move( store );
+    assert( store.begin() == store.end() );
 }
 
 int main() {
@@ -88,24 +88,32 @@ int main() {
     Storage externalStorage;
 	Ips connect;
 
-    LockNotifier notifier;
+    LockNotifier notifier; notifier._stat = LockStatus::NoLock;
 
-    auto sleepDuration = 5s;
-	bool useDB = false;
-
-    std::jthread frequncyPollThread( frequncyPolling, std::ref(notifier) );
+    std::jthread frequncyPollThread( frequncyPolling, std::ref(notifier), std::ref(externalStorage) );
     
     pollfd fds[2];
     fds[0].fd = connect;
     fds[0].events = POLLOUT | POLLWRBAND;
     fds[0].fd = -1;
 
-	g_db = &db;
-	g_storage = &storage;
-
 	signal( SIGINT, SigHandler );
 	signal( SIGABRT, SigHandler );
 	signal( SIGTERM, SigHandler );
+
+    // MHMM )))))))) (c problems require c solutions 5Head)
+    // off joke, i should remove code dublicate
+    if(setjmp( signalHandler )) {
+        notifier._stat.store( LockStatus::Terminate );
+        notifier._stat.notify_one();
+        frequncyPollThread.join();
+
+        db.dumpStorage( storage );
+        db.dumpStorage( externalStorage );
+        delete_lock_file();
+
+        exit(0);
+    }
 
 	try {
 		while( true ) {
@@ -139,8 +147,8 @@ int main() {
     notifier._stat.notify_one();
     frequncyPollThread.join();
 
-	logger.log( LogLvl::Info, "memory dump: ", storage );
 	db.dumpStorage( storage );
+	db.dumpStorage( externalStorage );
 	return 0;
 }
 

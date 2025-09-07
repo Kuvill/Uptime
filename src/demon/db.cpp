@@ -187,9 +187,8 @@ int Database::insertApp( const char* appName ) {
 	return appId;
 }
 
-// FIXME change distance to size
 void Database::dumpStorage( Storage& store ) {
-	logger.log(LogLvl::Info, "dumped: ", std::distance( store.begin(), store.end()));
+	logger.log(LogLvl::Info, "dumped: ", store.size());
 
     // Create function for spice insert. Now it is VERY slow FIXME
 	for( auto& record : store ) {

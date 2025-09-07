@@ -12,6 +12,14 @@ enum class LockStatus {
 
 struct LockNotifier {
     std::atomic<LockStatus> _stat;
+
+
+    void sensitiveSleep( long time );
+    /*
+    operator decltype( _stat )::value_type() {
+        return _stat;
+    }
+    */
 };
 
 class Ips {

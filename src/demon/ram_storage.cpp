@@ -62,6 +62,10 @@ void Storage::clear() {
 	_storage.clear();
 }
 
+size_t Storage::size() {
+    return _storage.size();
+}
+
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {

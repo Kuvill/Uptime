@@ -1,6 +1,6 @@
 #pragma once
 
-#include "demon/get_uptime.hpp"
+#include "demon/better_uptime.hpp"
 #include "common/time.hpp"
 
 #include <unordered_set>
@@ -46,4 +46,6 @@ public:
 	cIt end() const;
 
 	void clear();
+
+    size_t size();
 };
