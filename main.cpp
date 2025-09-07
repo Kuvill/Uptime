@@ -1,5 +1,4 @@
 #include "common/check_unique.hpp"
-#include "demon/get_uptime.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
 #include "demon/ram_storage.hpp"
@@ -9,14 +8,12 @@
 
 #include "common/logger.hpp"
 
-#include <cstdlib>
 #include <chrono>
 #include <exception>
-#include <string>
+#include <sys/poll.h>
 #include <thread>
 
 #include <csignal>
-#include <unistd.h>
 
 using namespace std::chrono_literals;
 
@@ -46,6 +43,32 @@ void SigHandler( int code ) {
 // one more todo: 3) set class of exception:
 	// free sqlite memory
 
+void frequncyPolling( const LockNotifier& notifier ) {
+    logger.log(LogLvl::Info, "Createing second thread");
+
+    while( true ) {
+        auto status = notifier._stat.load( std::memory_order::acquire );
+
+        if( status == LockStatus::Terminate )
+            break;
+
+        else if( status == LockStatus::SessionLock ) {
+            logger.log(LogLvl::Info, "Session locked. going sleep...");
+
+            notifier._stat.wait( LockStatus::SessionLock );
+            continue;
+        }
+
+        else {
+            
+        }
+
+    }
+
+    logger.log(LogLvl::Info, "Terminate second thread");
+    // here move ram_storage into heap inter thread variables (mb this will be an tip for opitmizer)
+}
+
 int main() {
     CheckUnique __uniqueChecker__;
 
@@ -58,13 +81,16 @@ int main() {
 
     [[maybe_unused]] Settings settings;
 	Storage storage;
-	Ips connect;
     DesktopEnv* de = new DesktopEnv;
+	Ips connect;
+    LockNotifier notifier;
     de = de->checkDE();
 
     // should be part of settings
     auto sleepDuration = 5s;
 	bool useDB = false;
+
+    std::jthread frequncyPollThread( frequncyPolling, notifier );
 
 	g_db = &db;
 	g_storage = &storage;
@@ -75,28 +101,26 @@ int main() {
 
 	try {
 		while( true ) {
-			logger.log( LogLvl::Info, "New Iteration\n" );
+            poll(struct pollfd *fds, nfds_t nfds, int timeout)
+		}
+	}
 
-			{
-				auto msgType = connect.listen();
+	catch( const std::exception& err ) {
+		logger.log(LogLvl::Error, err.what());
+	}
 
-				if( msgType == MsgType::start_record ) {
-					logger.log( LogLvl::Info, "Choosed db");
-					db.dumpStorage( storage );
-					useDB = true;
+    notifier._stat.store( LockStatus::Terminate );
+    notifier._stat.notify_one();
+    frequncyPollThread.join();
 
-				} else if( msgType == MsgType::end_record ) {
-					logger.log( LogLvl::Info, "back to ram");
-					useDB = false;
+	logger.log( LogLvl::Info, "memory dump: ", storage );
+	db.dumpStorage( storage );
+	return 0;
+}
 
-				} else if( msgType == MsgType::change_cd ) {
-					logger.log( LogLvl::Info, "changing db cd to: ", connect.getMessage());
-					sleepDuration = static_cast<std::chrono::seconds>(
-                            std::stoi( connect.getMessage() ) );
-				}
-			}
-
-            auto info = de->getFocused();
+/*
+   DE module:
+               auto info = de->getFocused();
 
             if( !info.name.empty() ) {
                 if( useDB ) {
@@ -111,14 +135,5 @@ int main() {
 
             logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );
-		}
-	}
 
-	catch( const std::exception& err ) {
-		logger.log(LogLvl::Error, err.what());
-	}
-
-	logger.log( LogLvl::Info, "memory dump: ", storage );
-	db.dumpStorage( storage );
-	return 0;
-}
+*/

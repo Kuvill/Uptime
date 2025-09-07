@@ -1,13 +1,18 @@
 #pragma once
 
+#include <atomic>
+
 #include "common/ipc_interface.hpp"
 
-#include <cerrno>
+enum class LockStatus {
+    Terminate,
+    SessionLock,
+    NoLock
+};
 
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <poll.h>
+struct LockNotifier {
+    std::atomic<LockStatus> _stat;
+};
 
 class Ips {
 	int _serverSocket;
