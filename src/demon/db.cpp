@@ -98,6 +98,8 @@ void Database::insertUptimeRecord( const ProcessInfo& info ) {
 	insertUptimeRecord( info, recTime );
 }
 
+// just create enum for tables
+
 // Take serrialized string:
 // "({appid}, {time}, {uptimer (deprecated btw)}, {describe}),".
 // last one have ; instead of , at the end
