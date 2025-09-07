@@ -3,7 +3,6 @@
 #include "demon/db.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
-#include "common/ipc_interface.hpp"
 #include "demon/settings.hpp"
 
 #include "common/logger.hpp"
@@ -60,7 +59,21 @@ void frequncyPolling( const LockNotifier& notifier ) {
         }
 
         else {
-            
+           auto info = de->getFocused();
+
+            if( !info.name.empty() ) {
+                if( useDB ) {
+                    db.insertUptimeRecord( info );
+
+                } else {
+                    storage.insert( info );
+                }
+
+            } else 
+                logger.log(LogLvl::Warning, "Unrecognized application");
+
+            logger.log(LogLvl::Info, "Fall asleep...");
+			std::this_thread::sleep_for( sleepDuration );
         }
 
     }
@@ -91,6 +104,11 @@ int main() {
 	bool useDB = false;
 
     std::jthread frequncyPollThread( frequncyPolling, notifier );
+    
+    pollfd fds[2];
+    fds[0].fd = connect;
+    fds[0].events = POLLOUT | POLLWRBAND;
+    fds[0].fd = -1;
 
 	g_db = &db;
 	g_storage = &storage;
@@ -101,7 +119,20 @@ int main() {
 
 	try {
 		while( true ) {
-            poll(struct pollfd *fds, nfds_t nfds, int timeout)
+            int result = poll(fds, std::size(fds), -1); // -1 - blocking
+
+            for( int i = 0; i < 2; ++i ) {
+                if( fds[i].revents & POLLOUT ) {
+                    connect.listen(); 
+
+                } else if ( fds[i].revents & POLLWRBAND ) // high priority 
+                    logger.log(LogLvl::Error, "high priority socket msg didn't readed");
+
+                // error occured
+                if( fds[i].revents & POLLHUP ) {
+
+                }
+            }
 		}
 	}
 
@@ -120,20 +151,5 @@ int main() {
 
 /*
    DE module:
-               auto info = de->getFocused();
-
-            if( !info.name.empty() ) {
-                if( useDB ) {
-                    db.insertUptimeRecord( info );
-
-                } else {
-                    storage.insert( info );
-                }
-
-            } else 
-                logger.log(LogLvl::Warning, "Unrecognized application");
-
-            logger.log(LogLvl::Info, "Fall asleep...");
-			std::this_thread::sleep_for( sleepDuration );
 
 */

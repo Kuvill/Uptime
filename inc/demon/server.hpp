@@ -24,4 +24,8 @@ public:
 
 	MsgType listen();
 	const char* getMessage();
+
+    operator int() {
+        return _serverSocket;
+    }
 };
