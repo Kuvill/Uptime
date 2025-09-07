@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <exception>
+#include <stdexcept>
 #include <sys/poll.h>
 #include <thread>
 
@@ -42,8 +43,12 @@ static void SigHandler( int code ) {
 // one more todo: 3) set class of exception:
 	// free sqlite memory
 
-void frequncyPolling( const LockNotifier& notifier ) {
+void frequncyPolling( LockNotifier& notifier ) {
     logger.log(LogLvl::Info, "Createing second thread");
+
+    auto de = initDE();
+    // to insta store into db: use notifier, and in main create references
+    Storage store; // on extand i will merge those in module class
 
     while( true ) {
         auto status = notifier._stat.load( std::memory_order::acquire );
@@ -59,8 +64,14 @@ void frequncyPolling( const LockNotifier& notifier ) {
         }
 
         else {
+            auto info = de->getFocused();
+            if( !info.name.empty() ) {
+                store.insert( info );
+            }
         }
 
+        // i have to warp it so notifier can break sleep
+        std::this_thread::sleep_for( 5s );
     }
 
     logger.log(LogLvl::Info, "Terminate second thread");
@@ -70,28 +81,19 @@ void frequncyPolling( const LockNotifier& notifier ) {
 int main() {
     CheckUnique __uniqueChecker__;
 
-    // cringe? Cringe
-    // I use it make sure, that DE is init
-    // Better solution - sleep after failed getenv
-    logger.log(LogLvl::Info, "Fall asleep for a while to give DE load...");
-    std::this_thread::sleep_for(4s);
-	Database db( dbName );
-
     [[maybe_unused]] Settings settings;
+
+	Database db( dbName );
 	Storage storage;
+    Storage externalStorage;
 	Ips connect;
-    // To make it unique_ptr i need some hacks
-    // But it needn't
-    registrateAll();
-    void* reserve = malloc(sizeForDE());
-    DesktopEnv* de = new(reserve) DesktopEnv; 
+
     LockNotifier notifier;
-    de->checkDE();
 
     auto sleepDuration = 5s;
 	bool useDB = false;
 
-    std::jthread frequncyPollThread( frequncyPolling, notifier );
+    std::jthread frequncyPollThread( frequncyPolling, std::ref(notifier) );
     
     pollfd fds[2];
     fds[0].fd = connect;
@@ -109,6 +111,11 @@ int main() {
 		while( true ) {
             int result = poll(fds, std::size(fds), -1); // -1 - blocking
 
+            if( result < 0 ) [[unlikely]] {
+                logger.log( LogLvl::Error, strerror( errno ) );
+                throw std::runtime_error("Error in poll routine");
+            }
+
             for( int i = 0; i < 2; ++i ) {
                 if( fds[i].revents & POLLOUT ) {
                     connect.listen(); 
@@ -118,32 +125,9 @@ int main() {
 
                 // error occured
                 if( fds[i].revents & POLLHUP ) {
-
+                    // on socket close
                 }
 			}
-
-            // FIXME i wan't call checkDE every time, when it return empty state
-            // possible solutions:
-            // * reserve for de variable max possible space (union?) -> call change
-            //      realisation right when detected with placement new
-            // * return std::except with enum code error: empty, wrong de
-            // * use variant as polimorphism
-            auto info = de->getFocused();
-
-            if( !info.name.empty() ) {
-                if( useDB ) {
-                    db.insertUptimeRecord( info );
-
-                } else {
-                    storage.insert( info );
-                }
-            } else {
-            		logger.log(LogLvl::Warning,
-                            "The app has no app_id, skipping. (describe: ", info.describe, ")");
-            }
-
-            logger.log(LogLvl::Info, "Fall asleep...");
-			std::this_thread::sleep_for( sleepDuration );
 		}
 	}
 
@@ -177,4 +161,17 @@ int main() {
             logger.log(LogLvl::Info, "Fall asleep...");
 			std::this_thread::sleep_for( sleepDuration );
 
+            auto info = de->getFocused();
+
+            if( !info.name.empty() ) {
+                if( useDB ) {
+                    db.insertUptimeRecord( info );
+
+                } else {
+                    storage.insert( info );
+                }
+            } else {
+            		logger.log(LogLvl::Warning,
+                            "The app has no app_id, skipping. (describe: ", info.describe, ")");
+            }
             */

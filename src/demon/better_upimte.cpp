@@ -57,6 +57,15 @@ size_t sizeForDE() {
     return *std::max_element( __Sizes__.begin(), __Sizes__.end() );
 }
 
+DesktopEnv* initDE() {
+    registrateAll();
+    void* reserve = malloc(sizeForDE());
+    DesktopEnv* de = new(reserve) DesktopEnv; 
+    de->checkDE();
+    
+    return de;
+}
+
 void DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
 

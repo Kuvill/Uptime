@@ -22,6 +22,8 @@ void registrateAll();
 
 size_t sizeForDE();
 
+DesktopEnv* initDE();
+
 class DesktopEnv {
 protected:
     virtual void castToBase();
