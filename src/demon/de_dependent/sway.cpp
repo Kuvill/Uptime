@@ -25,7 +25,7 @@ static const std::byte WorkspacesQuerry[] = {
 };
 
 static const char* getSwaySockAddr() {
-    auto result = std::getenv( "SWAYSOCK" );
+    auto result = blockingGetEnv( "SWAYSOCK" );
 
     if( result )
         return result;
@@ -160,7 +160,7 @@ ProcessInfo _SwayDE::getFocused() {
 bool _SwayDE::CastCondition() {
     logger.log(LogLvl::Info, "Checking does sway running...");
 
-    char* de( std::getenv( DE_ENV_VAR ) );
+    char* de( blockingGetEnv( DE_ENV_VAR ) );
 
     if( !de ) {
         logger.log(LogLvl::Error, "Unable to detect current DE!");

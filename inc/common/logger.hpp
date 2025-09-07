@@ -80,5 +80,6 @@ void Logger::subLog( Head head, Tail... tail ) {
 template <typename Head, typename... Tail>
 void Logger::subLog( Head last ) {
 	*_out << last << '\n';
+    *_out << std::flush;
 	*_out << COL_DEF;
 }

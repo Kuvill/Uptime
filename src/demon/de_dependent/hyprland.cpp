@@ -28,9 +28,9 @@ _Hyprland::_Hyprland() {
 
     addr.sun_family = AF_UNIX;
 
-    char* sign( std::getenv("HYPRLAND_INSTANCE_SIGNATURE") );
+    char* sign( blockingGetEnv("HYPRLAND_INSTANCE_SIGNATURE") );
     // should be quered once
-    char* xdg( std::getenv("XDG_RUNTIME_DIR"));
+    char* xdg( blockingGetEnv("XDG_RUNTIME_DIR"));
 
     const auto signSize = strlen( sign );
     const auto xdgSize = strlen( xdg );
@@ -141,7 +141,7 @@ ProcessInfo _Hyprland::getFocused() {
 
 bool _Hyprland::CastCondition() {
     logger.log(LogLvl::Info, "Checking does Hyprland running...");
-    char* de( std::getenv( DE_ENV_VAR ) );
+    char* de( blockingGetEnv( DE_ENV_VAR ) );
 
     if( !de ) {
         logger.log(LogLvl::Error, "Unable to detect current DE!");

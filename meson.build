@@ -14,6 +14,7 @@ demon_sources = [
   './src/time.cpp',
   './src/change_dir.cpp',
   './src/check_unique.cpp',
+  './src/utils.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -29,6 +30,7 @@ gui_sources = [
   './src/logger.cpp',
   './src/time.cpp',
   './src/change_dir.cpp',
+  './src/utils.cpp',
 
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
