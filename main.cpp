@@ -30,10 +30,14 @@ Logger logger("logs.log", LogLvl::Info );
 
 static std::jmp_buf signalHandler;
 
+// Any destructors will be ignored since longjmp used :D
 [[noreturn]] static void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
-    std::longjmp( signalHandler, true );
+    // send message to poll in main thread to stop all his processes
+    // i can use eventfd
+
+    longjmp(signalHandler, true );
 }
 
 // as moder cpp way i should to pick as socket dbus, boost.asio or ZeroMQ
@@ -44,9 +48,28 @@ static std::jmp_buf signalHandler;
 void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
     logger.log(LogLvl::Info, "Createing second thread");
 
+    // things to make this thread be able to take signals
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGABRT);
+    sigaddset(&set, SIGTERM);
+    pthread_sigmask(SIG_UNBLOCK, &set, NULL);
+
+    // actually tie signals
+	signal( SIGINT, SigHandler );
+	signal( SIGABRT, SigHandler );
+	signal( SIGTERM, SigHandler );
+
     auto de = initDE();
     // to insta store into db: use notifier, and in main create references
     Storage store; // on extand i will merge those in module class
+
+    // MHMM Breake whole stack and then goto to random part of code ^^
+    // c problems require c solutions Nuahule
+    if( setjmp( signalHandler ) )
+        goto Finalize; // to save it compile ability: DO NOT PLACE ANYTHINGS WITH DESTRUCTOR IN THIS 
+                        // SCOPE LEVEL.
 
     while( true ) {
         logger.log(LogLvl::Info, "New iteration");
@@ -69,10 +92,10 @@ void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
             }
         }
 
-        // i have to warp it so notifier can break sleep
         std::this_thread::sleep_for( 5s );
     }
 
+Finalize:
     logger.log(LogLvl::Info, "Terminate second thread");
     externalStore = std::move( store );
     assert( store.begin() == store.end() );
@@ -90,30 +113,22 @@ int main() {
 
     LockNotifier notifier; notifier._stat = LockStatus::NoLock;
 
+    // turn off processing of signals to this thread
+    // hide this all postix things
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGINT);
+    sigaddset(&set, SIGABRT);
+    sigaddset(&set, SIGTERM);
+    pthread_sigmask(SIG_BLOCK, &set, NULL);
+
     std::jthread frequncyPollThread( frequncyPolling, std::ref(notifier), std::ref(externalStorage) );
     
+    // set up events to listen. (hide this also as posix realisation)
     pollfd fds[2];
     fds[0].fd = connect;
     fds[0].events = POLLOUT | POLLWRBAND;
     fds[0].fd = -1;
-
-	signal( SIGINT, SigHandler );
-	signal( SIGABRT, SigHandler );
-	signal( SIGTERM, SigHandler );
-
-    // MHMM )))))))) (c problems require c solutions 5Head)
-    // off joke, i should remove code dublicate
-    if(setjmp( signalHandler )) {
-        notifier._stat.store( LockStatus::Terminate );
-        notifier._stat.notify_one();
-        frequncyPollThread.join();
-
-        db.dumpStorage( storage );
-        db.dumpStorage( externalStorage );
-        delete_lock_file();
-
-        exit(0);
-    }
 
 	try {
 		while( true ) {
@@ -124,7 +139,7 @@ int main() {
                 throw std::runtime_error("Error in poll routine");
             }
 
-            for( int i = 0; i < 2; ++i ) {
+            for( int i = 0; i < std::size(fds); ++i ) {
                 if( fds[i].revents & POLLOUT ) {
                     connect.listen(); 
 
@@ -133,19 +148,19 @@ int main() {
 
                 // error occured
                 if( fds[i].revents & POLLHUP ) {
+                    // goto Finalize;
                     // on socket close
                 }
 			}
 		}
+
+
+Finalize: // if use goto, use it where suitable
 	}
 
 	catch( const std::exception& err ) {
 		logger.log(LogLvl::Error, err.what());
 	}
-
-    notifier._stat.store( LockStatus::Terminate );
-    notifier._stat.notify_one();
-    frequncyPollThread.join();
 
 	db.dumpStorage( storage );
 	db.dumpStorage( externalStorage );
