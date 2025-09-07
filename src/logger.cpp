@@ -36,5 +36,6 @@ Logger::~Logger() {
 
 void Logger::subLog() {
 	*_out << COL_DEF;
+    *_out << std::flush;
 	*_out << '\n';
 }

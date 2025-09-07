@@ -3,6 +3,8 @@
 #include "demon/get_uptime.hpp"
 #include <common/aliases.hpp>
 
+#include <common/utils.hpp>
+
 #include <sys/un.h>
 
 class DesktopEnv;

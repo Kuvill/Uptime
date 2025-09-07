@@ -1,7 +1,7 @@
 #include <common/change_dir.hpp>
 #include <common/aliases.hpp>
+#include <common/utils.hpp>
 
-#include <cstdlib>
 #include <stdexcept>
 #include <filesystem>
 
@@ -14,7 +14,7 @@ void CheckDirectory() {
     if( !changed ) {
         changed = true;
 
-        char* homeDir( std::getenv("HOME") );
+        char* homeDir( blockingGetEnv("HOME") );
 
         if( !homeDir ) {
             throw std::runtime_error("Unable to get Home env!");

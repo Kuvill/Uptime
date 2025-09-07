@@ -2,8 +2,11 @@
 #include "common/logger.hpp"
 
 #include <algorithm>
+#include <cstdlib>
+#include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <thread>
 #include <unistd.h>
 
 // !!!!! FIXME
