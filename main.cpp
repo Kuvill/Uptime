@@ -1,4 +1,5 @@
 #include "common/check_unique.hpp"
+
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
 #include "demon/ram_storage.hpp"
@@ -11,10 +12,14 @@
 #include <exception>
 #include <stdexcept>
 #include <sys/poll.h>
+#include <sys/socket.h>
 #include <thread>
 
 #include <csignal>
 #include <csetjmp>
+
+// Os depended thing
+#include <sys/eventfd.h>
 
 using namespace std::chrono_literals;
 
@@ -29,13 +34,16 @@ Logger logger("logs.log", LogLvl::Info );
 // Add begin and commit into sqlite
 
 static std::jmp_buf signalHandler;
+static int pollEventFD;
+static const uint64_t idkWhatIsIt = 1;
 
 // Any destructors will be ignored since longjmp used :D
 [[noreturn]] static void SigHandler( int code ) {
 	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
-    // send message to poll in main thread to stop all his processes
-    // i can use eventfd
+    // notify main thread about terminating
+    if( write( pollEventFD, &idkWhatIsIt, sizeof(uint64_t) ) == -1 )
+        logger.log(LogLvl::Error, "message didn't resived: ", strerror( errno ) );
 
     longjmp(signalHandler, true );
 }
@@ -47,6 +55,10 @@ static std::jmp_buf signalHandler;
 
 void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
     logger.log(LogLvl::Info, "Createing second thread");
+
+    pollEventFD = eventfd( 0, EFD_CLOEXEC );
+    if( pollEventFD == -1 )
+        logger.log(LogLvl::Error, strerror( errno ));
 
     // things to make this thread be able to take signals
     sigset_t set;
@@ -126,9 +138,11 @@ int main() {
     
     // set up events to listen. (hide this also as posix realisation)
     pollfd fds[2];
-    fds[0].fd = connect;
-    fds[0].events = POLLOUT | POLLWRBAND;
-    fds[0].fd = -1;
+    fds[0].fd = pollEventFD;
+    fds[0].events = POLLIN;
+
+    fds[1].fd = connect;
+    fds[1].events = POLLIN;
 
 	try {
 		while( true ) {
@@ -139,23 +153,22 @@ int main() {
                 throw std::runtime_error("Error in poll routine");
             }
 
-            for( int i = 0; i < std::size(fds); ++i ) {
-                if( fds[i].revents & POLLOUT ) {
+            if( fds[0].revents & POLLIN ) {
+                logger.log(LogLvl::Warning, "turn off polling...");
+                break;
+            }
+
+            for( int i = 1; i < std::size(fds); ++i ) {
+                if( fds[i].revents & POLLIN )
                     connect.listen(); 
 
-                } else if ( fds[i].revents & POLLWRBAND ) // high priority 
-                    logger.log(LogLvl::Error, "high priority socket msg didn't readed");
 
                 // error occured
-                if( fds[i].revents & POLLHUP ) {
+                if( fds[i].revents & POLLHUP );
                     // goto Finalize;
                     // on socket close
-                }
 			}
 		}
-
-
-Finalize: // if use goto, use it where suitable
 	}
 
 	catch( const std::exception& err ) {
