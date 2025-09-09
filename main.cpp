@@ -37,9 +37,10 @@ static std::jmp_buf signalHandler;
 static int pollEventFD;
 static const uint64_t idkWhatIsIt = 1;
 
+// solution without longjmp: load atomic variable right before and after sleep. in handler set it to true
+
 // Any destructors will be ignored since longjmp used :D
-[[noreturn]] static void SigHandler( int code ) {
-	logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
+[[noreturn]] static void SigHandler( int code ) { logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
     // notify main thread about terminating
     if( write( pollEventFD, &idkWhatIsIt, sizeof(uint64_t) ) == -1 )
@@ -56,7 +57,7 @@ static const uint64_t idkWhatIsIt = 1;
 void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
     logger.log(LogLvl::Info, "Createing second thread");
 
-    pollEventFD = eventfd( 0, EFD_CLOEXEC );
+    // pollEventFD = eventfd( 0, EFD_CLOEXEC );
     if( pollEventFD == -1 )
         logger.log(LogLvl::Error, strerror( errno ));
 
@@ -124,6 +125,8 @@ int main() {
 	Ips connect;
 
     LockNotifier notifier; notifier._stat = LockStatus::NoLock;
+
+    pollEventFD = eventfd( 0, EFD_CLOEXEC );
 
     // turn off processing of signals to this thread
     // hide this all postix things
