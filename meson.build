@@ -21,6 +21,7 @@ demon_sources = [
   './src/demon/get_uptime.cpp',
   './src/demon/better_upimte.cpp',
   './src/demon/ram_storage.cpp',
+  './src/demon/signals.cpp',
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',
