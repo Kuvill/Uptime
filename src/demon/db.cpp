@@ -191,9 +191,13 @@ void Database::dumpStorage( Storage& store ) {
 	logger.log(LogLvl::Info, "dumped: ", store.size());
 
     // Create function for spice insert. Now it is VERY slow FIXME
+    sqlite3_exec( _db, "BEGIN;", nullptr, nullptr, nullptr );
+
 	for( auto& record : store ) {
 		insertUptimeRecord( record.info, record.recTime );
 	}
+
+    sqlite3_exec( _db, "COMMIT;", nullptr, nullptr, nullptr );
 
 	store.clear();
 }
