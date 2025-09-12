@@ -9,6 +9,7 @@
 
 #include "common/logger.hpp"
 #include "demon/signals.hpp"
+#include "inc/common/change_dir.hpp"
 
 #include <cassert>
 #include <exception>
@@ -91,6 +92,7 @@ Finalize:
 
 int main() {
     CheckUnique __uniqueChecker__;
+    CheckDirectory(); // just to be sure, that it changed before second thread created
 
     [[maybe_unused]] Settings settings;
 
@@ -99,7 +101,7 @@ int main() {
     Storage externalStorage;
 	Ips connect;
 
-    LockNotifier notifier; notifier._stat = LockStatus::NoLock;
+    LockNotifier notifier;
 
     blockInteruptSignals();
 

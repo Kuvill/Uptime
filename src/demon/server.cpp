@@ -1,8 +1,6 @@
 // to do: recive nubmer of interval
 
 #include <common/ipc_interface.hpp>
-#include <cstddef>
-#include <cstdio>
 #include <demon/server.hpp>
 #include "common/logger.hpp"
 
@@ -16,10 +14,6 @@
 
 static MsgType TypeByMsg( char buf ) {
 	return static_cast<MsgType>( buf );
-}
-
-void LockNotifier::sensitiveSleep( long time ) {
-    _stat.wait( LockStatus::NoLock );
 }
 
 Ips::Ips() {
