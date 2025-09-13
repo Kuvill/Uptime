@@ -6,7 +6,7 @@
 void notificate( const char* what ); 
 
 template< typename T >
-static inline void notificate( T ) {std::println("Wtf is going on");}
+static inline void notificate( T ) {std::println("Check logs");}
 
 #else
 template< typename T >
