@@ -12,6 +12,7 @@
 #include "inc/common/change_dir.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <exception>
 #include <stdexcept>
 #include <thread>
@@ -36,9 +37,14 @@ static const uint64_t idkWhatIsIt = 1;
 // Any destructors will be ignored since longjmp used :D
 [[noreturn]] static void SigHandler( int code ) { logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
+    if( logger.owner == std::this_thread::get_id() )
+        logger.unlock_mutex();
+
     // notify main thread about terminating
-    if( write( pollEventFD, &idkWhatIsIt, sizeof(uint64_t) ) == -1 )
+    if( write( pollEventFD, &idkWhatIsIt, sizeof(uint64_t) ) == -1 ) {
         logger.log(LogLvl::Error, "message didn't resived: ", strerror( errno ) );
+        std::terminate();
+    }
 
     longjmp(signalHandler, true );
 }

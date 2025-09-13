@@ -3,11 +3,11 @@
 ### Refactor main.cpp 
 clear it after multithread branch merge
 
-- remove commentaries
-
-- Hide DE depended things
-
 - Hide DesktopEnv inserting branches (if useDB...) inside 
+
+### Logger
+
+- Set timeout how long mutex can wait (it not just return from it)
 
 ### Sqlite optimizations
 
