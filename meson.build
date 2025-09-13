@@ -15,6 +15,7 @@ demon_sources = [
   './src/change_dir.cpp',
   './src/check_unique.cpp',
   './src/utils.cpp',
+  './src/notification.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -32,6 +33,7 @@ gui_sources = [
   './src/time.cpp',
   './src/change_dir.cpp',
   './src/utils.cpp',
+  './src/notification.cpp',
 
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
@@ -59,10 +61,12 @@ server_sources = [
 gtkdeps = [
   dependency( 'gtk4' ),
   dependency( 'libadwaita-1' ),
+  dependency( 'libnotify' )
 ]
 
 dbdeps = [
-    dependency( 'sqlite3' )
+    dependency( 'sqlite3' ),
+    dependency( 'libnotify' )
 ]
 
 ### Resources

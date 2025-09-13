@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/notificaion.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -61,6 +62,9 @@ extern Logger logger;
 template <typename Head, typename... Tail>
 void Logger::log( LogLvl lvl, Head head, Tail... tail ) {
 	if( lvl < _lvl ) return;
+    if( lvl == LogLvl::Error )
+         notificate( head ); 
+
 
 	*_out << toStr(lvl) << ": ";
 	*_out << head;
