@@ -60,28 +60,34 @@ void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
         goto Finalize; // to save it compile ability: DO NOT PLACE ANYTHINGS WITH DESTRUCTOR IN THIS 
                         // SCOPE LEVEL.
 
-    while( true ) {
-        logger.log(LogLvl::Info, "New iteration");
-        auto status = notifier._stat.load( std::memory_order::acquire );
+    try {
+        while( true ) {
+            logger.log(LogLvl::Info, "New iteration");
+            auto status = notifier._stat.load( std::memory_order::acquire );
 
-        if( status == LockStatus::Terminate )
-            break;
+            if( status == LockStatus::Terminate )
+                break;
 
-        else if( status == LockStatus::SessionLock ) {
-            logger.log(LogLvl::Info, "Session locked. going sleep...");
+            else if( status == LockStatus::SessionLock ) {
+                logger.log(LogLvl::Info, "Session locked. going sleep...");
 
-            notifier._stat.wait( LockStatus::SessionLock );
-            continue;
-        }
-
-        else {
-            auto info = de->getFocused();
-            if( !info.name.empty() ) {
-                store.insert( info );
+                notifier._stat.wait( LockStatus::SessionLock );
+                continue;
             }
-        }
 
-        std::this_thread::sleep_for( 5s );
+            else {
+                auto info = de->getFocused();
+                if( !info.name.empty() ) {
+                    store.insert( info );
+                }
+            }
+
+            std::this_thread::sleep_for( 5s );
+        }
+    } 
+
+    catch( std::exception& err ) {
+        logger.log(LogLvl::Error, "Second thread: ", err.what() );
     }
 
 Finalize:
