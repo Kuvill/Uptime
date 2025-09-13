@@ -63,8 +63,7 @@ void frequncyPolling( LockNotifier& notifier, Storage& externalStore ) {
     // MHMM Breake whole stack and then goto to random part of code ^^
     // c problems require c solutions Nuahule
     if( setjmp( signalHandler ) )
-        goto Finalize; // to save it compile ability: DO NOT PLACE ANYTHINGS WITH DESTRUCTOR IN THIS 
-                        // SCOPE LEVEL.
+        goto Finalize; 
 
     try {
         while( true ) {

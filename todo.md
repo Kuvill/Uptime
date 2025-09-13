@@ -5,13 +5,7 @@ clear it after multithread branch merge
 
 - Hide DesktopEnv inserting branches (if useDB...) inside 
 
-### Logger
-
-- Set timeout how long mutex can wait (it not just return from it)
-
 ### Sqlite optimizations
-
-- Add BEGIN, COMMIT
 
 - On dump, reuest all app ids by name at once (mb try more benchmarks)
 
