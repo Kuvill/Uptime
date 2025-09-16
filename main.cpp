@@ -26,6 +26,23 @@ Logger logger(LogLvl::Info);
 Logger logger("logs.log", LogLvl::Info );
 #endif
 
+/*
+    1. Do clear inside this func:
+        +: easy to impl
+        -: require global variables e.g. db and store
+
+    2. longjmp
+        +: fast, easy to understand, easy to impl
+        -: Bad c++ solution: do not call destr, exceptions, and idk what more
+
+    3. signalfd
+        +: easy to impl. prevent c style signal from breaking c++ features like exceptions and mb more
+        -: there is no prio in epoll: it'll delay pc turn off - big LL. And anyway a bit slower
+
+        would be nice to find way to set prio... (mb just use poll, lol)
+
+    4.
+*/
 [[noreturn]] static void SigHandler( int code ) {
     logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
