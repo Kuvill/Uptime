@@ -12,6 +12,7 @@
 #include "inc/common/change_dir.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <exception>
 #include <stdexcept>
 
@@ -35,6 +36,7 @@ Logger logger("logs.log", LogLvl::Info );
         +: fast, easy to understand, easy to impl
         -: Bad c++ solution: do not call destr, exceptions, and idk what more
 
+<<<<<<< HEAD
     3. signalfd
         +: easy to impl. prevent c style signal from breaking c++ features like exceptions and mb more
         -: there is no prio in epoll: it'll delay pc turn off - big LL. And anyway a bit slower
