@@ -32,10 +32,6 @@ Logger::~Logger() {
         delete _out;
 }
 
-void Logger::unlock_mutex() {
-    _m.unlock();
-}
-
 void Logger::subLog() {
 	*_out << COL_DEF;
     *_out << std::flush;
