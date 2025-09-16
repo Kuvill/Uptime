@@ -42,7 +42,6 @@ int main() {
 
 	Database db( dbName );
 	Storage storage;
-    Storage externalStorage;
 	Ips connect;
     DesktopEnv* env = initDE();
     TimerEvent timer;
@@ -84,7 +83,6 @@ int main() {
 
 Finalize:
 	db.dumpStorage( storage );
-	db.dumpStorage( externalStorage );
 	return 0;
 }
 
