@@ -27,6 +27,7 @@ DesktopEnv* initDE();
 class DesktopEnv {
 protected:
     virtual void castToBase();
+    int _sock;
 
 public:
     DesktopEnv() = default;
@@ -35,6 +36,10 @@ public:
     virtual ProcessInfo getFocused();
 
     void checkDE();
+
+    operator int() {
+        return _sock;
+    }
 };
 
 class _SwayDE final : public DesktopEnv {

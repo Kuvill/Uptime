@@ -2,6 +2,7 @@
 
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
+#include "demon/modules.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
 #include "demon/settings.hpp"
@@ -9,12 +10,12 @@
 
 #include "common/logger.hpp"
 #include "demon/time_event.hpp"
-#include "inc/common/change_dir.hpp"
 
 #include <cassert>
 #include <cstdlib>
 #include <exception>
-#include <stdexcept>
+
+#include <sys/socket.h>
 
 
 using namespace std::chrono_literals;
@@ -27,6 +28,12 @@ Logger logger(LogLvl::Info);
 Logger logger("logs.log", LogLvl::Info );
 #endif
 
+// use only from signal handler
+Storage* g_store;
+
+// use only from signal handler
+Database* g_db;
+
 /*
     1. Do clear inside this func:
         +: easy to impl
@@ -38,23 +45,25 @@ Logger logger("logs.log", LogLvl::Info );
 
     3. signalfd
         +: easy to impl. prevent c style signal from breaking c++ features like exceptions and mb more
-        -: there is no prio in epoll: it'll delay pc turn off - big LL. And anyway a bit slower
+        -: have to use poll over epoll. 
 
-        would be nice to find way to set prio... (mb just use poll, lol)
-
-    4.
+        alter out: use epoll and just check every time signalfd flag
 */
+
+// later i want to implement 3 way
 [[noreturn]] static void SigHandler( int code ) {
     logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
-    abort();
+    g_db->dumpStorage( *g_store );
+    delete_lock_file();
+
+    exit(0);
 }
 
 // as moder cpp way i should pick as socket dbus, boost.asio or ZeroMQ
 
 int main() {
     CheckUnique __uniqueChecker__;
-    CheckDirectory(); // just to be sure, that it changed before second thread created
 
     [[maybe_unused]] Settings settings;
 
@@ -64,34 +73,58 @@ int main() {
     DesktopEnv* env = initDE();
     TimerEvent timer;
 
-    // Require API enhance
-    Poll<2> poll({ {connect, PollEvent::In},
-                    {timer, PollEvent::In} });
+    g_store = &storage;
+    g_db = &db;
+
+    // Require API enhance. at least add name field
+    Modules modules;
+    modules.add( connect, [](){ logger.log(LogLvl::Info, "triggered"); } );
+    modules.add( timer, [](){ logger.log(LogLvl::Info, "triggered"); } );
+    modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
+
+    /* 
+        Issue: module may require runtime fd change (as DE)
+
+        1. Make epoll md global
+            - lazy unstructured solution. even if a bit fater
+
+        2. Check is there spetific func in dll
+
+        3. leave in plugin unseted symbol, that defined my program
+    */
+    Epoll epoll( modules );
 
     // if timer triggered: trigger all
     // if triggered socket: 
 
 	try {
 		while( true ) {
-            int result = poll.listen();
+            int count = epoll.wait();
+            logger.log(LogLvl::Info, "epoll triggered ", count, " sockets"); 
 
-            if( result < 0 ) [[unlikely]] {
-                logger.log( LogLvl::Error, strerror( errno ) );
-                throw std::runtime_error("Error in poll routine");
-            }
+            for( auto& event : epoll.ready) {
+                // logger log plugin name
 
-            if( poll[0].revents & POLLIN ) {
-                logger.log(LogLvl::Warning, "turn off polling...");
-                break;
-            }
+                if( event.events & EPOLLIN ) [[likely]]
+                    modules.trigger( event.data.fd );
 
-            for(  size_t i = 1; i < poll.size(); ++i ) {
-                if( poll[i].revents & POLLIN )
-                    connect.listen(); 
+                else if( event.events & EPOLLHUP ) { // socket closed
+                    logger.log(LogLvl::Warning, "One of socket closed...");
+                    SigHandler( 0 ); // tmp. Should mark module as turned off. 
+                    // if i will use json to manage plugins, write cause inside
+                    // or btw i can try to reinit module
+                }
 
-                // on error occured e.g. socket close
-                if( poll[i].revents & POLLHUP ) {}
-			}
+                else if( event.events & EPOLLERR ) {
+                    // should be as function in socket file
+                    int error;
+                    socklen_t errlen = sizeof( error );
+                    getsockopt(event.data.fd, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
+                    logger.log(LogLvl::Error, strerror(error));
+                    // turn off plugin and write cause
+                }
+
+            } // event cycle exit
 		}
 	}
 
