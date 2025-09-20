@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <unistd.h>
 #include <unordered_map>
 
 class Modules {
@@ -16,6 +17,8 @@ public:
 
     void trigger( int fd ) {
         _modules[fd]();
+        char buf[100];
+        read(fd, buf, 100);
     }
 
     Map::iterator begin() {

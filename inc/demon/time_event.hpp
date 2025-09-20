@@ -12,14 +12,16 @@ class TimerEvent {
 
 public:
     TimerEvent() {
-        _fd = timerfd_create(CLOCK_REALTIME, 0);
+        _fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
         if( _fd <= 0 ) {
             throw std::runtime_error("Unable to create eventfd");
         }
 
         _settings.it_interval.tv_sec = 5;
-        _settings.it_value.tv_nsec = 0;
+        _settings.it_interval.tv_nsec = 0;
+        _settings.it_value.tv_nsec = 1;
+        _settings.it_value.tv_sec = 0;
 
         // it value - initial sleep. 
         timerfd_settime( _fd, 0, &_settings, nullptr );

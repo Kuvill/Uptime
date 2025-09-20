@@ -6,7 +6,7 @@
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
 #include "demon/settings.hpp"
-#include "demon/poll.hpp"
+#include "demon/epoll.hpp"
 
 #include "common/logger.hpp"
 #include "demon/time_event.hpp"
@@ -45,9 +45,9 @@ Database* g_db;
 
     3. signalfd
         +: easy to impl. prevent c style signal from breaking c++ features like exceptions and mb more
-        -: have to use poll over epoll. 
+        -: a bit slover 
 
-        alter out: use epoll and just check every time signalfd flag
+        have to check it fd on every trigger
 */
 
 // later i want to implement 3 way
@@ -80,7 +80,7 @@ int main() {
     Modules modules;
     modules.add( connect, [](){ logger.log(LogLvl::Info, "triggered"); } );
     modules.add( timer, [](){ logger.log(LogLvl::Info, "triggered"); } );
-    modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
+    // modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
 
     /* 
         Issue: module may require runtime fd change (as DE)
