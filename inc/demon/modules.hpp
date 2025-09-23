@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <common/logger.hpp>
+
 #include <unistd.h>
 #include <unordered_map>
 

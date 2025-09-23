@@ -1,12 +1,11 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
+#include "demon/epoll.hpp"
 
 #include <algorithm>
 #include <cstdlib>
-#include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <thread>
 #include <unistd.h>
 
 // !!!!! FIXME
@@ -84,4 +83,17 @@ ProcessInfo DesktopEnv::getFocused() {
     return {};
 }
 
-void DesktopEnv::castToBase() {}
+void DesktopEnv::castToBase() {
+    this->~DesktopEnv(); // since destructor virtual - all good
+
+    new( this ) DesktopEnv;
+    _sock = -1;
+}
+
+DesktopEnv::~DesktopEnv() {
+    logger.log(LogLvl::Info, "Close socket");
+
+    Unsubscribe( _sock );
+    close( _sock );
+}
+

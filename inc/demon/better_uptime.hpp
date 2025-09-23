@@ -26,12 +26,12 @@ DesktopEnv* initDE();
 
 class DesktopEnv {
 protected:
-    virtual void castToBase();
-    int _sock;
+    void castToBase();
+    int _sock = -1;
 
 public:
     DesktopEnv() = default;
-    virtual ~DesktopEnv() = default;
+    virtual ~DesktopEnv();
 
     virtual ProcessInfo getFocused();
 
@@ -43,9 +43,7 @@ public:
 };
 
 class _SwayDE final : public DesktopEnv {
-    int _sock;
-
-    void castToBase() override;
+    std::string getAnswer();
 
 public:
     _SwayDE();
@@ -63,10 +61,8 @@ public:
 };
 
 class _Hyprland final : public DesktopEnv {
-    int _sock;
     sockaddr_un addr{};
 
-    void castToBase() override;
 
 public:
     _Hyprland();

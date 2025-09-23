@@ -78,9 +78,9 @@ int main() {
 
     // Require API enhance. at least add name field
     Modules modules;
-    modules.add( connect, [](){ logger.log(LogLvl::Info, "triggered"); } );
-    modules.add( timer, [](){ logger.log(LogLvl::Info, "triggered"); } );
-    // modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
+    // modules.add( connect, [](){ logger.log(LogLvl::Info, "triggered"); } );
+    // modules.add( timer, [](){ logger.log(LogLvl::Info, "triggered"); } );
+    modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
 
     /* 
         Issue: module may require runtime fd change (as DE)

@@ -46,13 +46,6 @@ _Hyprland::_Hyprland() {
 
 _Hyprland::~_Hyprland() {
     logger.log(LogLvl::Info, "Hyprland socket closed");
-    // close( _sock );
-}
-
-void _Hyprland::castToBase() {
-    this->~_Hyprland();
-
-    new( this ) DesktopEnv;
 }
 
 ProcessInfo _Hyprland::getFocused() {

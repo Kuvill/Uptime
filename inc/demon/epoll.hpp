@@ -21,6 +21,9 @@ public:
     int wait();
 };
 
+void Subscribe( int fd );
+void Unsubscribe( int fd );
+
 /*
 
 enum class PollEvent : short {

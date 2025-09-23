@@ -1,10 +1,12 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
+#include "demon/epoll.hpp"
 
 #include <cstdio>
 #include <cstring>
 
+#include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -17,11 +19,16 @@
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
+// have to give it machine to interpret them in native endian
 static const std::byte WorkspacesQuerry[] = {
-    std::byte(105), std::byte(51), std::byte(45), // i3-
-    std::byte(105), std::byte(112), std::byte(99), // ipc
-    std::byte(0), std::byte(0), std::byte(0), std::byte(0), // 0
-    std::byte(4), std::byte(0), std::byte(0), std::byte(0), // 4
+    std::byte('i'), std::byte('3'), std::byte('-'), // i3-
+    std::byte('i'), std::byte('p'), std::byte('c'), // ipc
+    std::byte(0x0A), std::byte(0), std::byte(0), std::byte(0), // 10 - msg len
+    std::byte(2), std::byte(0), std::byte(0), std::byte(0), // 2 - subscribe
+    std::byte('['), std::byte('"'), // json with len 10: event on window prop chnage
+    std::byte('w'), std::byte('i'), std::byte('n'),
+    std::byte('d'), std::byte('o'), std::byte('w'),
+    std::byte('"'), std::byte(']'),
 };
 
 static const char* getSwaySockAddr() {
@@ -48,11 +55,36 @@ static const char* getSwaySockAddrAlter() {
     return result;
 }
 
+std::string _SwayDE::getAnswer() {
+    std::string data;
+
+    std::array<char, 14> msgSize;
+    int rc = send(_sock, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+
+    rc = read( _sock, msgSize.data(), sizeof( msgSize ) );
+    if( rc < 0 ) {
+        logger.log(LogLvl::Error, "Failed to get whole message from sway!");
+        throw std::runtime_error("Failed to get whole message from sway!");
+    }
+
+    const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
+
+    data.resize( size );
+
+    rc = read( _sock, data.data(), size );
+
+    return data;
+}
+
 _SwayDE::_SwayDE() {
     logger.log(LogLvl::Info, "Sway detected!");
-    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) )) {
-
+    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _sock < 0 ) {
+        logger.log(LogLvl::Error, "Unable to create socket!!");
+        throw std::runtime_error("Unable to create socket!!");
+        // get sockerr
     }
+
+    Subscribe( _sock );
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
@@ -64,23 +96,38 @@ _SwayDE::_SwayDE() {
 
         if( !trueAddr ) {
             logger.log(LogLvl::Error, "With seted session env on sway, sockadr wasn't found!");
-            exit(1);
+            throw std::runtime_error("With seted session env on sway, sockadr wasn't found!");
         }
     }
 
     strcat( addr.sun_path, sockAddr );
 
     if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
-
+        logger.log(LogLvl::Error, "Unable to connect to sway socket! ", sockAddr);
+        throw std::runtime_error("Unable to connect to sway socket!");
     }
+
+    int rc = send(_sock, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+    if( rc < 0 ) {
+        logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
+        checkDE();
+    }
+
+    nlohmann::json answer = nlohmann::json::parse (getAnswer() );
+    logger.log( LogLvl::Info, answer );
+    if( answer["success"] == false ) {
+        logger.log(LogLvl::Error, "Unable to subscribe to an sway event!");
+        throw std::runtime_error( "Unable to subscribe to an sway event!" );
+    }
+
+    logger.log(LogLvl::Info, "Subscribed to sway event!");
 }
 
 _SwayDE::~_SwayDE() {
-    logger.log(LogLvl::Info, "Sway socket closed");
-    close( _sock );
+    logger.log(LogLvl::Info, "Sway desctructor called");
 }
 
-static ProcessInfo ParseSwayJson( nlohmann::json json ) {
+static ProcessInfo ParseSwayJson( const nlohmann::json& json ) {
     ProcessInfo result;
 
     std::stack<const nlohmann::json*> recursive;
@@ -106,14 +153,6 @@ static ProcessInfo ParseSwayJson( nlohmann::json json ) {
     }
 
     return result;
-}
-
-// do not ask, i just want it d:
-// shoud it be std::start_lifestart_as? (not available in any compiler yet)
-void _SwayDE::castToBase() {
-    this->~_SwayDE();
-
-    new( this ) DesktopEnv;
 }
 
 ProcessInfo _SwayDE::getFocused() {
