@@ -26,6 +26,7 @@ demon_sources = [
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',
+  './src/demon/de_dependent/hyprland_true.cpp',
 ]
 
 gui_sources = [

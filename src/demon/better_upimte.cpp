@@ -49,7 +49,7 @@ constexpr static void registrate() {
 // should be in separated header
 void registrateAll() {
     registrate<_SwayDE>();
-    registrate<_Hyprland>();
+    registrate<_HyprlandTrue>();
 }
 
 size_t sizeForDE() {

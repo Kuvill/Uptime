@@ -78,3 +78,21 @@ public:
 
     static void InplaceCast( DesktopEnv* self );
 };
+
+class _HyprlandTrue final : public DesktopEnv {
+    _Hyprland _base;
+
+public:
+    _HyprlandTrue();
+    ~_HyprlandTrue();
+
+    // functional
+
+    ProcessInfo getFocused() override;
+
+    // SOLID support functions
+
+    static bool CastCondition();
+
+    static void InplaceCast( DesktopEnv* self );
+};
