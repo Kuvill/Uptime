@@ -154,6 +154,8 @@ int main() {
 
     frequncyPollThread.join();
 	db.dumpStorage( externalStorage );
+
+    delete_lock_file();
 	return 0;
 }
 
