@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
@@ -76,6 +77,10 @@ void DesktopEnv::checkDE() {
     }
 }
 
+void DesktopEnv::OnTrigger() {
+    saveProcessInfo( getFocused() );
+}
+
 // I don't recall getFocused to prevent inf recursive
 ProcessInfo DesktopEnv::getFocused() {
     checkDE();
@@ -87,13 +92,13 @@ void DesktopEnv::castToBase() {
     this->~DesktopEnv(); // since destructor virtual - all good
 
     new( this ) DesktopEnv;
-    _sock = -1;
+    _fd = -1;
 }
 
 DesktopEnv::~DesktopEnv() {
     logger.log(LogLvl::Info, "Close socket");
 
-    Unsubscribe( _sock );
-    close( _sock );
+    Unsubscribe( _fd );
+    close( _fd );
 }
 

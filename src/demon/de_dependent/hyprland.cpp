@@ -1,6 +1,7 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
+#include "demon/epoll.hpp"
 
 #include <cstring>
 #include <sys/socket.h>
@@ -39,9 +40,11 @@ _Hyprland::_Hyprland() {
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1, sign, signSize );
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1 + signSize, SOCK, sizeof(SOCK) );
 
-   /* if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+   /* if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     } */
+
+    // FIXME Unable to call from this. Btw i should remove this class d:
 }
 
 _Hyprland::~_Hyprland() {
@@ -49,16 +52,16 @@ _Hyprland::~_Hyprland() {
 }
 
 ProcessInfo _Hyprland::getFocused() {
-    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
+    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
         logger.log(LogLvl::Error, "Internal. Failed to create fd for socket");
     }
 
-    if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     }
 
     ProcessInfo result;
-    if( send( _sock, MSG, sizeof(MSG), 0 ) < 0 ) {
+    if( send( _fd, MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
         checkDE();
         return {};
@@ -68,7 +71,7 @@ ProcessInfo _Hyprland::getFocused() {
     std::string buffer( INIT_SIZE, '\0' );
 
     
-    int rc = read( _sock, buffer.data(), buffer.size() );
+    int rc = read( _fd, buffer.data(), buffer.size() );
 
     // rc == 0 <-> EOF
     while( rc != 0 ) {
@@ -79,7 +82,7 @@ ProcessInfo _Hyprland::getFocused() {
         auto size = buffer.size();
         buffer.resize( buffer.size() * 2 );
         // we read size, not buffer size coz of shift
-        rc = read( _sock, buffer.data() + size, size );
+        rc = read( _fd, buffer.data() + size, size );
     }
 
     // ----------------- class (name)------------------- //
@@ -125,7 +128,7 @@ ProcessInfo _Hyprland::getFocused() {
     // result.uptime = ps( pid );
 
     logger.log(LogLvl::Info, "tueried data: ", result);
-    close( _sock );
+    close( _fd );
 
     return result;
 }

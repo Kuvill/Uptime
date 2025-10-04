@@ -2,6 +2,7 @@
 
 #include "demon/get_uptime.hpp"
 #include <common/aliases.hpp>
+#include <demon/plugin.hpp>
 
 #include <common/utils.hpp>
 
@@ -24,10 +25,9 @@ size_t sizeForDE();
 
 DesktopEnv* initDE();
 
-class DesktopEnv {
+class DesktopEnv : public Plugin {
 protected:
     void castToBase();
-    int _sock = -1;
 
 public:
     DesktopEnv() = default;
@@ -35,10 +35,11 @@ public:
 
     virtual ProcessInfo getFocused();
 
+    void OnTrigger() override;
     void checkDE();
 
     operator int() {
-        return _sock;
+        return _fd;
     }
 };
 

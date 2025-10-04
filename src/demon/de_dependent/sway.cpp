@@ -59,9 +59,9 @@ std::string _SwayDE::getAnswer() {
     std::string data;
 
     std::array<char, 14> msgSize;
-    int rc = send(_sock, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+    int rc = send(_fd, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
 
-    rc = read( _sock, msgSize.data(), sizeof( msgSize ) );
+    rc = read( _fd, msgSize.data(), sizeof( msgSize ) );
     if( rc < 0 ) {
         logger.log(LogLvl::Error, "Failed to get whole message from sway!");
         throw std::runtime_error("Failed to get whole message from sway!");
@@ -71,20 +71,20 @@ std::string _SwayDE::getAnswer() {
 
     data.resize( size );
 
-    rc = read( _sock, data.data(), size );
+    rc = read( _fd, data.data(), size );
 
     return data;
 }
 
 _SwayDE::_SwayDE() {
     logger.log(LogLvl::Info, "Sway detected!");
-    if(( _sock = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _sock < 0 ) {
+    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _fd < 0 ) {
         logger.log(LogLvl::Error, "Unable to create socket!!");
         throw std::runtime_error("Unable to create socket!!");
         // get sockerr
     }
 
-    Subscribe( _sock );
+    Subscribe( _fd, this );
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
@@ -102,12 +102,12 @@ _SwayDE::_SwayDE() {
 
     strcat( addr.sun_path, sockAddr );
 
-    if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
+    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
         logger.log(LogLvl::Error, "Unable to connect to sway socket! ", sockAddr);
         throw std::runtime_error("Unable to connect to sway socket!");
     }
 
-    int rc = send(_sock, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+    int rc = send(_fd, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
     if( rc < 0 ) {
         logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
         checkDE();
@@ -159,7 +159,7 @@ ProcessInfo _SwayDE::getFocused() {
     ProcessInfo result;
     std::array<char, 14> msgSize;
 
-    int rc = send(_sock, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+    int rc = send(_fd, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
     if( rc < 0 ) {
         // btw i should check errno FIXME
         logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
@@ -171,7 +171,7 @@ ProcessInfo _SwayDE::getFocused() {
         return {};
     }
 
-    rc = read( _sock, msgSize.data(), sizeof( msgSize ) );
+    rc = read( _fd, msgSize.data(), sizeof( msgSize ) );
     if( rc < 0 )
         logger.log(LogLvl::Error, "Internal. Failed to read message");
 
@@ -181,7 +181,7 @@ ProcessInfo _SwayDE::getFocused() {
     // string don't allow non-init creation (just use raw char*? or create from it)
     std::string data( size, '\0' );
 
-    rc = read( _sock, data.data(), size );
+    rc = read( _fd, data.data(), size );
 
     if( rc < 0 ) {
         logger.log(LogLvl::Error, "Internal. Failed to read message");

@@ -2,7 +2,7 @@
 
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
-#include "demon/modules.hpp"
+#include "demon/plugin.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
 #include "demon/settings.hpp"
@@ -76,12 +76,6 @@ int main() {
     g_store = &storage;
     g_db = &db;
 
-    // Require API enhance. at least add name field
-    Modules modules;
-    // modules.add( connect, [](){ logger.log(LogLvl::Info, "triggered"); } );
-    // modules.add( timer, [](){ logger.log(LogLvl::Info, "triggered"); } );
-    modules.add( *env, [](){ logger.log(LogLvl::Info, "triggered"); } ); 
-
     /* 
         Issue: module may require runtime fd change (as DE)
 
@@ -92,7 +86,7 @@ int main() {
 
         3. leave in plugin unseted symbol, that defined my program
     */
-    Epoll epoll( modules );
+    Epoll epoll;
 
     // if timer triggered: trigger all
     // if triggered socket: 
@@ -105,8 +99,9 @@ int main() {
             for( auto& event : epoll.ready) {
                 // logger log plugin name
 
-                if( event.events & EPOLLIN ) [[likely]]
-                    modules.trigger( event.data.fd );
+                if( event.events & EPOLLIN ) [[likely]] {
+                    auto plugin = static_cast<Plugin*>( event.data.ptr );
+                }
 
                 else if( event.events & EPOLLHUP ) { // socket closed
                     logger.log(LogLvl::Warning, "One of socket closed...");

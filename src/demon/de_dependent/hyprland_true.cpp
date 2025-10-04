@@ -8,6 +8,8 @@
 #include <cstring>
 #include <stdexcept>
 
+#include "demon/epoll.hpp"
+#include "demon/plugin.hpp"
 #include "sys/socket.h"
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
@@ -33,15 +35,18 @@ _HyprlandTrue::_HyprlandTrue() {
     sockaddr_un addr;
     addr.sun_family = AF_UNIX;
 
-    std::memcpy( addr.sun_path, xdg, xdgSize );
-    std::memcpy( addr.sun_path, xdg, xdgSize );
-    std::memcpy( addr.sun_path, xdg, xdgSize );
-    std::memcpy( addr.sun_path, xdg, xdgSize );
+    std::memcpy( addr.sun_path, xdg, xdgSize - 1 );
+    std::memcpy( addr.sun_path + xdgSize - 1, HYPR, sizeof(HYPR) - 1 );
+    std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 2, sign, signSize - 1 );
+    std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) + signSize - 3, SOCK, sizeof(SOCK) - 1 );
 
-    if( connect(_sock, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr)) == -1 ) {
-        logger.log(LogLvl::Error, "Unable to connect to hyprland socket v2!");
+    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr)) == -1 ) {
+        logger.log(LogLvl::Error, "Unable to connect to hyprland socket v2!", "addr: '", addr.sun_path, "'" );
         throw std::runtime_error("Unable to connect to hyprland socket v2!");
     }
+
+    logger.log(LogLvl::Info, "Should be registrated here...");
+    Subscribe( _fd, this );
 }
 
 _HyprlandTrue::~_HyprlandTrue() {
@@ -50,7 +55,7 @@ _HyprlandTrue::~_HyprlandTrue() {
 
 ProcessInfo _HyprlandTrue::getFocused() {
     char buffer[256];
-    size_t n = read( _sock, buffer, sizeof(buffer)-1 );
+    size_t n = read( _fd, buffer, sizeof(buffer)-1 );
     if( n < 0 ) {
         logger.log(LogLvl::Error, "Unable to read message from hyprland socket v2! ", strerror( errno ));
         throw std::runtime_error("Unable to read message from hyprland socket v2!");
@@ -65,13 +70,21 @@ ProcessInfo _HyprlandTrue::getFocused() {
     return {};
 }
 
-bool _HyprlandTrue::CastCondition() {
-    return _Hyprland::CastCondition();
-}
-
 void _HyprlandTrue::InplaceCast( DesktopEnv* self ) {
     self->~DesktopEnv();
 
-    new( self ) _Hyprland;
+    new( self ) _HyprlandTrue;
+}
+
+bool _HyprlandTrue::CastCondition() {
+    logger.log(LogLvl::Info, "Checking does Hyprland running...");
+    char* de( blockingGetEnv( DE_ENV_VAR ) );
+
+    if( !de ) {
+        logger.log(LogLvl::Error, "Unable to detect current DE!");
+        throw std::runtime_error("Unable to detect current DE!");
+    }
+
+    return strstr( "Hyprland", de ) != nullptr;
 }
 

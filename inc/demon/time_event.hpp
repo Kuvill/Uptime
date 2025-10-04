@@ -1,20 +1,25 @@
 #pragma once
 
+#include "demon/epoll.hpp"
 #include <common/logger.hpp>
 
 #include <stdexcept>
+#include <cstring>
+
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-class TimerEvent {
+class TimerEvent : Plugin {
     int _fd;
     itimerspec _settings;
 
 public:
     TimerEvent() {
+        errno = 0;
         _fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
-        if( _fd <= 0 ) {
+        if( _fd < 0 ) {
+            logger.log(LogLvl::Error, "Unable to create eventfd (", _fd, "): ", strerror(errno) );
             throw std::runtime_error("Unable to create eventfd");
         }
 
@@ -25,6 +30,12 @@ public:
 
         // it value - initial sleep. 
         timerfd_settime( _fd, 0, &_settings, nullptr );
+
+        Subscribe( _fd, this );
+    }
+
+    void OnTrigger() override {
+        logger.log(LogLvl::Warning, "Motion on timer doesn't implemented yet!");
     }
 
     void changeCD( int new_sec ) {

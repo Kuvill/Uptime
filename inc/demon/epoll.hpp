@@ -1,7 +1,6 @@
 #pragma once
 
-#include "demon/modules.hpp"
-
+#include "demon/plugin.hpp"
 #include <sys/epoll.h>
 #include <vector>
 
@@ -13,7 +12,7 @@ private:
     int _fd;
 
 public:
-    Epoll( Modules modules  );
+    Epoll();
 
     ~Epoll();
 
@@ -21,7 +20,7 @@ public:
     int wait();
 };
 
-void Subscribe( int fd );
+void Subscribe( int fd, Plugin* );
 void Unsubscribe( int fd );
 
 /*
