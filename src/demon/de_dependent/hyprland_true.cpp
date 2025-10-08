@@ -26,19 +26,28 @@ const char RUN_DIR[] = "XDG_RUNTIME_DIR";
 const int INIT_SIZE = 1'000;
 
 _HyprlandTrue::_HyprlandTrue() {
+    logger.log(LogLvl::Info, "Hyprland detected!");
+    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _fd < 0 ) {
+        logger.log(LogLvl::Error, "Unable to create socket!!");
+        throw std::runtime_error("Unable to create socket!!");
+        // get sockerr
+    }
+
     const char* sign = std::getenv( HIS ) ;
     const char* xdg = std::getenv( RUN_DIR );
 
     const auto signSize = strlen( sign );
     const auto xdgSize = strlen( xdg );
+    constexpr const auto HYPRSize = sizeof(HYPR) - 1;
+    constexpr const auto SOCKSize = sizeof(SOCK); // with zero terminate at the end
 
     sockaddr_un addr;
     addr.sun_family = AF_UNIX;
 
-    std::memcpy( addr.sun_path, xdg, xdgSize - 1 );
-    std::memcpy( addr.sun_path + xdgSize - 1, HYPR, sizeof(HYPR) - 1 );
-    std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 2, sign, signSize - 1 );
-    std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) + signSize - 3, SOCK, sizeof(SOCK) - 1 );
+    std::memcpy( addr.sun_path, xdg, xdgSize );
+    std::memcpy( addr.sun_path + xdgSize, HYPR, HYPRSize );
+    std::memcpy( addr.sun_path + xdgSize + HYPRSize, sign, signSize );
+    std::memcpy( addr.sun_path + xdgSize + HYPRSize + signSize, SOCK, SOCKSize );
 
     if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr)) == -1 ) {
         logger.log(LogLvl::Error, "Unable to connect to hyprland socket v2!", "addr: '", addr.sun_path, "'" );
