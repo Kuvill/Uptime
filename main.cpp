@@ -79,20 +79,6 @@ int main() {
     g_store = &storage;
     g_db = &db;
 
-    /* 
-        Issue: module may require runtime fd change (as DE)
-
-        1. Make epoll md global
-            - lazy unstructured solution. even if a bit fater
-
-        2. Check is there spetific func in dll
-
-        3. leave in plugin unseted symbol, that defined my program
-    */
-
-    // if timer triggered: trigger all
-    // if triggered socket: 
-
 	try {
 		while( true ) {
             int count = epoll.wait();
@@ -100,11 +86,11 @@ int main() {
 
             for( int i = 0; i < count; ++i ) {
                 auto event = epoll.ready[i];
-                // logger log plugin name
 
                 if( event.events & EPOLLIN ) [[likely]] {
                     char buf[1000];
                     auto plugin = static_cast<Plugin*>( event.data.ptr );
+                    logger.log(LogLvl::Info, "Triggering ", typeid(*plugin).name());
                     plugin->OnTrigger();
                     read(plugin->getFd(), buf, 1000);
                 }
@@ -133,7 +119,6 @@ int main() {
 		logger.log(LogLvl::Error, err.what());
 	}
 
-Finalize:
 	db.dumpStorage( storage );
 	return 0;
 }
