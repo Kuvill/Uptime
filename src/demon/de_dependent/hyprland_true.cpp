@@ -27,7 +27,8 @@ const int INIT_SIZE = 1'000;
 
 _HyprlandTrue::_HyprlandTrue() {
     logger.log(LogLvl::Info, "Hyprland detected!");
-    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _fd < 0 ) {
+    // if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _fd < 0 ) {
+        if( setFd( socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0) ) < 0 ) {
         logger.log(LogLvl::Error, "Unable to create socket!!");
         throw std::runtime_error("Unable to create socket!!");
         // get sockerr
@@ -49,22 +50,24 @@ _HyprlandTrue::_HyprlandTrue() {
     std::memcpy( addr.sun_path + xdgSize + HYPRSize, sign, signSize );
     std::memcpy( addr.sun_path + xdgSize + HYPRSize + signSize, SOCK, SOCKSize );
 
-    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr)) == -1 ) {
+    if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof(addr)) == -1 ) {
         logger.log(LogLvl::Error, "Unable to connect to hyprland socket v2!", "addr: '", addr.sun_path, "'" );
         throw std::runtime_error("Unable to connect to hyprland socket v2!");
     }
 
     logger.log(LogLvl::Info, "Should be registrated here...");
-    Subscribe( _fd, this );
+    Subscribe( getFd(), this );
 }
 
 _HyprlandTrue::~_HyprlandTrue() {
+    Unsubscribe( getFd() );
+    close( getFd() );
     logger.log(LogLvl::Info, "Descroying hyprland...");
 }
 
 ProcessInfo _HyprlandTrue::getFocused() {
     char buffer[256];
-    size_t n = read( _fd, buffer, sizeof(buffer)-1 );
+    size_t n = read( getFd(), buffer, sizeof(buffer)-1 );
     if( n < 0 ) {
         logger.log(LogLvl::Error, "Unable to read message from hyprland socket v2! ", strerror( errno ));
         throw std::runtime_error("Unable to read message from hyprland socket v2!");

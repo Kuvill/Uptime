@@ -39,7 +39,7 @@ public:
     void checkDE();
 
     operator int() {
-        return _fd;
+        return getFd();
     }
 };
 

@@ -10,16 +10,15 @@
 #include <unistd.h>
 
 class TimerEvent : Plugin {
-    int _fd;
     itimerspec _settings;
 
 public:
     TimerEvent() {
         errno = 0;
-        _fd = timerfd_create(CLOCK_MONOTONIC, 0);
+        setFd( timerfd_create(CLOCK_MONOTONIC, 0) );
 
-        if( _fd < 0 ) {
-            logger.log(LogLvl::Error, "Unable to create eventfd (", _fd, "): ", strerror(errno) );
+        if( getFd() < 0 ) {
+            logger.log(LogLvl::Error, "Unable to create eventfd (", getFd(), "): ", strerror(errno) );
             throw std::runtime_error("Unable to create eventfd");
         }
 
@@ -29,9 +28,9 @@ public:
         _settings.it_value.tv_sec = 0;
 
         // it value - initial sleep. 
-        timerfd_settime( _fd, 0, &_settings, nullptr );
+        timerfd_settime( getFd(), 0, &_settings, nullptr );
 
-        Subscribe( _fd, this );
+        Subscribe( getFd(), this );
     }
 
     void OnTrigger() override {
@@ -44,11 +43,11 @@ public:
     }
 
     ~TimerEvent() {
-        close( _fd );
+        close( getFd() );
     }
 
     operator int() {
-        return _fd;
+        return getFd();
     }
 
 

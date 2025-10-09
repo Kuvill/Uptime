@@ -40,7 +40,7 @@ void Subscribe( int fd, Plugin* plugin ) {
     ev.data.ptr = plugin;
     ev.events = EPOLLIN;
     epoll_ctl( epoll_fd, EPOLL_CTL_ADD, fd, &ev );
-    logger.log(LogLvl::Info, "Registrate class: ", typeid(*plugin).name());
+    logger.log(LogLvl::Info, "Registrate class: ", typeid(*plugin).name(), " (", fd, ")");
 }
 
 void Unsubscribe( int fd ) {

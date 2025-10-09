@@ -40,7 +40,7 @@ _Hyprland::_Hyprland() {
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1, sign, signSize );
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1 + signSize, SOCK, sizeof(SOCK) );
 
-   /* if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+   /* if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     } */
 
@@ -52,16 +52,16 @@ _Hyprland::~_Hyprland() {
 }
 
 ProcessInfo _Hyprland::getFocused() {
-    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
+    if(( setFd( socket( AF_UNIX, SOCK_STREAM, 0 ) ) ) < 0 ) {
         logger.log(LogLvl::Error, "Internal. Failed to create fd for socket");
     }
 
-    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+    if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     }
 
     ProcessInfo result;
-    if( send( _fd, MSG, sizeof(MSG), 0 ) < 0 ) {
+    if( send( getFd(), MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
         checkDE();
         return {};
@@ -71,18 +71,18 @@ ProcessInfo _Hyprland::getFocused() {
     std::string buffer( INIT_SIZE, '\0' );
 
     
-    int rc = read( _fd, buffer.data(), buffer.size() );
+    int rc = read( getFd(), buffer.data(), buffer.size() );
 
     // rc == 0 <-> EOF
-    while( rc != 0 ) {
+    auto oldSize = buffer.size();
+    while( rc == oldSize ) {
         if( rc < 0 ) {
             logger.log(LogLvl::Error, "Internal. Unable to read from socket");
         }
 
-        auto size = buffer.size();
         buffer.resize( buffer.size() * 2 );
         // we read size, not buffer size coz of shift
-        rc = read( _fd, buffer.data() + size, size );
+        rc = read( getFd(), buffer.data() + oldSize, oldSize );
     }
 
     // ----------------- class (name)------------------- //
@@ -128,7 +128,7 @@ ProcessInfo _Hyprland::getFocused() {
     // result.uptime = ps( pid );
 
     logger.log(LogLvl::Info, "tueried data: ", result);
-    close( _fd );
+    close( getFd() );
 
     return result;
 }

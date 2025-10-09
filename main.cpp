@@ -16,6 +16,7 @@
 #include <exception>
 
 #include <sys/socket.h>
+#include <unistd.h>
 
 
 using namespace std::chrono_literals;
@@ -67,6 +68,8 @@ int main() {
 
     [[maybe_unused]] Settings settings;
 
+    Epoll epoll;
+
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
@@ -86,7 +89,6 @@ int main() {
 
         3. leave in plugin unseted symbol, that defined my program
     */
-    Epoll epoll;
 
     // if timer triggered: trigger all
     // if triggered socket: 
@@ -96,11 +98,15 @@ int main() {
             int count = epoll.wait();
             logger.log(LogLvl::Info, "epoll triggered ", count, " sockets"); 
 
-            for( auto& event : epoll.ready) {
+            for( int i = 0; i < count; ++i ) {
+                auto event = epoll.ready[i];
                 // logger log plugin name
 
                 if( event.events & EPOLLIN ) [[likely]] {
+                    char buf[1000];
                     auto plugin = static_cast<Plugin*>( event.data.ptr );
+                    plugin->OnTrigger();
+                    read(plugin->getFd(), buf, 1000);
                 }
 
                 else if( event.events & EPOLLHUP ) { // socket closed

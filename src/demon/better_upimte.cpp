@@ -92,13 +92,10 @@ void DesktopEnv::castToBase() {
     this->~DesktopEnv(); // since destructor virtual - all good
 
     new( this ) DesktopEnv;
-    _fd = -1;
+    setFd( -1 );
 }
 
 DesktopEnv::~DesktopEnv() {
     logger.log(LogLvl::Info, "Close socket");
-
-    Unsubscribe( _fd );
-    close( _fd );
 }
 
