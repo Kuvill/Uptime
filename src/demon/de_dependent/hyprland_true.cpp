@@ -9,7 +9,6 @@
 #include <stdexcept>
 
 #include "demon/epoll.hpp"
-#include "demon/plugin.hpp"
 #include "sys/socket.h"
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";

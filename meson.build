@@ -19,8 +19,8 @@ demon_sources = [
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
-  './src/demon/get_uptime.cpp',
   './src/demon/better_upimte.cpp',
+  './src/demon/get_uptime.cpp',
   './src/demon/ram_storage.cpp',
   './src/demon/epoll.cpp',
   './src/demon/plugin.cpp',

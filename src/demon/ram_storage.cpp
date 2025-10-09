@@ -8,36 +8,26 @@
 
 #define USER_ID 1
 
-Record::Record( uint32_t usr, Name appName, recTime_t uptime, recTime_t recTime, std::string describe )
-            : user(usr), info(appName, uptime, describe), recTime( recTime ) {}
-
-Record::Record( uint32_t usr, ProcessInfo info, recTime_t recTime )
-            : user(usr), info(info), recTime(recTime) {}
+Record::Record( uint32_t usr, ProcessInfo info )
+            : user(usr), info(info) {}
 
 // AI says, fnv-a1 would be nice
 std::size_t std::hash<Record>::operator()( const Record& rec ) const {
 	const std::hash<uint32_t> hasher;
 
-	return (hasher(rec.user) << 32) + hasher(rec.recTime.count());
+	return (hasher(rec.user) << 32) + hasher(rec.info.timestomp.count());
 }
 
 bool Record::operator==( const Record& other ) const {
-	return recTime == other.recTime;
+	return info.timestomp == other.info.timestomp;
 }
 
 void Storage::insert( const ProcessInfo& info ) {
-    auto time = getCurrentTime();
-	
-    insert( info, time );
-}
-
-void Storage::insert( const ProcessInfo& info, recTime_t time ) {
-	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name.data(), ", ", info.uptime, ", ", time.count() );
+	logger.log(LogLvl::Info, "new record: ", USER_ID, ", ", info.name.data(), ", ", info.timestomp );
 
 	_storage.insert( Record(
 		USER_ID,
-        info,
-		time
+        info
 	 ));
 
 }
@@ -69,7 +59,7 @@ size_t Storage::size() {
 std::ostream& operator<<( std::ostream& os, const Storage& store ) {
 	os << "Ram info:\n";
 	for( auto& a : store ) {
-        os << a.user << ' ' << a.info.name.data() << ' ' << a.info.uptime << ' '<< a.recTime.count() << '\n';
+        os << a.user << ' ' << a.info.name.data() << ' ' << a.info.timestomp << ' '<< a.info.timestomp.count() << '\n';
         os << a.info.describe << '\n';
 	}
 

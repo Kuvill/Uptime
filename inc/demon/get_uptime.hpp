@@ -9,12 +9,12 @@ using Name = std::string;
 
 struct ProcessInfo {
 	Name name{};
-	recTime_t uptime;
+	recTime_t timestomp;
     std::string describe;
 
     bool operator!=( const ProcessInfo& other ) const {
         return name != other.name ||
-            uptime != other.uptime ||
+            timestomp != other.timestomp ||
             describe != other.describe;
     }
 };

@@ -49,8 +49,8 @@ static const char* CREATE_TABLES = "CREATE TABLE IF NOT EXISTS " USERS_TABLE " (
 
 
 static const char sqlInsertRecord[] = "INSERT INTO " REC_TABLE "(" \
-					    "user_id, app_id, rec_time, uptime, describe) " \
-					    "VALUES (1, ?1, ?2, ?3, ?4);";
+					    "user_id, app_id, rec_time, describe) " \
+					    "VALUES (1, ?1, ?2, ?3);";
 
 
 static const char sqlGetAppId[] = "SELECT app_id FROM " APP_TABLE " WHERE app_name = ?1;";
@@ -91,24 +91,8 @@ Database::~Database() {
 }
 
 #define USER_ID 1
-// in future i have to pass user id. not it just 1
+
 void Database::insertUptimeRecord( const ProcessInfo& info ) {
-	recTime_t recTime = getCurrentTime();
-
-	insertUptimeRecord( info, recTime );
-}
-
-// just create enum for tables
-
-// Take serrialized string:
-// "({appid}, {time}, {uptimer (deprecated btw)}, {describe}),".
-// last one have ; instead of , at the end
-void Database::insertManyUptimeRecords( std::string_view data ) {
-    
-}
-
-// i should use extended sql request to improve performance
-void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 	int appId = getAppId( info );
 
 	if( appId == -1 ) 
@@ -120,9 +104,8 @@ void Database::insertUptimeRecord( const ProcessInfo& info, recTime_t time ) {
 
 	if( rc == SQLITE_OK ) {
 		rc = sqlite3_bind_int( stmt , 1, appId );
-		rc += sqlite3_bind_int64( stmt , 2, time.count() );
-		rc += sqlite3_bind_int( stmt , 3, info.uptime.count() );
-        rc += sqlite3_bind_text( stmt, 4, info.describe.data(), info.describe.size(), SQLITE_TRANSIENT );
+		rc += sqlite3_bind_int64( stmt , 2, info.timestomp.count() );
+        rc += sqlite3_bind_text( stmt, 3, info.describe.data(), info.describe.size(), SQLITE_TRANSIENT );
 
 	} else {
 		const char* zErrMsg = sqlite3_errmsg(_db);
@@ -194,7 +177,7 @@ void Database::dumpStorage( Storage& store ) {
     sqlite3_exec( _db, "BEGIN;", nullptr, nullptr, nullptr );
 
 	for( auto& record : store ) {
-		insertUptimeRecord( record.info, record.recTime );
+		insertUptimeRecord( record.info );
 	}
 
     sqlite3_exec( _db, "COMMIT;", nullptr, nullptr, nullptr );

@@ -192,6 +192,7 @@ ProcessInfo _SwayDE::getFocused() {
     nlohmann::json json = nlohmann::json::parse( data );
 
     result = ParseSwayJson( json );
+    result.timestomp = getCurrentTime();
 
     logger.log(LogLvl::Info, "tueried data: ", result);
 

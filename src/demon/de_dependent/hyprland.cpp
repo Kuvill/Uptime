@@ -1,3 +1,4 @@
+#include "common/time.hpp"
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
@@ -127,6 +128,7 @@ ProcessInfo _Hyprland::getFocused() {
     std::memcpy( pid.data(), it.base(), end - it );
     // result.uptime = ps( pid );
 
+    result.timestomp = getCurrentTime();
     logger.log(LogLvl::Info, "tueried data: ", result);
     close( getFd() );
 
