@@ -12,6 +12,7 @@
 #include "demon/time_event.hpp"
 
 #include <cassert>
+#include <csignal>
 #include <cstdlib>
 #include <exception>
 
@@ -78,6 +79,10 @@ int main() {
 
     g_store = &storage;
     g_db = &db;
+
+    signal(SIGTERM, SigHandler);
+    signal(SIGSEGV, SigHandler);
+    signal(SIGINT, SigHandler);
 
 	try {
 		while( true ) {
