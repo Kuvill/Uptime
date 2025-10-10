@@ -15,7 +15,7 @@ void saveProcessInfo( const ProcessInfo& info ) {
         return;
     }
 
-    if( info.uptime - prevInfo.uptime <= std::chrono::seconds(1) ) {
+    if( info.timestomp - prevInfo.timestomp <= std::chrono::seconds(1) ) {
         logger.log(LogLvl::Info, "Focus changing swap detecting: do not insert last window");
         prevInfo = info;
         prevSkipped = true;
