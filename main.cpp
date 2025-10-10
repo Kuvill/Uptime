@@ -73,7 +73,7 @@ int main() {
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
-    DesktopEnv* env = initDE();
+    [[maybe_unused]] DesktopEnv* env = initDE();
     TimerEvent timer;
 
     g_store = &storage;

@@ -11,6 +11,7 @@ struct Plugin {
     int getFd(){ logger.log(LogLvl::Info, "get fd"); return _fd; }
 
     virtual void OnTrigger() = 0;
+    virtual ~Plugin() = default;
 };
 
 void saveProcessInfo( const ProcessInfo& info );
