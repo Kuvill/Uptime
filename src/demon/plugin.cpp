@@ -6,20 +6,31 @@
 extern Storage* g_store;
 extern Database* g_db;
 
-static ProcessInfo prevName;
+static ProcessInfo prevInfo;
 static bool prevSkipped = false;
 
 void saveProcessInfo( const ProcessInfo& info ) {
-    if( info.name.empty() )
+    if( info.name.empty() ) {
+        logger.log(LogLvl::Info, "Getted empty info");
         return;
+    }
 
-    if( getCurrentTime() - prevName.uptime <= std::chrono::seconds(1) );
+    if( info.uptime - prevInfo.uptime <= std::chrono::seconds(1) ) {
+        logger.log(LogLvl::Info, "Focus changing swap detecting: do not insert last window");
+        prevInfo = info;
+        prevSkipped = true;
 
-    if( prevSkipped ) {
-        
+        return;
+    }
+
+    if( prevSkipped ) [[unlikely]] {
+        logger.log(LogLvl::Info, "Previous Info inserted");
+        g_store->insert( prevInfo );
+        prevSkipped = false;
     }
 
     g_store->insert( info );
+    prevInfo = info;
 }
 
 
