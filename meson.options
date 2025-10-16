@@ -1,0 +1,23 @@
+option('native',
+  type: 'boolean',
+  description: 'Extra optimization parameter. Should be choosen for non portable version',
+  value: true
+)
+
+option('enable_profiling',
+  type: 'boolean',
+  description: 'if false, apply \'-fno-semantic-interposition\' flag',
+  value: false
+)
+
+option('lto',
+  type: 'boolean',
+  description: 'Enable link time optimizations',
+  value: true
+)
+
+option('logging',
+  type: 'boolean',
+  description: 'If false, disabe logging',
+  value: true
+)

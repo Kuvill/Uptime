@@ -2,6 +2,8 @@
 #include "common/change_dir.hpp"
 #include "common/aliases.hpp"
 
+#ifndef NOLOG
+
 // thx for +300ms to compilation just for untie
 #include <iostream>
 
@@ -37,3 +39,5 @@ void Logger::subLog() {
     *_out << std::flush;
 	*_out << '\n';
 }
+
+#endif

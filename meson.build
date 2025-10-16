@@ -1,13 +1,43 @@
 # i can use wayland module
 # btw i should install main.ui and create dir without installation?
 
-project( 'Uptimer', 'cpp' )
+project( 'Uptimer', 'cpp',
+  default_options: ['cpp_std=c++23', 'buildtype=release'],
+  meson_version: '>=1.1'
+)
+
+
+### Project settings
+buildtype = get_option('buildtype')
+enable_profiling = get_option('enable_profiling') # default, debug, none
+native = get_option('native') # true / false
+lto = get_option('lto')
+logging = get_option('logging')
+
+cppflags = []
+
+if native
+  cppflags += '-march=native'
+endif
+
+if (not enable_profiling) and (buildtype != 'debug')
+  cppflags += '-fno-semantic-interposition'
+endif
+
+if lto and (buildtype != 'debug')
+  cppflags += '-flto=auto'
+endif
+
+if not logging
+  cppflags += '-DNOLOG'
+endif
+
+add_project_arguments(cppflags, language: 'cpp')
+
+
 
 ### Sources
-
 incdir = include_directories('.', './inc')
-# incdir += include_directories('./inc')
-# incdir += include_directories('./third_party/')
 
 demon_sources = [
   './src/logger.cpp',
@@ -81,8 +111,6 @@ custom_target(
 )
 
 ### Compiler optpions
-
-add_project_arguments('-std=c++23', language: 'cpp')
 
 buildtype = get_option('buildtype')
 if buildtype == 'debug'

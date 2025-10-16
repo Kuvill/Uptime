@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 
+
 #define COL_DEF "\033[0m"
 #define COL_RED "\033[31m"
 #define COL_YEL "\033[33m"
@@ -20,6 +21,8 @@ enum class LogLvl : char {
 	Error = 2,
 	None = 3
 };
+
+#ifndef NOLOG
 
 constexpr const char* toStr( LogLvl lvl ) {
 	switch (lvl) {
@@ -82,3 +85,19 @@ void Logger::subLog( Head last ) {
     *_out << std::flush;
 	*_out << COL_DEF;
 }
+
+#else
+
+class /* __attribute__((visibility("hidden"))) */ Logger {
+public:
+   	Logger( LogLvl = LogLvl::Warning ) noexcept {}
+	Logger( std::ofstream* of, LogLvl = LogLvl::Warning ) noexcept {}
+    Logger( const char* path, LogLvl = LogLvl::Warning ) noexcept {}
+
+    template<typename Head, typename... Tail>
+    void log( LogLvl, Head&&, Tail... ) noexcept {}
+};
+
+inline Logger logger{LogLvl::Info};
+
+#endif

@@ -14,11 +14,13 @@
 
 const char* dbName = "uptime.db";
 
+#ifndef NOLOG
 #ifdef DEBUG
     Logger logger(LogLvl::Info);
 #else
     // it still require supervisoring
     Logger logger("gui.log", LogLvl::Info);
+#endif
 #endif
 
 static guint SetupTimer( Context& context ) {

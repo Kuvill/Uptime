@@ -24,10 +24,12 @@ using namespace std::chrono_literals;
 
 const char* dbName = "uptime.db";
 
+#ifndef NOLOG
 #ifdef DEBUG
 Logger logger(LogLvl::Info);
 #else
 Logger logger("logs.log", LogLvl::Info );
+#endif
 #endif
 
 // use only from signal handler
