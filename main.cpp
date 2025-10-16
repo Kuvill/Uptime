@@ -1,5 +1,6 @@
 #include "common/check_unique.hpp"
 
+#include "common/signal_event.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
 #include "demon/plugin.hpp"
@@ -78,6 +79,7 @@ int main() {
 	Ips connect;
     [[maybe_unused]] DesktopEnv* env = initDE();
     TimerEvent timer;
+    SignalEvent signals;
 
     g_store = &storage;
     g_db = &db;

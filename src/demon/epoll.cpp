@@ -26,9 +26,14 @@ Epoll::~Epoll() {
 int Epoll::wait() {
     int result = epoll_wait(_fd, ready.data(), ready.size(), -1 );
 
-    if( result == -1 ) [[unlikely]] {
-        logger.log(LogLvl::Error, "Unable to call epoll_wait: ", strerror( errno ));
-        throw std::runtime_error("Unable to call epoll_wait");
+    if( result == -1 ) {
+        if( errno == EINTR ) [[likely]] {
+            logger.log(LogLvl::Warning, "Signal in epoll wait detected");
+               
+        } else {
+            logger.log(LogLvl::Error, "Unable to call epoll_wait: ", strerror( errno ));
+            throw std::runtime_error("Unable to call epoll_wait");
+        }
     }
 
     return result;
