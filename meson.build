@@ -32,6 +32,11 @@ if not logging
   cppflags += '-DNOLOG'
 endif
 
+if buildtype == 'debug'
+  add_project_arguments([ '-DDEBUG' ], language: 'cpp')
+endif
+
+
 add_project_arguments(cppflags, language: 'cpp')
 
 
@@ -109,13 +114,6 @@ custom_target(
     '--sourcedir=./res/gui/', '--target=ui.gresource'],
   output: 'ui.gresource'
 )
-
-### Compiler optpions
-
-buildtype = get_option('buildtype')
-if buildtype == 'debug'
-  add_project_arguments([ '-DDEBUG' ], language: 'cpp')
-endif
 
 ### Targets 
 
