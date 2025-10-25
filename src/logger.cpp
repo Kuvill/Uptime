@@ -1,6 +1,7 @@
 #include "common/logger.hpp"
 #include "common/change_dir.hpp"
 #include "common/aliases.hpp"
+#include <ostream>
 
 #ifndef NOLOG
 
@@ -12,32 +13,39 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-Logger::Logger( LogLvl lvl ) : _lvl(lvl) {
+void Logger::Init( LogLvl lvl ) {
+    _lvl = lvl;
+
     // since i use only logger to interact with user
     std::ios_base::sync_with_stdio( false );
     std::clog.tie( nullptr );
 }
 
 
-Logger::Logger( std::ofstream* of, LogLvl lvl ) : Logger(lvl) {
-    logger.log(LogLvl::Info, "Logger source has been changed.");
+void Logger::Init( std::ofstream* of, LogLvl lvl ) {
+    Init( lvl );
     _out = of;
-}
-Logger::Logger( const char* path, LogLvl lvl ) : Logger(lvl) {
-    CheckDirectory();
+
     logger.log(LogLvl::Info, "Logger source has been changed.");
-    _out = new std::ofstream( path );
 }
 
-Logger::~Logger() {
-    if( dynamic_cast<std::ofstream*>( _out ))
-        delete _out;
+void Logger::Init( const char* path, LogLvl lvl ) {
+    CheckDirectory();
+    Init( lvl );
+
+    _out = new std::ofstream( path );
+
+    logger.log(LogLvl::Info, "Logger source has been changed.");
 }
 
 void Logger::subLog() {
 	*_out << COL_DEF;
     *_out << std::flush;
 	*_out << '\n';
+}
+
+Logger::~Logger() {
+    *_out << std::flush;
 }
 
 #endif

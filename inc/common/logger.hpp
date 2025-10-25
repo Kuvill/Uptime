@@ -48,9 +48,9 @@ class Logger {
 	void subLog();
 
 public:
-	Logger( LogLvl = LogLvl::Warning );
-	Logger( std::ofstream* of, LogLvl = LogLvl::Warning );
-    Logger( const char* path, LogLvl = LogLvl::Warning );
+    void Init( LogLvl = LogLvl::Warning );
+    void Init( std::ofstream* of, LogLvl = LogLvl::Warning );
+    void Init( const char* path, LogLvl = LogLvl::Warning );
 
     ~Logger();
 
@@ -59,6 +59,10 @@ public:
 };
 
 extern Logger logger;
+
+// ---- 
+// template Implementations
+// ---
 
 template <typename Head, typename... Tail>
 void Logger::log( LogLvl lvl, Head head, Tail... tail ) {
