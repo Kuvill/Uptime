@@ -38,6 +38,7 @@ endif
 
 
 add_project_arguments(cppflags, language: 'cpp')
+add_project_arguments('-std=c++23', language: 'cpp')
 
 
 
@@ -51,6 +52,7 @@ demon_sources = [
   './src/check_unique.cpp',
   './src/utils.cpp',
   './src/notification.cpp',
+  './src/xdg_dirs.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',

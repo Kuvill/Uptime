@@ -5,7 +5,6 @@
 
 #ifndef NOLOG
 
-// thx for +300ms to compilation just for untie
 #include <iostream>
 
 #include <fstream>

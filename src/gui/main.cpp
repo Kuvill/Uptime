@@ -16,7 +16,7 @@ const char* dbName = "uptime.db";
 
 #ifndef NOLOG
 #ifdef DEBUG
-    Logger logger(LogLvl::Info);
+    Logger logger;
 #else
     // it still require supervisoring
     Logger logger("gui.log", LogLvl::Info);
@@ -52,6 +52,14 @@ static void activate( GtkApplication* app, gpointer data ) {
 }
 
 int main( int argc, char *argv[] ) {
+#ifndef NOLOG
+#ifdef DEBUG
+    logger.Init( LogLvl::Info );
+#else
+    Logger logger("gui.log", LogLvl::Error);
+#endif
+#endif
+
 	AdwApplication* app = adw_application_new("org.kuvil.uptimer", G_APPLICATION_DEFAULT_FLAGS );
 	g_signal_connect( app, "activate", G_CALLBACK( activate ), nullptr );
     logger.log(LogLvl::Info, "Init...");
