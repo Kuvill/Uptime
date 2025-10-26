@@ -91,8 +91,9 @@ int main( int argc, char** argv ) {
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
-    [[maybe_unused]] DesktopEnv* env = initDE();
     TimerEvent timer;
+    
+    [[maybe_unused]] DesktopEnv* env = initDE();
     SignalEvent signals;
 
     g_store = &storage;
