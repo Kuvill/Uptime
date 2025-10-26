@@ -25,13 +25,8 @@ using namespace std::chrono_literals;
 
 const char* dbName = "uptime.db";
 
-#ifndef NOLOG
-#ifdef DEBUG
-Logger logger(LogLvl::Info);
-#else
-Logger logger("logs.log", LogLvl::Info );
-#endif
-#endif
+// has no global constructor
+Logger logger;
 
 // use only from signal handler
 Storage* g_store;
@@ -69,6 +64,14 @@ Database* g_db;
 
 int main() {
     CheckUnique __uniqueChecker__;
+
+#ifndef NOLOG
+#ifndef DEBUG
+    logger.Init();
+#else
+    logger.Init( LogLvl::Info );
+#endif
+#endif
 
     [[maybe_unused]] Settings settings;
 
