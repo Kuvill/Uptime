@@ -15,12 +15,7 @@
 const char* dbName = "uptime.db";
 
 #ifndef NOLOG
-#ifdef DEBUG
     Logger logger;
-#else
-    // it still require supervisoring
-    Logger logger("gui.log", LogLvl::Info);
-#endif
 #endif
 
 static guint SetupTimer( Context& context ) {
@@ -57,7 +52,7 @@ int main( int argc, char *argv[] ) {
 #ifdef DEBUG
     logger.Init( LogLvl::Info );
 #else
-    Logger logger("gui.log", LogLvl::Error);
+    logger.Init( ".local/state/uptimer/", LogLvl::Error );
 #endif
 #endif
 

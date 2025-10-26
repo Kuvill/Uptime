@@ -13,10 +13,10 @@ using namespace std::chrono_literals;
 
 namespace fs = std::filesystem;
 
-constexpr const std::string_view CONF_PATH = ".config/uptimer";
-constexpr const std::string_view CACHE_PATH = ".cache/uptimer";
-constexpr const std::string_view SHARE_PATH = ".local/share/uptimer";
-constexpr const std::string_view STATE_PATH = ".local/state/uptimer";
+constexpr const std::string_view CONF_PATH = ".config/uptimer/";
+constexpr const std::string_view CACHE_PATH = ".cache/uptimer/";
+constexpr const std::string_view SHARE_PATH = ".local/share/uptimer/";
+constexpr const std::string_view STATE_PATH = ".local/state/uptimer/";
 
 enum class PathErrCode : char {
     Good,
