@@ -1,6 +1,5 @@
 #include "common/check_unique.hpp"
 #include "common/logger.hpp"
-#include "common/change_dir.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -13,8 +12,6 @@ static const fs::path lockFile = "in_use.lock";
 static const fs::path procFile = "/proc/";
 
 CheckUnique::CheckUnique() {
-    CheckDirectory();
-
     if( fs::exists( lockFile ) ) {
         
         std::ifstream file( lockFile );

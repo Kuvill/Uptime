@@ -61,6 +61,7 @@ demon_sources = [
   './src/demon/ram_storage.cpp',
   './src/demon/epoll.cpp',
   './src/demon/plugin.cpp',
+  './src/demon/settings.cpp',
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',
@@ -80,6 +81,8 @@ gui_sources = [
   './src/gui/state.cpp',
   './src/gui/client.cpp',
   './src/gui/context.cpp',
+
+  './src/demon/settings.cpp',
 
   './src/gui/builder.cpp',
   './src/gui/builder/column_view.cpp',

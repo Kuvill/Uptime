@@ -3,6 +3,8 @@
 
 #include <common/logger.hpp>
 
+// for DE i should create one more function, 
+// that transfer from subscribe model to cooldown
 char* blockingGetEnv( const char* var ) {
     char* env = std::getenv( var );
  

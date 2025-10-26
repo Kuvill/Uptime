@@ -72,7 +72,6 @@ static void checkTables( sqlite3* db ) {
 }
 
 Database::Database() {
-    CheckDirectory();
 }
 
 // sqlite3_config befor any connection.

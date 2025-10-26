@@ -31,7 +31,6 @@ static guint SetupTimer( Context& context ) {
 
 // TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
-    CheckDirectory();
 
 	GtkBuilder* builder = gtk_builder_new_from_file( "main.ui" );
 	setup_builder( app, builder );
@@ -52,6 +51,8 @@ static void activate( GtkApplication* app, gpointer data ) {
 }
 
 int main( int argc, char *argv[] ) {
+    ChangeDirectoryToHome();
+
 #ifndef NOLOG
 #ifdef DEBUG
     logger.Init( LogLvl::Info );

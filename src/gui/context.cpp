@@ -10,7 +10,7 @@ Context* Context::get() {
             DatabaseReader( dbName ),
             Client(),
             State(),
-            Settings() };
+            /*Settings()*/ };
 
     return self;
 }

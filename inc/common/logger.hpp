@@ -50,7 +50,7 @@ class Logger {
 public:
     void Init( LogLvl = LogLvl::Warning );
     void Init( std::ofstream* of, LogLvl = LogLvl::Warning );
-    void Init( const char* path, LogLvl = LogLvl::Warning );
+    void Init( std::string_view directory, LogLvl = LogLvl::Warning );
 
     ~Logger();
 

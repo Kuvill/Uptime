@@ -60,7 +60,6 @@ static int countRows( sqlite3_stmt *stmt ) {
 }
 
 DatabaseReader::DatabaseReader() {
-    CheckDirectory();
 }
 
 DatabaseReader::DatabaseReader( const char* dbName ) : DatabaseReader() {

@@ -1,3 +1,4 @@
+#include "common/change_dir.hpp"
 #include "common/check_unique.hpp"
 
 #include "common/signal_event.hpp"
@@ -62,18 +63,28 @@ Database* g_db;
 
 // as moder cpp way i should pick as socket dbus, boost.asio or ZeroMQ
 
-int main() {
+int main( int argc, char** argv ) {
+    ChangeDirectoryToHome();
     CheckUnique __uniqueChecker__;
+
+    // Parse args (sry)
+    std::string_view overridenConfPath;
+    if( argc != 1 )
+        for( char* arg = argv[1]; arg != nullptr; ++arg )
+            if( std::strcmp( arg++, "-c" ) )
+                if( arg != nullptr )
+                    overridenConfPath = arg;
+    //
+
+    Settings settings( overridenConfPath );
 
 #ifndef NOLOG
 #ifndef DEBUG
-    logger.Init();
+    logger.Init( settings.paths.share.string() );
 #else
     logger.Init( LogLvl::Info );
 #endif
 #endif
-
-    [[maybe_unused]] Settings settings;
 
     Epoll epoll;
 

@@ -50,7 +50,7 @@ gboolean update_data( gpointer data ) {
     if( isOverlap ) {
         logger.log(LogLvl::Info, "Merging records...");
             auto* item = (RECORD_ITEM(g_list_model_get_item( G_LIST_MODEL(store), index )));
-            updateUptime( newItem, item, context.settings.cd );
+            updateUptime( newItem, item, std::chrono::seconds(5) );
             logger.log(LogLvl::Info, "Replace record info: ", newItem->appName, ", ", newItem->uptime );
             // g_object_set( item, "name", newItem->appName, "uptime", newItem->uptime, nullptr );
 

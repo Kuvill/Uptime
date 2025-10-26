@@ -1,6 +1,7 @@
 #include "common/logger.hpp"
 #include "common/change_dir.hpp"
 #include "common/aliases.hpp"
+#include <cstring>
 #include <ostream>
 
 #ifndef NOLOG
@@ -28,11 +29,13 @@ void Logger::Init( std::ofstream* of, LogLvl lvl ) {
     logger.log(LogLvl::Info, "Logger source has been changed.");
 }
 
-void Logger::Init( const char* path, LogLvl lvl ) {
-    CheckDirectory();
+void Logger::Init( std::string_view directory, LogLvl lvl ) {
     Init( lvl );
 
-    _out = new std::ofstream( path );
+    std::string path{ directory };
+    path += "demon.log";
+
+    _out = new std::ofstream( std::move(path) );
 
     logger.log(LogLvl::Info, "Logger source has been changed.");
 }
