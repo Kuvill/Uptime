@@ -94,9 +94,9 @@ void Logger::subLog( Head last ) {
 
 class /* __attribute__((visibility("hidden"))) */ Logger {
 public:
-   	Init( LogLvl = LogLvl::Warning ) noexcept {}
-	Init( std::ofstream* of, LogLvl = LogLvl::Warning ) noexcept {}
-    Init( const char* path, LogLvl = LogLvl::Warning ) noexcept {}
+   	void Init( LogLvl = LogLvl::Warning ) noexcept {}
+	void Init( std::ofstream* of, LogLvl = LogLvl::Warning ) noexcept {}
+    void Init( const char* path, LogLvl = LogLvl::Warning ) noexcept {}
 
     template<typename Head, typename... Tail>
     void log( LogLvl, Head&&, Tail... ) noexcept {}

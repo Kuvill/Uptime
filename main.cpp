@@ -27,7 +27,9 @@ using namespace std::chrono_literals;
 const char* dbName = "uptime.db";
 
 // has no global constructor
+#ifndef NOLOG
 Logger logger;
+#endif
 
 // use only from signal handler
 Storage* g_store;
@@ -80,7 +82,8 @@ int main( int argc, char** argv ) {
 
 #ifndef NOLOG
 #ifndef DEBUG
-    logger.Init( settings.paths.share.string() );
+    // logger.Init( settings.paths.state.string() );
+    logger.Init( LogLvl::Info );
 #else
     logger.Init( LogLvl::Info );
 #endif

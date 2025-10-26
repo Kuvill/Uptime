@@ -59,7 +59,7 @@ size_t sizeForDE() {
 
 DesktopEnv* initDE() {
     registrateAll();
-    void* reserve = alloca(sizeForDE());
+    void* reserve = malloc(sizeForDE());
     DesktopEnv* de = new(reserve) DesktopEnv; 
     de->checkDE();
     
