@@ -67,7 +67,7 @@ int main() {
 
 #ifndef NOLOG
 #ifndef DEBUG
-    logger.Init( );
+    logger.Init();
 #else
     logger.Init( LogLvl::Info );
 #endif
