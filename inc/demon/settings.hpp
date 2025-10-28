@@ -8,17 +8,17 @@
 #include <toml++/toml.hpp>
 
 struct Paths {
-    std::filesystem::path share;
-    std::filesystem::path state;
     std::filesystem::path config;
-    std::filesystem::path cache;
+
+    std::filesystem::path db;
+    std::filesystem::path log;
 };
 
 class Settings final : public Plugin {
     toml::table _config;
 
     void setupPaths();
-    void setupThePath( std::string_view variable, std::string_view def );
+    std::string setupThePath( std::string_view variable, std::string_view def );
 
 public:
     Settings( std::string_view overridenConfPath );
@@ -37,3 +37,4 @@ public:
     Paths paths;
 };
 
+extern Settings* settings_;

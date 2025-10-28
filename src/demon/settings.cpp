@@ -1,6 +1,7 @@
 #include <demon/settings.hpp>
 
 #include <filesystem>
+#include <optional>
 #include <string_view>
 
 #include <toml++/toml.hpp>
@@ -55,19 +56,19 @@ static PathErrCode adaptPath( std::string_view path ) {
     return PathErrCode::Good;
 }
 
-void Settings::setupThePath( std::string_view variable, std::string_view def ) {
+std::string Settings::setupThePath( std::string_view variable, std::string_view def ) {
     auto result = _config["paths"][variable].value<std::string>();
     if( result ) {
         if( adaptPath( result.value() ) == PathErrCode::Good )
-            return;
+            return result.value();
     }
 
-    paths.config = def;
     PathErrCode code;
-    if( code = adaptPath( paths.config.string() ); code == PathErrCode::Good )
-        return;
+    if( code = adaptPath( def ); code == PathErrCode::Good )
+        return std::string(def);
 
     logger.log( LogLvl::Error, "Unable to configure config path! ", toString( code ) );
+    throw std::runtime_error("Unable to configure config path!");
 }
 
 Settings::Settings( std::string_view overridenConfPath ) {

@@ -2,7 +2,6 @@
 #include "demon/ram_storage.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
-#include "common/change_dir.hpp"
 
 #include <sqlite3.h>
 
@@ -78,6 +77,8 @@ Database::Database() {
 // in GUI version, i have to use v2 and set flag read_only
 Database::Database( const char* dbName ) : Database() {
     logger.log(LogLvl::Info, "creating db:  ", dbName);
+
+
 	if( sqlite3_open( dbName, &_db ) != SQLITE_OK )
 		throw std::runtime_error("Error while starting sqlite3");
 

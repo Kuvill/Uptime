@@ -37,6 +37,9 @@ Storage* g_store;
 // use only from signal handler
 Database* g_db;
 
+// redflag?
+Settings* settings_;
+
 /*
     1. Do clear inside this func:
         +: easy to impl
@@ -79,6 +82,7 @@ int main( int argc, char** argv ) {
     //
 
     Settings settings( overridenConfPath );
+    settings_ = &settings;
 
 #ifndef NOLOG
 #ifndef DEBUG
