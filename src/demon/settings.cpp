@@ -83,6 +83,11 @@ Settings::Settings( std::string_view overridenConfPath ) {
     paths.config = overridenConfPath.empty() ?
                     CONF_PATH : overridenConfPath;
 
+    if( !fs::exists(paths.config) ) {
+        if( !fs::create_directories( paths.config ) )
+            throw std::runtime_error("Unable to open/create config directory!");
+    }
+
     int fd =  inotify_init1( IN_NONBLOCK );
     if( fd == -1 ) {
         logger.log(LogLvl::Error, "Unable create inotify ", strerror(errno));
