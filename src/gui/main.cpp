@@ -9,12 +9,20 @@
 #include "gui/state.hpp"
 
 #include "demon/settings.hpp"
+#include "demon/ram_storage.hpp"
+#include "demon/db.hpp"
 
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
 #include <unistd.h>
 
-Settings *_settings;
+Settings *settings_;
+
+// use only from signal handler
+Storage* g_store;
+
+// use only from signal handler
+Database* g_db;
 
 const char* dbName = "uptime.db";
 
@@ -31,7 +39,10 @@ static guint SetupTimer( Context& context ) {
 // TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
 
-	GtkBuilder* builder = gtk_builder_new_from_file( "main.ui" );
+    std::string path = settings_->paths.resources;
+    path += "main.ui";
+
+	GtkBuilder* builder = gtk_builder_new_from_file( path.c_str() );
 	setup_builder( app, builder );
 
 	auto* window = GTK_WINDOW(gtk_builder_get_object( builder, "window" ));

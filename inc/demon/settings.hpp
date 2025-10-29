@@ -14,6 +14,7 @@ struct Paths {
     std::filesystem::path socket;
     std::filesystem::path log;
     std::filesystem::path lock;
+    std::filesystem::path resources;
 };
 
 class Settings final : public Plugin {

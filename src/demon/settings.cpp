@@ -98,6 +98,7 @@ void Settings::setupPaths() {
     paths.log = setupThePath( "log", STATE_PATH );
     paths.lock = setupThePath( "lock", STATE_PATH );
     paths.socket = setupThePath( "socket", SHARE_PATH );
+    paths.resources = setupThePath( "resources", SHARE_PATH );
 
     // yay, magic number ^^. it is sockMaxLen (108) - fileName (12)
     // Yes, i do not check it availabllity. Unlucky
