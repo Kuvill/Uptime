@@ -1,8 +1,10 @@
 // to do: recive nubmer of interval
 
 #include <common/ipc_interface.hpp>
+#include <cstring>
 #include <demon/server.hpp>
 #include "common/logger.hpp"
+#include "demon/settings.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -24,13 +26,19 @@ Ips::Ips() {
 	{
 		sockaddr_un localAdr{};
 		localAdr.sun_family = AF_UNIX;
-		strcpy( localAdr.sun_path, SOCK_PATH );
+
+        std::string path = settings_->paths.socket;
+        path += SOCK_PATH;
+
+		strcpy( localAdr.sun_path, path.c_str() );
 
 		// if socket exist
-		unlink(SOCK_PATH);
+		unlink( path.c_str() );
 		if( bind( _serverSocket, reinterpret_cast<sockaddr*>(&localAdr), 
-					sizeof(localAdr) ) < 0 )
-			throw std::runtime_error("failed to bind socket!");
+            sizeof(localAdr) ) < 0 ) {
+                    logger.log(LogLvl::Error, strerror(errno));
+                    throw std::runtime_error("failed to bind socket!");
+        }
 	}
 
 	if( ::listen( _serverSocket, 10 ) < 0 )
@@ -38,8 +46,11 @@ Ips::Ips() {
 }
 
 Ips::~Ips() {
+    std::string path = settings_->paths.socket;
+    path += SOCK_PATH;
+
 	close( _serverSocket );
-	unlink(SOCK_PATH);
+	unlink( path.c_str() );
 }
 
 MsgType Ips::listen() {

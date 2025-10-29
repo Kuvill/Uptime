@@ -38,7 +38,7 @@ Storage* g_store;
 Database* g_db;
 
 // redflag?
-Settings* settings_;
+Settings *settings_;
 
 /*
     1. Do clear inside this func:
@@ -70,7 +70,6 @@ Settings* settings_;
 
 int main( int argc, char** argv ) {
     ChangeDirectoryToHome();
-    CheckUnique __uniqueChecker__;
 
     // Parse args (sry)
     std::string_view overridenConfPath;
@@ -83,6 +82,9 @@ int main( int argc, char** argv ) {
 
     Settings settings( overridenConfPath );
     settings_ = &settings;
+
+    // make sure, i do not change anythings in settings
+    CheckUnique __uniqueChecker__;
 
 #ifndef NOLOG
 #ifndef DEBUG

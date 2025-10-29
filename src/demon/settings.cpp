@@ -14,10 +14,10 @@ using namespace std::chrono_literals;
 
 namespace fs = std::filesystem;
 
-constexpr const std::string_view CONF_PATH = ".config/uptimer/";
-constexpr const std::string_view CACHE_PATH = ".cache/uptimer/";
-constexpr const std::string_view SHARE_PATH = ".local/share/uptimer/";
-constexpr const std::string_view STATE_PATH = ".local/state/uptimer/";
+[[maybe_unused]] constexpr const std::string_view CONF_PATH = ".config/uptimer/";
+[[maybe_unused]] constexpr const std::string_view CACHE_PATH = ".cache/uptimer/";
+[[maybe_unused]] constexpr const std::string_view SHARE_PATH = ".local/share/uptimer/";
+[[maybe_unused]] constexpr const std::string_view STATE_PATH = ".local/state/uptimer/";
 
 enum class PathErrCode : char {
     Good,
@@ -56,11 +56,19 @@ static PathErrCode adaptPath( std::string_view path ) {
     return PathErrCode::Good;
 }
 
+// reorginize with goto as it was firstly?
+// not it really hard to add result string conditions:
+// '/' at the end
+// ~/ at the begin
+// windows '\'...
 std::string Settings::setupThePath( std::string_view variable, std::string_view def ) {
     auto result = _config["paths"][variable].value<std::string>();
     if( result ) {
-        if( adaptPath( result.value() ) == PathErrCode::Good )
+        if( adaptPath( result.value() ) == PathErrCode::Good ) {
+            if( result.value().back() != '/' ) result.value() += '/';
+
             return result.value();
+        }
     }
 
     PathErrCode code;
@@ -86,9 +94,15 @@ Settings::Settings( std::string_view overridenConfPath ) {
 }
 
 void Settings::setupPaths() {
-    setupThePath( "cache", CACHE_PATH );
-    setupThePath( "share", SHARE_PATH );
-    setupThePath( "state", STATE_PATH );
+    paths.db = setupThePath( "db", SHARE_PATH );
+    paths.log = setupThePath( "log", STATE_PATH );
+    paths.lock = setupThePath( "lock", STATE_PATH );
+    paths.socket = setupThePath( "socket", SHARE_PATH );
+
+    // yay, magic number ^^. it is sockMaxLen (108) - fileName (12)
+    // Yes, i do not check it availabllity. Unlucky
+    if( paths.socket.string().size() > 97 ) 
+        paths.socket.string() = SHARE_PATH;
 }
 
 // before reading new file, i can save old as tmp
@@ -96,7 +110,6 @@ void Settings::reload() {
     _config = toml::parse_file( paths.config.string() );
 
     cd = seconds( _config["general"]["cd"].value_or( 5 ) );
-    logger.log(LogLvl::Info, "Seconds: ", cd);
 
     setupPaths();
 }

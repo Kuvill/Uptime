@@ -8,9 +8,13 @@
 #include "gui/context.hpp"
 #include "gui/state.hpp"
 
+#include "demon/settings.hpp"
+
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
 #include <unistd.h>
+
+Settings *_settings;
 
 const char* dbName = "uptime.db";
 
@@ -47,6 +51,9 @@ static void activate( GtkApplication* app, gpointer data ) {
 
 int main( int argc, char *argv[] ) {
     ChangeDirectoryToHome();
+
+    Settings settings({});
+    settings_ = &settings;
 
 #ifndef NOLOG
 #ifdef DEBUG

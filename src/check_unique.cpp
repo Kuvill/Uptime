@@ -1,5 +1,6 @@
 #include "common/check_unique.hpp"
 #include "common/logger.hpp"
+#include "demon/settings.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -8,13 +9,18 @@
 
 namespace fs = std::filesystem;
 
-static const fs::path lockFile = "in_use.lock";
+static const std::string_view lockFile = "in_use.lock";
 static const fs::path procFile = "/proc/";
 
 CheckUnique::CheckUnique() {
-    if( fs::exists( lockFile ) ) {
+    std::string path = settings_->paths.lock;
+    path += lockFile;
+
+    if( fs::exists( path ) ) {
         
-        std::ifstream file( lockFile );
+        // How should i control old path?
+
+        std::ifstream file( path );
         std::string pid;
 
         file >> pid;
@@ -31,7 +37,7 @@ CheckUnique::CheckUnique() {
 
     // clear file
     int pid = getpid();
-    std::ofstream file( lockFile, std::ofstream::out | std::ofstream::trunc );
+    std::ofstream file( path, std::ofstream::out | std::ofstream::trunc );
 
     file << pid;
     logger.log(LogLvl::Info, "Application instace is unique.");
@@ -43,5 +49,8 @@ CheckUnique::~CheckUnique() {
 }
 
 void delete_lock_file() {
-    fs::remove( lockFile );
+    std::string path = settings_->paths.lock;
+    path += lockFile;
+
+    fs::remove( path );
 }
