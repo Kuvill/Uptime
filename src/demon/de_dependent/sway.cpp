@@ -6,15 +6,16 @@
 #include <cstdio>
 #include <cstring>
 
+#include <print>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <thread>
 #include <unistd.h>
 
 #include <nlohmann/json.hpp>
 
 #include <cassert>
-#include <stack>
 #include <array>
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
@@ -59,19 +60,39 @@ std::string _SwayDE::getAnswer() {
     std::string data;
 
     std::array<char, 14> msgSize;
-    int rc = send(getFd(), WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
 
-    rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
-    if( rc < 0 ) {
-        logger.log(LogLvl::Error, "Failed to get whole message from sway!");
-        throw std::runtime_error("Failed to get whole message from sway!");
+    int sum = 0;
+    int rc = read( getFd(), msgSize.data() + sum, sizeof( msgSize ) - sum );
+    while( true ) {
+        logger.log(LogLvl::Info, rc);
+        if( rc + sum == 14 ) break;
+
+        if( rc < 0 ) {
+            if( errno != EAGAIN && errno != EWOULDBLOCK ) {
+                logger.log(LogLvl::Error, "Failed to get whole message from sway! ", strerror(errno));
+                perror("read");
+                throw std::runtime_error("Failed to get whole message from sway!");
+
+            } else 
+                rc = 0;
+        }
+
+        logger.log(LogLvl::Info, msgSize.data());
+        sum += rc;
+        std::this_thread::yield(); // mb add some guard... (at least for stat and mabe just use sleep for ... ms)
+
+        rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
     }
 
+    // first 6 - magic string. next 4 - size, 4 - type
     const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
 
     data.resize( size );
 
     rc = read( getFd(), data.data(), size );
+
+    logger.log(LogLvl::Warning, msgSize.data() );
+    logger.log(LogLvl::Warning, data );
 
     return data;
 }
@@ -79,9 +100,8 @@ std::string _SwayDE::getAnswer() {
 _SwayDE::_SwayDE() {
     logger.log(LogLvl::Info, "Sway detected!");
     if(( setFd( socket( AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0) )) < 0 ) {
-        logger.log(LogLvl::Error, "Unable to create socket!!");
+        logger.log(LogLvl::Error, "Unable to create socket!! ", strerror(errno));
         throw std::runtime_error("Unable to create socket!!");
-        // get sockerr
     }
 
     Subscribe( getFd(), this );
@@ -113,8 +133,9 @@ _SwayDE::_SwayDE() {
         checkDE();
     }
 
-    nlohmann::json answer = nlohmann::json::parse (getAnswer() );
-    logger.log( LogLvl::Info, answer );
+    nlohmann::json answer = nlohmann::json::parse( getAnswer() );
+
+
     if( answer["success"] == false ) {
         logger.log(LogLvl::Error, "Unable to subscribe to an sway event!");
         throw std::runtime_error( "Unable to subscribe to an sway event!" );
@@ -132,26 +153,23 @@ _SwayDE::~_SwayDE() {
 static ProcessInfo ParseSwayJson( const nlohmann::json& json ) {
     ProcessInfo result;
 
-    std::stack<const nlohmann::json*> recursive;
-    recursive.push( &json );
-    while( !recursive.empty() ) {
-        auto& node = *recursive.top();
-        recursive.pop();
+    if( std::string msg = json["change"]; msg != "focus" && msg != "new" ) {
+        logger.log(LogLvl::Info, "Handled useless sway event: ", msg, ". Skiping...");
+        return {};
+    }
 
-        if( node.find("pid") != node.end() ) {
+    auto node = json.find("container");
 
-            if( node["focused"] ) {
-                result.name = node["app_id"];
-                result.describe = node["name"];
-                // result.uptime = ps( std::to_string( node["pid"].get<int>() ) );
+    if( node != json.end() ) {
+        auto name = node->find("app_id");
+        (name != node->end() && !name->is_null()) ?
+            void(result.name = name->get<std::string>()) :
+            logger.log(LogLvl::Error, "Unexpected sway answer! App name wasn't found!");
 
-            } // plase for recording all data
-
-        } else {
-            for( const auto& child : node["nodes"] ) {
-                recursive.push( &child );
-            }
-        }
+        auto describe = node->find("name");
+        (describe != node->end() && !describe->is_null()) ?
+            void(result.describe = describe->get<std::string>()) :
+            logger.log(LogLvl::Error, "Unexpected sway answer! App describe wasn't found!");
     }
 
     return result;
@@ -159,38 +177,8 @@ static ProcessInfo ParseSwayJson( const nlohmann::json& json ) {
 
 ProcessInfo _SwayDE::getFocused() {
     ProcessInfo result;
-    std::array<char, 14> msgSize;
 
-    int rc = send(getFd(), WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
-    if( rc < 0 ) {
-        // btw i should check errno FIXME
-        logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
-
-        // if i want call here getFocused, i have to prevent inf loop.
-        // IMHO i don't have to do that coz it take time to select new DE
-        // (1 more reason why i should call sleep not it begin of program, but after getenv == nullptr)
-        checkDE();
-        return {};
-    }
-
-    rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
-    if( rc < 0 )
-        logger.log(LogLvl::Error, "Internal. Failed to read message");
-
-    const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
-    // const uint32_t type = *reinterpret_cast<uint32_t*>( msgSize.data()+10 );
-
-    // string don't allow non-init creation (just use raw char*? or create from it)
-    std::string data( size, '\0' );
-
-    rc = read( getFd(), data.data(), size );
-
-    if( rc < 0 ) {
-        logger.log(LogLvl::Error, "Internal. Failed to read message");
-    }
-
-    nlohmann::json json = nlohmann::json::parse( data );
-
+    nlohmann::json json = nlohmann::json::parse( getAnswer() );
     result = ParseSwayJson( json );
     result.timestomp = getCurrentTime();
 
