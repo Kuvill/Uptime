@@ -23,7 +23,7 @@ const char MSG[] = "activewindow";
 // Should be allocated once in constr, in sway also btw
 const int INIT_SIZE = 1'000;
 
-_Hyprland::_Hyprland() {
+_Hyprland::_Hyprland() : DesktopEnv( false ) {
     logger.log(LogLvl::Info, "Hyprland detected!");
 
     addr.sun_family = AF_UNIX;

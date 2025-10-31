@@ -60,7 +60,7 @@ size_t sizeForDE() {
 DesktopEnv* initDE() {
     registrateAll();
     void* reserve = malloc(sizeForDE());
-    DesktopEnv* de = new(reserve) DesktopEnv; 
+    DesktopEnv* de = new(reserve) DesktopEnv( false ); 
     de->checkDE();
     
     return de;
@@ -91,9 +91,11 @@ ProcessInfo DesktopEnv::getFocused() {
 void DesktopEnv::castToBase() {
     this->~DesktopEnv(); // since destructor virtual - all good
 
-    new( this ) DesktopEnv;
+    new( this ) DesktopEnv( false );
     setFd( -1 );
 }
+
+DesktopEnv::DesktopEnv( bool autoclearSocket ) : Plugin( autoclearSocket ) {}
 
 DesktopEnv::~DesktopEnv() {
     logger.log(LogLvl::Info, "Close socket");

@@ -125,7 +125,8 @@ int main( int argc, char** argv ) {
                     auto plugin = static_cast<Plugin*>( event.data.ptr );
                     logger.log(LogLvl::Info, "Triggering ", typeid(*plugin).name());
                     plugin->OnTrigger();
-                    read(plugin->getFd(), buf, 1000);
+                    if( plugin->autoclean() )
+                        read(plugin->getFd(), buf, 1000);
                 }
 
                 else if( event.events & EPOLLHUP ) { // socket closed

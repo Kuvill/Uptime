@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <cstring>
 
-#include <print>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -97,7 +96,7 @@ std::string _SwayDE::getAnswer() {
     return data;
 }
 
-_SwayDE::_SwayDE() {
+_SwayDE::_SwayDE() : DesktopEnv( false ) {
     logger.log(LogLvl::Info, "Sway detected!");
     if(( setFd( socket( AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0) )) < 0 ) {
         logger.log(LogLvl::Error, "Unable to create socket!! ", strerror(errno));

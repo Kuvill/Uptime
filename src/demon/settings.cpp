@@ -1,3 +1,4 @@
+#include "demon/plugin.hpp"
 #include <demon/settings.hpp>
 
 #include <filesystem>
@@ -79,7 +80,7 @@ std::string Settings::setupThePath( std::string_view variable, std::string_view 
     throw std::runtime_error("Unable to configure config path!");
 }
 
-Settings::Settings( std::string_view overridenConfPath ) {
+Settings::Settings( std::string_view overridenConfPath ) : Plugin( true ) {
     paths.config = overridenConfPath.empty() ?
                     CONF_PATH : overridenConfPath;
 

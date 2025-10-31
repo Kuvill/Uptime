@@ -30,7 +30,7 @@ protected:
     void castToBase();
 
 public:
-    DesktopEnv() = default;
+    DesktopEnv( bool autoclearSocket );
     virtual ~DesktopEnv();
 
     virtual ProcessInfo getFocused();

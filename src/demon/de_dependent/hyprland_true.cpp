@@ -24,7 +24,7 @@ const char RUN_DIR[] = "XDG_RUNTIME_DIR";
 
 const int INIT_SIZE = 1'000;
 
-_HyprlandTrue::_HyprlandTrue() {
+_HyprlandTrue::_HyprlandTrue() : DesktopEnv( false ) {
     logger.log(LogLvl::Info, "Hyprland detected!");
     // if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ); _fd < 0 ) {
         if( setFd( socket(AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0) ) < 0 ) {

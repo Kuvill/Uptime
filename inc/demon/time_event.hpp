@@ -13,7 +13,7 @@ class TimerEvent : Plugin {
     itimerspec _settings;
 
 public:
-    TimerEvent() {
+    TimerEvent() : Plugin( true ) {
         errno = 0;
         setFd( timerfd_create(CLOCK_MONOTONIC, 0) );
 
