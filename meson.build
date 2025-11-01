@@ -2,7 +2,7 @@
 # btw i should install main.ui and create dir without installation?
 
 project( 'Uptimer', 'cpp',
-  default_options: ['cpp_std=c++23', 'buildtype=release'],
+  default_options: ['cpp_std=c++23', 'buildtype=release', 'b_lto=true'],
   meson_version: '>=1.1'
 )
 
@@ -11,7 +11,6 @@ project( 'Uptimer', 'cpp',
 buildtype = get_option('buildtype')
 enable_profiling = get_option('enable_profiling') # default, debug, none
 native = get_option('native') # true / false
-lto = get_option('lto')
 logging = get_option('logging')
 
 cppflags = []
@@ -24,10 +23,6 @@ if (not enable_profiling) and (buildtype != 'debug')
   cppflags += '-fno-semantic-interposition'
 endif
 
-if lto and (buildtype != 'debug')
-  cppflags += '-flto=auto'
-endif
-
 if not logging
   cppflags += '-DNOLOG'
 endif
@@ -36,8 +31,12 @@ if buildtype == 'debug'
   add_project_arguments([ '-DDEBUG' ], language: 'cpp')
 endif
 
+# Apply setting
 
-add_project_arguments(cppflags, language: 'cpp')
+if buildtype != 'plain'
+  add_project_arguments(cppflags, language: 'cpp')
+endif
+
 add_project_arguments('-std=c++23', language: 'cpp')
 
 

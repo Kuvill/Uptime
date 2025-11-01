@@ -10,12 +10,6 @@ option('enable_profiling',
   value: false
 )
 
-option('lto',
-  type: 'boolean',
-  description: 'Enable link time optimizations',
-  value: true
-)
-
 option('logging',
   type: 'boolean',
   description: 'If false, disabe logging',
