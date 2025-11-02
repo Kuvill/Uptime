@@ -3,6 +3,7 @@
 #include "common/aliases.hpp"
 #include "demon/epoll.hpp"
 
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 
@@ -18,6 +19,8 @@
 #include <array>
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
+
+using namespace std::chrono_literals;
 
 // have to give it machine to interpret them in native endian
 static const std::byte WorkspacesQuerry[] = {
@@ -62,6 +65,7 @@ std::string _SwayDE::getAnswer() {
 
     int sum = 0;
     int rc = read( getFd(), msgSize.data() + sum, sizeof( msgSize ) - sum );
+
     while( true ) {
         logger.log(LogLvl::Info, rc);
         if( rc + sum == 14 ) break;
@@ -76,9 +80,8 @@ std::string _SwayDE::getAnswer() {
                 rc = 0;
         }
 
-        logger.log(LogLvl::Info, msgSize.data());
         sum += rc;
-        std::this_thread::yield(); // mb add some guard... (at least for stat and mabe just use sleep for ... ms)
+        std::this_thread::sleep_for( 1ms ); // mb add some guard... (36000 ns while spin lock + stdout)
 
         rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
     }
