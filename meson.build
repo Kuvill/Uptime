@@ -45,13 +45,13 @@ add_project_arguments('-std=c++23', language: 'cpp')
 incdir = include_directories('.', './inc')
 
 demon_sources = [
-  './src/logger.cpp',
-  './src/time.cpp',
-  './src/change_dir.cpp',
-  './src/check_unique.cpp',
-  './src/utils.cpp',
-  './src/notification.cpp',
-  './src/xdg_dirs.cpp',
+  './src/common/logger.cpp',
+  './src/common/time.cpp',
+  './src/common/change_dir.cpp',
+  './src/common/check_unique.cpp',
+  './src/common/utils.cpp',
+  './src/common/notification.cpp',
+  './src/common/xdg_dirs.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -68,11 +68,11 @@ demon_sources = [
 ]
 
 gui_sources = [
-  './src/logger.cpp',
-  './src/time.cpp',
-  './src/change_dir.cpp',
-  './src/utils.cpp',
-  './src/notification.cpp',
+  './src/common/logger.cpp',
+  './src/common/time.cpp',
+  './src/common/change_dir.cpp',
+  './src/common/utils.cpp',
+  './src/common/notification.cpp',
 
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
