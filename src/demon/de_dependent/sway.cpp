@@ -1,8 +1,10 @@
+#include "common/time.hpp"
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
 #include "demon/epoll.hpp"
 
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 
@@ -16,6 +18,8 @@
 
 #include <cassert>
 #include <array>
+
+using namespace std::chrono_literals;
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 
@@ -62,6 +66,11 @@ std::string _SwayDE::getAnswer() {
 
     int sum = 0;
     int rc = read( getFd(), msgSize.data() + sum, sizeof( msgSize ) - sum );
+
+#ifdef DEBUG
+    auto start = std::chrono::high_resolution_clock::now();
+#endif
+
     while( true ) {
         logger.log(LogLvl::Info, rc);
         if( rc + sum == 14 ) break;
@@ -78,10 +87,15 @@ std::string _SwayDE::getAnswer() {
 
         logger.log(LogLvl::Info, msgSize.data());
         sum += rc;
-        std::this_thread::yield(); // mb add some guard... (at least for stat and mabe just use sleep for ... ms)
+        std::this_thread::sleep_for( 1ms ); // mb add some guard... ( on my pc it takes like 0.8 ms. So spin lock not best one )
 
         rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
     }
+
+#ifdef DEBUG
+    auto end = std::chrono::high_resolution_clock::now();
+    logger.log(LogLvl::Info, "Time since first read before full read: ", end - start );
+#endif
 
     // first 6 - magic string. next 4 - size, 4 - type
     const uint32_t size = *reinterpret_cast<uint32_t*>( msgSize.data()+6 );
