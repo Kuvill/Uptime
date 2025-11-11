@@ -1,3 +1,4 @@
+#include "common/time.hpp"
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
@@ -17,6 +18,8 @@
 
 #include <cassert>
 #include <array>
+
+using namespace std::chrono_literals;
 
 static const char* DE_ENV_VAR = "XDG_CURRENT_DESKTOP";
 

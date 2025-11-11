@@ -1,5 +1,6 @@
 #include "common/change_dir.hpp"
 #include "common/check_unique.hpp"
+#include "common/settings.hpp"
 
 #include "common/signal_event.hpp"
 #include "demon/better_uptime.hpp"
@@ -7,7 +8,6 @@
 #include "demon/plugin.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
-#include "demon/settings.hpp"
 #include "demon/epoll.hpp"
 
 #include "common/logger.hpp"
@@ -80,10 +80,15 @@ int main( int argc, char** argv ) {
                     overridenConfPath = arg;
     //
 
-    Settings settings( overridenConfPath );
-    settings_ = &settings;
+    if( !overridenConfPath.empty() ) {
+        Settings settings( overridenConfPath );
+        settings_ = &settings;
 
-    // make sure, i do not change anythings in settings
+    } else {
+        Settings settings;
+        settings_ = &settings;
+    }
+
     CheckUnique __uniqueChecker__;
 
 #ifndef NOLOG

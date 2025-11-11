@@ -1,6 +1,6 @@
 #include "common/check_unique.hpp"
 #include "common/logger.hpp"
-#include "demon/settings.hpp"
+#include "common/settings.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -13,7 +13,7 @@ static const std::string_view lockFile = "in_use.lock";
 static const fs::path procFile = "/proc/";
 
 CheckUnique::CheckUnique() {
-    std::string path = settings_->paths.lock;
+    std::string path( settings_->value_or({ PATH_LABEL, "lock_file" }, SHARE_PATH) );
     path += lockFile;
 
     if( fs::exists( path ) ) {
@@ -49,7 +49,7 @@ CheckUnique::~CheckUnique() {
 }
 
 void delete_lock_file() {
-    std::string path = settings_->paths.lock;
+    std::string path( settings_->value_or({ PATH_LABEL, "lock_file" }, SHARE_PATH) );
     path += lockFile;
 
     fs::remove( path );

@@ -1,10 +1,9 @@
 // to do: recive nubmer of interval
 
-#include <common/ipc_interface.hpp>
-#include <cstring>
-#include <demon/server.hpp>
+#include "common/ipc_interface.hpp"
 #include "common/logger.hpp"
-#include "demon/settings.hpp"
+#include "common/settings.hpp"
+#include "demon/server.hpp"
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -13,6 +12,7 @@
 #include <stdexcept>
 
 #include <cerrno>
+#include <cstring>
 
 static MsgType TypeByMsg( char buf ) {
 	return static_cast<MsgType>( buf );
@@ -27,7 +27,7 @@ Ips::Ips() {
 		sockaddr_un localAdr{};
 		localAdr.sun_family = AF_UNIX;
 
-        std::string path = settings_->paths.socket;
+        std::string path( settings_->value_or({ PATH_LABEL, "socket" }, SHARE_PATH ) );
         path += SOCK_PATH;
 
 		strcpy( localAdr.sun_path, path.c_str() );
@@ -46,7 +46,7 @@ Ips::Ips() {
 }
 
 Ips::~Ips() {
-    std::string path = settings_->paths.socket;
+    std::string path( settings_->value_or({ PATH_LABEL, "socket" }, SHARE_PATH ) );
     path += SOCK_PATH;
 
 	close( _serverSocket );

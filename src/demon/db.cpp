@@ -2,7 +2,7 @@
 #include "demon/ram_storage.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
-#include "demon/settings.hpp"
+#include "common/settings.hpp"
 
 #include <sqlite3.h>
 
@@ -79,7 +79,7 @@ Database::Database() {
 Database::Database( const char* dbName ) : Database() {
     logger.log(LogLvl::Info, "creating db:  ", dbName);
 
-    std::string path( settings_->paths.db );
+    std::string path( settings_->value_or({ PATH_LABEL, "db" }, SHARE_PATH) );
     path += dbName;
 
 	if( sqlite3_open( path.c_str(), &_db ) != SQLITE_OK )

@@ -1,11 +1,11 @@
+#ifndef NOLOG
+
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
+#include <common/settings.hpp>
 
 #include <ostream>
 
-#ifndef NOLOG
-
-#include "demon/settings.hpp"
 
 #include <iostream>
 
@@ -33,7 +33,7 @@ void Logger::Init( std::ofstream* of, LogLvl lvl ) {
 void Logger::Init( std::string_view fileName, LogLvl lvl ) {
     Init( lvl );
 
-    std::string path{ settings_->paths.log };
+    std::string path{ settings_->value_or( {PATH_LABEL, "logger"}, SHARE_PATH ) };
     path += fileName;
 
     _out = new std::ofstream( std::move(path) );
@@ -51,4 +51,4 @@ Logger::~Logger() {
     *_out << std::flush;
 }
 
-#endif
+#endif // NOLOG
