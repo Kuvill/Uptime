@@ -1,4 +1,4 @@
-#include "demon/settings.hpp"
+#include "common/settings.hpp"
 #include <gui/context.hpp>
 
 static const char* dbName = "uptime.db";
@@ -7,7 +7,7 @@ Context* Context::self = nullptr;
 
 Context* Context::get() {
     if( !self ) {
-        std::string path = settings_->paths.db;
+        std::string path( settings_->value_or({ PATH_LABEL, "gui" }, SHARE_PATH) );
         path += dbName;
 
         self = new Context {

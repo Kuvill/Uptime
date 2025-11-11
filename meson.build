@@ -81,10 +81,6 @@ gui_sources = [
   './src/gui/client.cpp',
   './src/gui/context.cpp',
 
-  './src/demon/db.cpp',
-  './src/demon/ram_storage.cpp',
-  './src/demon/plugin.cpp',
-
   './src/gui/builder.cpp',
   './src/gui/builder/column_view.cpp',
   './src/gui/builder/stack.cpp',

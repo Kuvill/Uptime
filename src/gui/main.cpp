@@ -1,5 +1,6 @@
 #include <common/logger.hpp>
 #include <common/change_dir.hpp>
+#include "common/settings.hpp"
 #include <gui/record_item.hpp>
 #include <gui/builder.hpp>
 #include <gui/lazy_load.hpp>
@@ -8,7 +9,6 @@
 #include "gui/context.hpp"
 #include "gui/state.hpp"
 
-#include "demon/settings.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/db.hpp"
 
@@ -39,7 +39,7 @@ static guint SetupTimer( Context& context ) {
 // TODO: Add alias into App table
 static void activate( GtkApplication* app, gpointer data ) {
 
-    std::string path = settings_->paths.resources;
+    std::string path( settings_->value_or({ PATH_LABEL, "resources" }, SHARE_PATH) );
     path += "main.ui";
 
 	GtkBuilder* builder = gtk_builder_new_from_file( path.c_str() );
@@ -63,7 +63,7 @@ static void activate( GtkApplication* app, gpointer data ) {
 int main( int argc, char *argv[] ) {
     ChangeDirectoryToHome();
 
-    Settings settings({});
+    Settings settings;
     settings_ = &settings;
 
 #ifndef NOLOG
