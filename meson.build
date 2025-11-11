@@ -51,7 +51,7 @@ demon_sources = [
   './src/check_unique.cpp',
   './src/utils.cpp',
   './src/notification.cpp',
-  './src/xdg_dirs.cpp',
+  './src/settings.cpp',
 
   './src/demon/db.cpp',
   './src/demon/server.cpp',
@@ -60,7 +60,6 @@ demon_sources = [
   './src/demon/ram_storage.cpp',
   './src/demon/epoll.cpp',
   './src/demon/plugin.cpp',
-  './src/demon/settings.cpp',
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',
@@ -73,6 +72,7 @@ gui_sources = [
   './src/change_dir.cpp',
   './src/utils.cpp',
   './src/notification.cpp',
+  './src/settings.cpp',
 
   './src/gui/record_item.cpp',
   './src/gui/lazy_load.cpp',
@@ -84,7 +84,6 @@ gui_sources = [
   './src/demon/db.cpp',
   './src/demon/ram_storage.cpp',
   './src/demon/plugin.cpp',
-  './src/demon/settings.cpp',
 
   './src/gui/builder.cpp',
   './src/gui/builder/column_view.cpp',
