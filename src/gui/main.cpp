@@ -1,6 +1,6 @@
 #include <common/logger.hpp>
 #include <common/change_dir.hpp>
-#include "common/settings.hpp"
+#include "gui/settings.hpp"
 #include <gui/record_item.hpp>
 #include <gui/builder.hpp>
 #include <gui/lazy_load.hpp>
@@ -15,8 +15,6 @@
 #include <gtk/gtk.h>
 #include <libadwaita-1/adwaita.h>
 #include <unistd.h>
-
-Settings *settings_;
 
 // use only from signal handler
 Storage* g_store;

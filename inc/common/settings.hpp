@@ -20,6 +20,7 @@ class Settings {
     // i want to free _conf after an time
     // let user cache an needed value and add callback
     toml::table _conf;
+protected:
     std::filesystem::path _path;
 
     // use libfrozen for consteval idle hash map
@@ -38,7 +39,8 @@ public:
 
     Settings( std::string_view path );
 
-    ~Settings();
+    // NOOOOOOOOOOOOOOOOOOOOOOOO, WHY, HOW NOOOOOOOOOOOOO((((((((((((((((
+    virtual ~Settings();
 
     void add( TomlId&& id, Callbacks&& cbs );
 

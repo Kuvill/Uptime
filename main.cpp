@@ -1,6 +1,5 @@
 #include "common/change_dir.hpp"
 #include "common/check_unique.hpp"
-#include "common/settings.hpp"
 
 #include "common/signal_event.hpp"
 #include "demon/better_uptime.hpp"
@@ -9,6 +8,7 @@
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
 #include "demon/epoll.hpp"
+#include "demon/settings.hpp"
 
 #include "common/logger.hpp"
 #include "demon/time_event.hpp"
@@ -38,7 +38,7 @@ Storage* g_store;
 Database* g_db;
 
 // redflag?
-Settings *settings_;
+// NotifySettings *settings_;
 
 /*
     1. Do clear inside this func:
@@ -81,11 +81,11 @@ int main( int argc, char** argv ) {
     //
 
     if( !overridenConfPath.empty() ) {
-        Settings settings( overridenConfPath );
+        NotifySettings settings( overridenConfPath );
         settings_ = &settings;
 
     } else {
-        Settings settings;
+        NotifySettings settings;
         settings_ = &settings;
     }
 

@@ -76,3 +76,5 @@ SET_DEFAULT_VALUES:
         }
     }
 }
+
+Settings* settings_;
