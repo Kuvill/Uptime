@@ -1,7 +1,9 @@
+#include <demon/settings.hpp>
+
+#include "common/logger.hpp"
 #include "demon/plugin.hpp"
 #include <cassert>
 #include <cstring>
-#include <demon/settings.hpp>
 
 #include <stdexcept>
 #include <sys/inotify.h>
@@ -17,6 +19,10 @@ static void init( int fd, std::string_view path ) {
 NotifySettings::NotifySettings() : Plugin( true ) {
     init( getFd(), _path.c_str() ); // why c_str? Coz, guess, string return new allocated string
 
+    scan();
+}
+
+void NotifySettings::OnTrigger() {
     inotify_event events[8]; // YAY, magic number ^^. // most of editors generate 3-4 events per file change
 
     long n = read( getFd(), events, sizeof( events ) );
@@ -34,6 +40,10 @@ NotifySettings::NotifySettings() : Plugin( true ) {
         inotify_add_watch( getFd(), _path.c_str(), MASK );
     }
 
-    scan();
 }
 
+NotifySettings::NotifySettings( std::string_view path ) : NotifySettings() {
+    _path = path;
+}
+
+NotifySettings::~NotifySettings() = default;

@@ -60,6 +60,7 @@ demon_sources = [
   './src/demon/ram_storage.cpp',
   './src/demon/epoll.cpp',
   './src/demon/plugin.cpp',
+  './src/demon/settings.cpp',
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',

@@ -9,5 +9,7 @@ public:
     NotifySettings();
     NotifySettings( std::string_view path );
 
+    ~NotifySettings();
+
     void OnTrigger() override;
 };
