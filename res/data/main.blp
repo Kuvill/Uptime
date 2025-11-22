@@ -1,3 +1,5 @@
+// BTW WITHOUT CONTENT TITLE LOOKS BETTER!
+
 // After editing this file, you have to compile it into main.ui with
 // blueprint-compiler compile main.blp > main.ui
 // _("") - translatable string
@@ -10,47 +12,52 @@ Adw.Window window {
 
   content: Adw.ToolbarView {
     // bottom-bar-style: raised;
-
-    [top]
-    Adw.HeaderBar {
-      // show-title: false;
-    }
-
     Adw.NavigationSplitView {
       // SideBar
       sidebar: Adw.NavigationPage {
         title: _("Pages");
 
-        child: Box {
-          orientation: vertical;
-
+        child: Adw.ToolbarView {
           [top]
+          Adw.HeaderBar {
+            title-widget: Adw.WindowTitle {
+              title: _("Uptimer");
+            };
+
+            // show-title: false;
+          }
+
+          // [top]
           StackSidebar {
             vexpand: true;
             stack: body;
           }
 
           [bottom]
-          Box {
-            orientation: horizontal;
+          ActionBar {
+            [start]
+            Box {
+              orientation: horizontal;
 
-            Button {
-              halign: start;
-              hexpand: true;
-              margin-start: 5;
-              margin-bottom: 5;
+              Button {
+                halign: start;
+                hexpand: true;
+                margin-start: 5;
+                margin-bottom: 5;
 
-              Image {
-                // file: "/usr/share/icons/zed.png";
-                icon-name: "open-menu-symbolic.svg";
+                Image {
+                  // file: "/usr/share/icons/zed.png";
+                  icon-name: "open-menu-symbolic.svg";
+                }
               }
-            }
 
-            Button {
-              halign: end;
-              hexpand: true;
-              margin-end: 5;
-              margin-bottom: 5;
+              [end]
+              Button {
+                halign: end;
+                hexpand: true;
+                margin-end: 5;
+                margin-bottom: 5;
+              }
             }
           }
         };
@@ -60,143 +67,151 @@ Adw.Window window {
       content: Adw.NavigationPage {
         title: _("Content");
 
-        Box {
-          orientation: vertical;
+        Adw.ToolbarView {
+          [top]
+          Adw.HeaderBar {
+            show-title: true;
+          }
 
-          Box {
+          content: Box {
             orientation: vertical;
-            valign: fill;
-            spacing: 4;
 
             Box {
-              valign: start;
-              orientation: horizontal;
-              margin-top: 5;
-              halign: center;
-              spacing: 15;
+              orientation: vertical;
+              valign: fill;
+              spacing: 4;
 
-              Button {
-                icon-name: "arrow";
-              }
-
-              MenuButton DurationBtn {
-                menu-model: setDuration;
-                label: _("Years");
-                primary: true;
-              }
-
-              Button {
-                icon-name: "arrow";
-              }
-            }
-
-            Box {
-              orientation: horizontal;
-              hexpand: true;
-              halign: center;
-              spacing: 128;
-              homogeneous: true;
-              margin-start: 20;
-              margin-end: 20;
-
-              Button {
-                halign: start;
-
-                Label DateFrom {
-                  label: _("01.01.01");
-                }
-              }
-
-              Button {
-                halign: end;
-
-                Label DateTo {
-                  label: _("02.02.02");
-                }
-              }
-            }
-          }
-
-          Stack body {
-            transition-type: crossfade;
-
-            StackPage {
-              name: "table";
-              title: _("Table");
-
-              child: Box {
-                orientation: vertical;
+              Box {
+                valign: start;
+                orientation: horizontal;
+                margin-top: 5;
                 halign: center;
-                margin-top: 16;
+                spacing: 15;
 
-                ScrolledWindow {
-                  height-request: 340;
-                  width-request: 340;
-                  has-frame: true;
+                Button {
+                  icon-name: "arrow";
+                }
 
-                  ColumnView column_view {
-                    show-column-separators: true;
+                MenuButton DurationBtn {
+                  menu-model: setDuration;
+                  label: _("Years");
+                  primary: true;
+                }
 
-                    ColumnViewColumn app_name_col {
-                      title: _("Application");
-                      expand: true;
+                Button {
+                  icon-name: "arrow";
+                }
+              }
 
-                      factory: SignalListItemFactory {};
-                    }
+              Box {
+                orientation: horizontal;
+                hexpand: true;
+                halign: center;
+                spacing: 128;
+                homogeneous: true;
+                margin-start: 20;
+                margin-end: 20;
 
-                    ColumnViewColumn uptime_col {
-                      title: _("Uptime");
+                Button {
+                  halign: start;
 
-                      factory: SignalListItemFactory {};
-                    }
+                  Label DateFrom {
+                    label: _("01.01.01");
                   }
                 }
-              };
+
+                Button {
+                  halign: end;
+
+                  Label DateTo {
+                    label: _("02.02.02");
+                  }
+                }
+              }
             }
 
-            StackPage {
-              name: "charts";
-              title: _("Charts");
+            // asd
+            Stack body {
+              transition-type: crossfade;
 
-              child: Label {
-                label: _("In progress...");
-              };
-            }
+              StackPage {
+                name: "table";
+                title: _("Table");
 
-            StackPage {
-              name: "settings";
-              title: _("Settings");
-
-              child: Label {
-                label: _("Also in progress...");
-              };
-            }
-
-            StackPage {
-              name: "about";
-              title: _("About");
-
-              child: Adw.StatusPage {
-                Box {
-                  halign: center;
+                child: Box {
                   orientation: vertical;
-                  spacing: 18;
+                  halign: center;
+                  margin-top: 16;
 
-                  Label {
-                    label: _("Uptimer");
+                  ScrolledWindow {
+                    height-request: 340;
+                    width-request: 340;
+                    has-frame: true;
 
-                    styles [
-                      "title-1",
-                    ]
+                    ColumnView column_view {
+                      show-column-separators: true;
+
+                      ColumnViewColumn app_name_col {
+                        title: _("Application");
+                        expand: true;
+
+                        factory: SignalListItemFactory {};
+                      }
+
+                      ColumnViewColumn uptime_col {
+                        title: _("Uptime");
+
+                        factory: SignalListItemFactory {};
+                      }
+                    }
                   }
+                };
+              }
 
-                  Label {
-                    label: _("{List to github, mail. Why i created this project, lience}");
+              StackPage {
+                name: "charts";
+                title: _("Charts");
+
+                child: Label {
+                  label: _("In progress...");
+                };
+              }
+
+              StackPage {
+                name: "settings";
+                title: _("Settings");
+
+                child: Label {
+                  label: _("Also in progress...");
+                };
+              }
+
+              StackPage {
+                name: "about";
+                title: _("About");
+
+                child: Adw.StatusPage {
+                  Box {
+                    halign: center;
+                    orientation: vertical;
+                    spacing: 18;
+
+                    Label {
+                      label: _("Uptimer");
+
+                      styles [
+                        "title-1",
+                      ]
+                    }
+
+                    Label {
+                      label: _("{List to github, mail. Why i created this project, lience}");
+                    }
                   }
-                }
-              };
+                };
+              }
             }
-          }
+          };
         }
       };
     }
@@ -231,5 +246,4 @@ menu setDuration {
     }
   }
 }
-
 
