@@ -36,9 +36,9 @@ CheckUnique::CheckUnique() {
     } 
 
     // clear file
-    int pid = getpid();
     std::ofstream file( path, std::ofstream::out | std::ofstream::trunc );
 
+    int pid = getpid();
     file << pid;
     logger.log(LogLvl::Info, "Application instace is unique.");
 
