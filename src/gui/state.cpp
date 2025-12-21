@@ -175,7 +175,7 @@ namespace {
         logger.log(LogLvl::Info, result.size(), " unique applications loaded");
 
         auto elem = result.begin();
-        for( int i = 0; i < result.size(); ++i, ++elem ) {
+        for( size_t i = 0; i < result.size(); ++i, ++elem ) {
             if( elem->first == nullptr ) logger.log(LogLvl::Warning, i);
             store[i] = record_item_new( g_strdup( elem->first), elem->second.count() );
         }

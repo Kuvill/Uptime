@@ -1,6 +1,5 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
-#include "demon/epoll.hpp"
 
 #include <algorithm>
 #include <cstdlib>
@@ -32,7 +31,7 @@ static std::vector<CastRule> __Rules__;
 
 template< typename T >
 concept CompleteDE = requires( DesktopEnv* self ) { 
-    std::derived_from<T, DesktopEnv>;
+    requires std::derived_from<T, DesktopEnv>;
 
     { T::CastCondition() } -> std::same_as<bool>;
     { T::InplaceCast( self ) } -> std::same_as<void>;
@@ -69,7 +68,7 @@ DesktopEnv* initDE() {
 void DesktopEnv::checkDE() {
     logger.log(LogLvl::Info, "Recheck current DE");
 
-    for( int i = 0; i < __Rules__.size(); ++i ) {
+    for( size_t i = 0; i < __Rules__.size(); ++i ) {
         if( __Rules__[i].cond() ) {
             __Rules__[i].cast( this );
             return;

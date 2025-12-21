@@ -72,7 +72,7 @@ ProcessInfo _Hyprland::getFocused() {
     std::string buffer( INIT_SIZE, '\0' );
 
     
-    int rc = read( getFd(), buffer.data(), buffer.size() );
+    auto rc = read( getFd(), buffer.data(), buffer.size() );
 
     // rc == 0 <-> EOF
     auto oldSize = buffer.size();
