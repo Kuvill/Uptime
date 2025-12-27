@@ -2,7 +2,6 @@
 
 #include "demon/get_uptime.hpp"
 #include <common/aliases.hpp>
-#include <demon/plugin.hpp>
 
 #include <common/utils.hpp>
 

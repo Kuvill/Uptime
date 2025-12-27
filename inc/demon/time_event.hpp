@@ -1,6 +1,5 @@
 #pragma once
 
-#include "demon/epoll.hpp"
 #include <common/logger.hpp>
 
 #include <stdexcept>

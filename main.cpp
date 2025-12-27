@@ -4,10 +4,9 @@
 #include "common/signal_event.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
-#include "demon/plugin.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
-#include "demon/epoll.hpp"
+#include "demon/poll.hpp"
 #include "demon/settings.hpp"
 
 #include "common/logger.hpp"
@@ -19,9 +18,7 @@
 #include <cstring>
 #include <exception>
 
-#include <stdexcept>
 #include <sys/socket.h>
-#include <unistd.h>
 
 using namespace std::chrono_literals;
 
@@ -135,7 +132,7 @@ int main( int argc, char** argv ) {
             
             // timer
 
-            if( poll[timer_id].revents & POLLIN ) {
+            if( poll[timer_id].revents & PollEvent::In ) {
                 timer.OnTrigger();
                 clearSocket( timer );
             }
@@ -179,22 +176,3 @@ int main( int argc, char** argv ) {
 	return 0;
 }
 
-void clearSocket( int fd ) {
-    char buf[1024];
-    int r = read( fd, buf, 1024 );
-
-    // if message is bigger, then 1024
-    if( r == 1024 ) [[unlikely]]
-        clearSocket( fd );
-
-    // 0 - eof, >0 - readed all from socket
-    if( r != -1 ) [[likely]]
-        return;
-
-    // nothings in scoket + nonblock
-    if( (errno == EAGAIN || errno == EWOULDBLOCK ) )
-        return;
-
-    logger.log( LogLvl::Error, "error after clearing socket! ", strerror(errno) );
-    throw std::runtime_error("error after clearing socket!");
-}

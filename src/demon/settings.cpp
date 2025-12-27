@@ -1,7 +1,6 @@
 #include <demon/settings.hpp>
 
 #include "common/logger.hpp"
-#include "demon/plugin.hpp"
 #include <cassert>
 #include <cstring>
 

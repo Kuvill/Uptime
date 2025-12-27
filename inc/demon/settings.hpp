@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common/settings.hpp"
-#include "demon/plugin.hpp"
 
 class NotifySettings final : public Settings {
     int _fd;

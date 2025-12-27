@@ -2,33 +2,15 @@
 
 #include <sys/poll.h>
 #include <array>
-#include <algorithm>
 
-/*
-class Epoll {
-public:
-    std::vector<epoll_event> ready; // btw it shouldn't be vector
-private:
-    sigset_t ss; // i have to use pwait to prevent UB on signal catch
-    int _fd;
-
-public:
-    Epoll();
-
-    ~Epoll();
-
-    // blocking. Error checked
-    int wait();
-};
-
-void Subscribe( int fd, Plugin* );
-void Unsubscribe( int fd );
-*/
-
-// short to be same type as pollfd
-enum class PollEvent : short {
+// holy, i HAVE to use enum over enum class to be able: 
+//  1. use lazy | and &
+//  2. to cast to boolean implictly
+// Btw, it is right since it is not close set
+enum PollEvent : short {
     In = POLLIN,
-    Err = POLLHUP
+    Closed = POLLHUP,
+    Err = POLLHUP,
 };
 
 struct safePFD {
@@ -72,12 +54,13 @@ public:
        return result;
     }
 
-    pollfd operator[]( size_t index ) {
+    pollfd operator[]( std::size_t index ) {
         return _fds[index];
     }
 
-    consteval size_t size() {
+    consteval std::size_t size() {
         return _size;
     }
 };
 
+void clearSocket( int fd );

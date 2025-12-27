@@ -59,6 +59,7 @@ demon_sources = [
   './src/demon/get_uptime.cpp',
   './src/demon/ram_storage.cpp',
   './src/demon/settings.cpp',
+  './src/demon/poll.cpp',
 
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',

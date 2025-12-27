@@ -2,7 +2,7 @@
 #include "demon/better_uptime.hpp"
 #include "common/logger.hpp"
 #include "common/aliases.hpp"
-#include "demon/epoll.hpp"
+#include "demon/poll.hpp"
 
 #include <chrono>
 #include <cstdio>
