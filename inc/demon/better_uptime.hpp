@@ -25,21 +25,22 @@ size_t sizeForDE();
 
 DesktopEnv* initDE();
 
-class DesktopEnv : public Plugin {
+class DesktopEnv {
 protected:
+    int _fd;
     void castToBase();
 
 public:
-    DesktopEnv( bool autoclearSocket );
+    DesktopEnv();
     virtual ~DesktopEnv();
 
     virtual ProcessInfo getFocused();
 
-    void OnTrigger() override;
+    virtual void OnTrigger();
     void checkDE();
 
     operator int() {
-        return getFd();
+        return _fd;
     }
 };
 

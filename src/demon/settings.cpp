@@ -16,8 +16,8 @@ static void init( int fd, std::string_view path ) {
     inotify_add_watch( fd, path.data(), MASK );
 }
 
-NotifySettings::NotifySettings() : Plugin( true ) {
-    init( getFd(), _path.c_str() ); // why c_str? Coz, guess, string return new allocated string
+NotifySettings::NotifySettings() {
+    init( _fd, _path.c_str() ); // why c_str? Coz, guess, string return new allocated string
 
     scan();
 }
@@ -25,7 +25,7 @@ NotifySettings::NotifySettings() : Plugin( true ) {
 void NotifySettings::OnTrigger() {
     inotify_event events[8]; // YAY, magic number ^^. // most of editors generate 3-4 events per file change
 
-    long n = read( getFd(), events, sizeof( events ) );
+    long n = read( _fd, events, sizeof( events ) );
 
     if( n == -1 ) {
         logger.log(LogLvl::Error, "Unable to read from inotify! ", strerror(errno));
@@ -37,7 +37,7 @@ void NotifySettings::OnTrigger() {
     logger.log(LogLvl::Info, "Inotify send ", count, " events!");
 
     if( count != 1 || (events[0].mask & IN_MODIFY) == 0 ) {
-        inotify_add_watch( getFd(), _path.c_str(), MASK );
+        inotify_add_watch( _fd, _path.c_str(), MASK );
     }
 
 }

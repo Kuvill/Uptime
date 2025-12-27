@@ -67,7 +67,7 @@ std::string _SwayDE::getAnswer() {
     std::array<char, 14> msgSize;
 
     int sum = 0;
-    int rc = read( getFd(), msgSize.data() + sum, sizeof( msgSize ) - sum );
+    int rc = read( _fd, msgSize.data() + sum, sizeof( msgSize ) - sum );
 
     while( true ) {
         logger.log(LogLvl::Info, rc);
@@ -86,7 +86,7 @@ std::string _SwayDE::getAnswer() {
         sum += rc;
         std::this_thread::sleep_for( 1ms ); // mb add some guard... (36000 ns while spin lock + stdout)
 
-        rc = read( getFd(), msgSize.data(), sizeof( msgSize ) );
+        rc = read( _fd, msgSize.data(), sizeof( msgSize ) );
     }
 
     // first 6 - magic string. next 4 - size, 4 - type
@@ -94,7 +94,7 @@ std::string _SwayDE::getAnswer() {
 
     data.resize( size );
 
-    rc = read( getFd(), data.data(), size );
+    rc = read( _fd, data.data(), size );
 
     logger.log(LogLvl::Warning, msgSize.data() );
     logger.log(LogLvl::Warning, data );
@@ -102,14 +102,12 @@ std::string _SwayDE::getAnswer() {
     return data;
 }
 
-_SwayDE::_SwayDE() : DesktopEnv( false ) {
+_SwayDE::_SwayDE() {
     logger.log(LogLvl::Info, "Sway detected!");
-    if(( setFd( socket( AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0) )) < 0 ) {
+    if(( _fd = socket( AF_UNIX, SOCK_STREAM | SOCK_NONBLOCK, 0)) < 0 ) {
         logger.log(LogLvl::Error, "Unable to create socket!! ", strerror(errno));
         throw std::runtime_error("Unable to create socket!!");
     }
-
-    Subscribe( getFd(), this );
 
     sockaddr_un addr{};
     addr.sun_family = AF_UNIX;
@@ -127,12 +125,12 @@ _SwayDE::_SwayDE() : DesktopEnv( false ) {
 
     strcat( addr.sun_path, sockAddr );
 
-    if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
+    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof(addr) ) < 0 ) {
         logger.log(LogLvl::Error, "Unable to connect to sway socket! ", sockAddr);
         throw std::runtime_error("Unable to connect to sway socket!");
     }
 
-    int rc = send(getFd(), WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
+    int rc = send(_fd, WorkspacesQuerry, sizeof(WorkspacesQuerry), 0);
     if( rc < 0 ) {
         logger.log(LogLvl::Warning, "Probably, sway socket has been closed. Unable to send message");
         checkDE();
@@ -150,8 +148,7 @@ _SwayDE::_SwayDE() : DesktopEnv( false ) {
 }
 
 _SwayDE::~_SwayDE() {
-    Unsubscribe( getFd() );
-    close( getFd() );
+    close( _fd );
     logger.log(LogLvl::Info, "Sway desctructor called");
 }
 

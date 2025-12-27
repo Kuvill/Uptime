@@ -1,9 +1,10 @@
 #pragma once
 
-#include "demon/plugin.hpp"
-#include <sys/epoll.h>
-#include <vector>
+#include <sys/poll.h>
+#include <array>
+#include <algorithm>
 
+/*
 class Epoll {
 public:
     std::vector<epoll_event> ready; // btw it shouldn't be vector
@@ -22,9 +23,9 @@ public:
 
 void Subscribe( int fd, Plugin* );
 void Unsubscribe( int fd );
+*/
 
-/*
-
+// short to be same type as pollfd
 enum class PollEvent : short {
     In = POLLIN,
     Err = POLLHUP
@@ -33,25 +34,42 @@ enum class PollEvent : short {
 struct safePFD {
     int fd;
     PollEvent event;
+    short _{};
 
     operator pollfd() const {
-        return pollfd( fd, short(event) );
+        return pollfd( fd, short(event), _ );
     }
 };
 
-template< size_t _size >
+struct PfdWithId {
+    safePFD pfd;   
+    int* id;
+};
+
+static_assert(sizeof(safePFD) == sizeof(pollfd), "Invalid safePFD helper class");
+
+template< std::size_t _size >
 class Poll {
     std::array<pollfd, _size> _fds;
 
 public:
-    Poll( std::initializer_list<safePFD> fds ) {
-        std::copy_n(fds.begin(), fds.size(), _fds.begin());
+    Poll( std::initializer_list<PfdWithId> fds ) {
+        int i = 0;
+        for( auto& fd : fds) {
+            _fds[i] = fd.pfd;
+            *fd.id = i;
+
+            ++i;
+        }
     }
     
-    // mb needed froze function
+    int wait() {
+       int result = poll( _fds.data(), _size, -1 );
 
-    int listen() {
-       return poll( _fds.data(), _size, -1 );
+       if( result == -1 ) 
+           throw "";
+
+       return result;
     }
 
     pollfd operator[]( size_t index ) {
@@ -63,4 +81,3 @@ public:
     }
 };
 
-*/

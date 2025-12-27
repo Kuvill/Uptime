@@ -23,7 +23,7 @@ const char MSG[] = "activewindow";
 // Should be allocated once in constr, in sway also btw
 const int INIT_SIZE = 1'000;
 
-_Hyprland::_Hyprland() : DesktopEnv( false ) {
+_Hyprland::_Hyprland() {
     logger.log(LogLvl::Info, "Hyprland detected!");
 
     addr.sun_family = AF_UNIX;
@@ -41,7 +41,7 @@ _Hyprland::_Hyprland() : DesktopEnv( false ) {
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1, sign, signSize );
     std::memcpy( addr.sun_path + xdgSize + sizeof(HYPR) - 1 + signSize, SOCK, sizeof(SOCK) );
 
-   /* if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+   /* if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     } */
 
@@ -53,16 +53,16 @@ _Hyprland::~_Hyprland() {
 }
 
 ProcessInfo _Hyprland::getFocused() {
-    if(( setFd( socket( AF_UNIX, SOCK_STREAM, 0 ) ) ) < 0 ) {
+    if(( _fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ) < 0 ) {
         logger.log(LogLvl::Error, "Internal. Failed to create fd for socket");
     }
 
-    if( connect(getFd(), reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
+    if( connect(_fd, reinterpret_cast<sockaddr*>( &addr ), sizeof( addr ) ) ) {
         logger.log(LogLvl::Error, "Internal. Failed to connect to Hyprland socket. Path: ", addr.sun_path );
     }
 
     ProcessInfo result;
-    if( send( getFd(), MSG, sizeof(MSG), 0 ) < 0 ) {
+    if( send( _fd, MSG, sizeof(MSG), 0 ) < 0 ) {
         logger.log(LogLvl::Warning, "Unable to send to hyprland. Rollback...");
         checkDE();
         return {};
@@ -72,7 +72,7 @@ ProcessInfo _Hyprland::getFocused() {
     std::string buffer( INIT_SIZE, '\0' );
 
     
-    auto rc = read( getFd(), buffer.data(), buffer.size() );
+    auto rc = read( _fd, buffer.data(), buffer.size() );
 
     // rc == 0 <-> EOF
     auto oldSize = buffer.size();
@@ -83,7 +83,7 @@ ProcessInfo _Hyprland::getFocused() {
 
         buffer.resize( buffer.size() * 2 );
         // we read size, not buffer size coz of shift
-        rc = read( getFd(), buffer.data() + oldSize, oldSize );
+        rc = read( _fd, buffer.data() + oldSize, oldSize );
     }
 
     // ----------------- class (name)------------------- //
@@ -130,7 +130,7 @@ ProcessInfo _Hyprland::getFocused() {
 
     result.timestomp = getCurrentTime();
     logger.log(LogLvl::Info, "tueried data: ", result);
-    close( getFd() );
+    close( _fd );
 
     return result;
 }

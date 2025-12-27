@@ -16,11 +16,12 @@
 #include <cassert>
 #include <csignal>
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 
+#include <stdexcept>
 #include <sys/socket.h>
 #include <unistd.h>
-
 
 using namespace std::chrono_literals;
 
@@ -66,6 +67,8 @@ Database* g_db;
     exit(0);
 }
 
+void clearSocket( int fd );
+
 // as moder cpp way i should pick as socket dbus, boost.asio or ZeroMQ
 
 int main( int argc, char** argv ) {
@@ -100,15 +103,19 @@ int main( int argc, char** argv ) {
 #endif
 #endif
 
-    Epoll epoll;
 
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
-    TimerEvent timer;
+    TimerEvent timer; int timer_id; // id should be inside class
     
-    [[maybe_unused]] DesktopEnv* env = initDE();
+    [[maybe_unused]] DesktopEnv* env = initDE(); int env_id;
     SignalEvent signals;
+
+    Poll<2> poll {
+        {safePFD{timer, PollEvent::In}, &timer_id},
+        {safePFD{*env, PollEvent::In}, &env_id},
+    };
 
     g_store = &storage;
     g_db = &db;
@@ -119,39 +126,49 @@ int main( int argc, char** argv ) {
 
 	try {
 		while( true ) {
-            int count = epoll.wait();
+            int count = poll.wait();
             logger.log(LogLvl::Info, "epoll triggered ", count, " sockets"); 
+            // any chanse to code generation? Should do const mapping to variants?
+            // for event in events (const - can be unrolled). and visits. 
+            // 
+            // tuple - truely duck typeing? Yes. Also constexpr lamda expressions :)
+            
+            // timer
 
-            for( int i = 0; i < count; ++i ) {
-                auto event = epoll.ready[i];
+            if( poll[timer_id].revents & POLLIN ) {
+                timer.OnTrigger();
+                clearSocket( timer );
+            }
 
-                if( event.events & EPOLLIN ) [[likely]] {
-                    char buf[1000];
-                    auto plugin = static_cast<Plugin*>( event.data.ptr );
-                    logger.log(LogLvl::Info, "Triggering ", typeid(*plugin).name());
-                    plugin->OnTrigger();
-                    if( plugin->autoclean() )
-                        read(plugin->getFd(), buf, 1000);
-                }
+            if( poll[timer_id].revents & POLLHUP ) [[unlikely]] {
+                SigHandler(0);
+            }
 
-                else if( event.events & EPOLLHUP ) { // socket closed
-                    logger.log(LogLvl::Warning, "One of socket closed...");
-                    SigHandler( 0 ); // tmp. Should mark module as turned off. 
-                    // if i will use json to manage plugins, write cause inside
-                    // or btw i can try to reinit module
-                }
+            if( poll[timer_id].revents & POLLERR ) [[unlikely]] {
+                int error;
+                socklen_t errlen = sizeof( error );
+                getsockopt(timer, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
+                logger.log(LogLvl::Error, strerror(error));
+                SigHandler(0);
+            }
 
-                else if( event.events & EPOLLERR ) {
-                    // should be as function in socket file
-                    int error;
-                    socklen_t errlen = sizeof( error );
-                    getsockopt(event.data.fd, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
-                    logger.log(LogLvl::Error, strerror(error));
-                    // turn off plugin and write cause
-                }
+            // env
+            if( poll[env_id].revents & POLLIN ) {
+                timer.OnTrigger();
+            }
 
-            } // event cycle exit
-		}
+            if( poll[env_id].revents & POLLHUP ) [[unlikely]] {
+                SigHandler(0);
+            }
+
+            if( poll[env_id].revents & POLLERR ) [[unlikely]] {
+                int error;
+                socklen_t errlen = sizeof( error );
+                getsockopt(timer, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
+                logger.log(LogLvl::Error, strerror(error));
+                SigHandler(0);
+            }
+        }
 	}
 
 	catch( const std::exception& err ) {
@@ -162,3 +179,22 @@ int main( int argc, char** argv ) {
 	return 0;
 }
 
+void clearSocket( int fd ) {
+    char buf[1024];
+    int r = read( fd, buf, 1024 );
+
+    // if message is bigger, then 1024
+    if( r == 1024 ) [[unlikely]]
+        clearSocket( fd );
+
+    // 0 - eof, >0 - readed all from socket
+    if( r != -1 ) [[likely]]
+        return;
+
+    // nothings in scoket + nonblock
+    if( (errno == EAGAIN || errno == EWOULDBLOCK ) )
+        return;
+
+    logger.log( LogLvl::Error, "error after clearing socket! ", strerror(errno) );
+    throw std::runtime_error("error after clearing socket!");
+}

@@ -9,16 +9,17 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-class TimerEvent : Plugin {
+class TimerEvent {
     itimerspec _settings;
+    int _fd;
 
 public:
-    TimerEvent() : Plugin( true ) {
+    TimerEvent() {
         errno = 0;
-        setFd( timerfd_create(CLOCK_MONOTONIC, 0) );
+        _fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
-        if( getFd() < 0 ) {
-            logger.log(LogLvl::Error, "Unable to create eventfd (", getFd(), "): ", strerror(errno) );
+        if( _fd < 0 ) {
+            logger.log(LogLvl::Error, "Unable to create eventfd (", _fd, "): ", strerror(errno) );
             throw std::runtime_error("Unable to create eventfd");
         }
 
@@ -28,12 +29,10 @@ public:
         _settings.it_value.tv_sec = 0;
 
         // it value - initial sleep. 
-        timerfd_settime( getFd(), 0, &_settings, nullptr );
-
-        Subscribe( getFd(), this );
+        timerfd_settime( _fd, 0, &_settings, nullptr );
     }
 
-    void OnTrigger() override {
+    void OnTrigger() {
         logger.log(LogLvl::Warning, "Motion on timer doesn't implemented yet!");
     }
 
@@ -43,11 +42,11 @@ public:
     }
 
     ~TimerEvent() {
-        close( getFd() );
+        close( _fd );
     }
 
     operator int() {
-        return getFd();
+        return _fd;
     }
 
 

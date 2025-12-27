@@ -45,6 +45,10 @@ constexpr static void registrate() {
     logger.log(LogLvl::Info, "Desktop enviroment class registrated: ", typeid(T).name() );
 }
 
+static void saveProcessInfo( ProcessInfo info ) {
+    logger.log(LogLvl::Error, "Save not implemented");
+}
+
 // constexpr ...(
 // should be in separated header
 void registrateAll() {
@@ -59,7 +63,7 @@ size_t sizeForDE() {
 DesktopEnv* initDE() {
     registrateAll();
     void* reserve = malloc(sizeForDE());
-    DesktopEnv* de = new(reserve) DesktopEnv( false ); 
+    DesktopEnv* de = new(reserve) DesktopEnv; 
     de->checkDE();
     
     return de;
@@ -90,11 +94,11 @@ ProcessInfo DesktopEnv::getFocused() {
 void DesktopEnv::castToBase() {
     this->~DesktopEnv(); // since destructor virtual - all good
 
-    new( this ) DesktopEnv( false );
-    setFd( -1 );
+    new( this ) DesktopEnv;
+    _fd = -1;
 }
 
-DesktopEnv::DesktopEnv( bool autoclearSocket ) : Plugin( autoclearSocket ) {}
+DesktopEnv::DesktopEnv() {}
 
 DesktopEnv::~DesktopEnv() {
     logger.log(LogLvl::Info, "Close socket");

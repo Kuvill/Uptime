@@ -3,13 +3,14 @@
 #include "common/settings.hpp"
 #include "demon/plugin.hpp"
 
-// double deriving PepoHappy
-class NotifySettings final : public Settings, public Plugin {
+class NotifySettings final : public Settings {
+    int _fd;
+        
 public:
     NotifySettings();
     NotifySettings( std::string_view path );
 
     ~NotifySettings();
 
-    void OnTrigger() override;
+    void OnTrigger();
 };
