@@ -1,7 +1,6 @@
 #pragma once
 
 #include <chrono>
-#include <concepts>
 
 // seconds. MUST BE time since unix epoch
 using recTime_t = std::chrono::seconds;

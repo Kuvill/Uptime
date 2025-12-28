@@ -1,21 +1,22 @@
 #pragma once
 
-#include "demon/get_uptime.hpp"
 #include <common/aliases.hpp>
-
 #include <common/utils.hpp>
+#include <demon/process_info.hpp>
 
 #include <sys/un.h>
 
 class DesktopEnv;
 
 // using in header?
-using CastCondition = bool (*)();
-using InplaceCast = void (*)( DesktopEnv* self );
+namespace Details__ {
+    using CastCondition = bool (*)();
+    using InplaceCast = void (*)( DesktopEnv* self );
+}
 
 struct CastRule {
-    CastCondition cond;
-    InplaceCast cast;
+    Details__::CastCondition cond;
+    Details__::InplaceCast cast;
 };
 
 void registrateAll();

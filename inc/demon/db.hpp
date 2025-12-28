@@ -1,10 +1,12 @@
 #pragma once
 
-#include "demon/get_uptime.hpp"
-#include "demon/ram_storage.hpp"
 #include "common/time.hpp"
+#include "demon/process_info.hpp"
 
+#include <iterator>
+#include <ranges>
 #include <sqlite3.h>
+#include <type_traits>
 
 
 // 2 variants:
@@ -39,11 +41,25 @@ public:
 
 	bool insertUser( const char* userName );
 
-	// upon two mehod are useless?
-	void dumpStorage( Storage& );
+    auto dumpStorage();
 	void insertUptimeRecord( const ProcessInfo& );
 
 	size_t getRecordsCount();
     const unsigned char* getAppName( int appId );
-    Storage getRecords();
+    // Storage getRecords();
+    template<template<typename...> typename Container>
+    auto getRecords();
+
+    template< std::ranges::range Range >
+    Range insertFrom();
 };
+
+template<template<typename...> typename Container>
+auto getRecords() {
+    static_assert(false, "didn't implemented yet");
+}
+
+template< std::ranges::range Range >
+Range Database::insertFrom() {
+    static_assert(false);
+}

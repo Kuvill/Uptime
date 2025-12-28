@@ -1,6 +1,6 @@
 #pragma once
 
-#include "demon/better_uptime.hpp"
+#include "demon/process_info.hpp"
 #include "common/time.hpp"
 
 #include <unordered_set>

@@ -1,5 +1,4 @@
 #include "demon/db.hpp"
-#include "demon/ram_storage.hpp"
 #include "common/logger.hpp"
 #include "common/time.hpp"
 #include "common/settings.hpp"
@@ -79,6 +78,7 @@ Database::Database() {
 Database::Database( const char* dbName ) : Database() {
     logger.log(LogLvl::Info, "creating db:  ", dbName);
 
+    // don't like it. Pass into constructor, please FIXME
     std::string path( settings_->value_or({ PATH_LABEL, "db" }, SHARE_PATH) );
     path += dbName;
 
@@ -173,6 +173,7 @@ int Database::insertApp( const char* appName ) {
 	return appId;
 }
 
+/*
 void Database::dumpStorage( Storage& store ) {
 	logger.log(LogLvl::Info, "dumped: ", store.size());
 
@@ -187,6 +188,7 @@ void Database::dumpStorage( Storage& store ) {
 
 	store.clear();
 }
+*/
 
 size_t Database::getRecordsCount() {
     std::size_t count{0};
