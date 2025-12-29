@@ -52,7 +52,7 @@ void Storage::clear() {
 	_storage.clear();
 }
 
-size_t Storage::size() {
+size_t Storage::size() const {
     return _storage.size();
 }
 

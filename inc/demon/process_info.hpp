@@ -2,6 +2,7 @@
 
 #include "common/time.hpp"
 
+#include <ostream>
 #include <string>
 
 // using Name = std::array<char, 40>;
@@ -19,3 +20,4 @@ struct ProcessInfo {
     }
 };
 
+std::ostream& operator<<( std::ostream& os, const ProcessInfo& info );

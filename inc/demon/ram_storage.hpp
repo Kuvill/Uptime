@@ -9,7 +9,7 @@
 
 struct Record {
 	// FIXME should to save char* ( std::string coz i take from user, not lunux)
-	uint32_t user;
+	uint32_t user; // why user here separated? FIXME
     ProcessInfo info;
 
     Record( uint32_t usr, ProcessInfo info );
@@ -47,5 +47,5 @@ public:
 
 	void clear();
 
-    size_t size();
+    size_t size() const;
 };

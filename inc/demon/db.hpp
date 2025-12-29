@@ -1,12 +1,12 @@
 #pragma once
 
+#include "common/logger.hpp"
 #include "common/time.hpp"
 #include "demon/process_info.hpp"
 
-#include <iterator>
+#include <exception>
 #include <ranges>
 #include <sqlite3.h>
-#include <type_traits>
 
 
 // 2 variants:
@@ -40,26 +40,41 @@ public:
 	~Database();
 
 	bool insertUser( const char* userName );
-
-    auto dumpStorage();
 	void insertUptimeRecord( const ProcessInfo& );
 
 	size_t getRecordsCount();
     const unsigned char* getAppName( int appId );
-    // Storage getRecords();
-    template<template<typename...> typename Container>
-    auto getRecords();
-
+    // implement range based? - ideal solutio
     template< std::ranges::range Range >
-    Range insertFrom();
+    Range getRecords();
+
+    template< std::ranges::range Range, typename Proj >
+        // require values in range to be ProcessInfo
+        requires std::same_as<std::remove_cvref_t<std::invoke_result_t<Proj, std::ranges::range_value_t<Range>>>, ProcessInfo>
+    void insertFrom( Range&& range, Proj proj = Proj() );
 };
 
-template<template<typename...> typename Container>
-auto getRecords() {
+template< std::ranges::range Range >
+Range Database::getRecords() {
     static_assert(false, "didn't implemented yet");
 }
 
-template< std::ranges::range Range >
-Range Database::insertFrom() {
-    static_assert(false);
+template< std::ranges::range Range, typename Proj >
+    requires std::same_as<std::remove_cvref_t<std::invoke_result_t<Proj, std::ranges::range_value_t<Range>>>, ProcessInfo>
+
+void Database::insertFrom( Range&& range, Proj proj ) {
+    try {
+        sqlite3_exec( _db, "BEGIN;", nullptr, nullptr, nullptr );
+
+        for( auto& record : range ) {
+            insertUptimeRecord( record.info );
+        }
+
+        sqlite3_exec( _db, "COMMIT;", nullptr, nullptr, nullptr );
+    }
+
+    catch( ... ) {
+        logger.log(LogLvl::Error, "Exception dropped while inserting and range into db!");
+        std::rethrow_exception( std::current_exception() );
+    }
 }

@@ -58,7 +58,7 @@ Database* g_db;
 [[noreturn]] static void SigHandler( int code ) {
     logger.log(LogLvl::Warning, "Handled signal: ", code, ". Terminate" );
 
-    g_db->dumpStorage( *g_store );
+    g_db->insertFrom( *g_store, &Record::info );
     delete_lock_file();
 
     exit(0);
@@ -172,7 +172,7 @@ int main( int argc, char** argv ) {
 		logger.log(LogLvl::Error, err.what());
 	}
 
-	db.dumpStorage( storage );
+	db.insertFrom( storage, &Record::info );
 	return 0;
 }
 
