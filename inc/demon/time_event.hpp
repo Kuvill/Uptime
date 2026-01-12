@@ -14,7 +14,6 @@ class TimerEvent {
 
 public:
     TimerEvent() {
-        errno = 0;
         _fd = timerfd_create(CLOCK_MONOTONIC, 0);
 
         if( _fd < 0 ) {

@@ -1,13 +1,13 @@
 #include "common/change_dir.hpp"
 #include "common/check_unique.hpp"
 
-#include "common/signal_event.hpp"
 #include "demon/better_uptime.hpp"
 #include "demon/db.hpp"
 #include "demon/ram_storage.hpp"
 #include "demon/server.hpp"
 #include "demon/poll.hpp"
 #include "demon/settings.hpp"
+#include "common/signals_object.hpp"
 
 #include "common/logger.hpp"
 #include "demon/time_event.hpp"
@@ -101,15 +101,17 @@ int main( int argc, char** argv ) {
 #endif
 
 
+    Signals signals; int signals_id;
 	Database db( dbName );
 	Storage storage;
 	Ips connect;
     TimerEvent timer; int timer_id; // id should be inside class
     
     [[maybe_unused]] DesktopEnv* env = initDE(); int env_id;
-    SignalEvent signals;
+    // SignalEvent signals;
 
-    Poll<2> poll {
+    Poll<3> poll {
+        {safePFD{signals, PollEvent::In}, &signals_id},
         {safePFD{timer, PollEvent::In}, &timer_id},
         {safePFD{*env, PollEvent::In}, &env_id},
     };
@@ -129,6 +131,11 @@ int main( int argc, char** argv ) {
             // for event in events (const - can be unrolled). and visits. 
             // 
             // tuple - truely duck typeing? Yes. Also constexpr lamda expressions :)
+
+            // signals 
+            if( poll[signals_id].revents & PollEvent::In ) {
+                signals.OnTrigger();
+            }
             
             // timer
 
