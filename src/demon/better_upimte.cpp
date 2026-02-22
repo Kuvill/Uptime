@@ -54,6 +54,7 @@ static void saveProcessInfo( ProcessInfo info ) {
 void registrateAll() {
     registrate<_SwayDE>();
     registrate<_HyprlandTrue>();
+    registrate<_Gnome>();
 }
 
 size_t sizeForDE() {

@@ -64,6 +64,7 @@ demon_sources = [
   './src/demon/de_dependent/sway.cpp',
   './src/demon/de_dependent/hyprland.cpp',
   './src/demon/de_dependent/hyprland_true.cpp',
+  './src/demon/de_dependent/gnome.cpp',
 ]
 
 gui_sources = [
@@ -105,7 +106,8 @@ gtkdeps = [
 
 dbdeps = [
     dependency( 'sqlite3' ),
-    dependency( 'libnotify' )
+    dependency( 'libnotify' ),
+    dependency( 'sdbus-c++')
 ]
 
 ### Resources

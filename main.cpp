@@ -110,8 +110,9 @@ int main( int argc, char** argv ) {
     [[maybe_unused]] DesktopEnv* env = initDE(); int env_id;
     // SignalEvent signals;
 
+    // should be global?
     Poll<3> poll {
-        {safePFD{signals, PollEvent::In}, &signals_id},
+        {safePFD{signals, PollEvent::In}, &signals_id}, // move id into base class
         {safePFD{timer, PollEvent::In}, &timer_id},
         {safePFD{*env, PollEvent::In}, &env_id},
     };

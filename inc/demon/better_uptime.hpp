@@ -4,6 +4,8 @@
 #include <common/utils.hpp>
 #include <demon/process_info.hpp>
 
+#include <sdbus-c++/IConnection.h>
+
 #include <sys/un.h>
 
 class DesktopEnv;
@@ -27,7 +29,7 @@ DesktopEnv* initDE();
 
 class DesktopEnv {
 protected:
-    int _fd;
+    int _fd; // on fd change it have to trigger poll
     void castToBase();
 
 public:
@@ -93,6 +95,26 @@ public:
     ProcessInfo getFocused() override;
 
     // SOLID support functions
+
+    static bool CastCondition();
+
+    static void InplaceCast( DesktopEnv* self );
+};
+
+class _Gnome final : public DesktopEnv {
+    std::unique_ptr<sdbus::IConnection> _connection;
+    std::unique_ptr<ProcessInfo> _processInfo; // idk how to do not store it all time ( 
+
+    void TryStartExtension();
+
+    void renewPollData();
+
+    void dbusCallback( sdbus::Signal );
+public:
+    _Gnome();
+    ~_Gnome() = default;
+
+    ProcessInfo getFocused() override;
 
     static bool CastCondition();
 
