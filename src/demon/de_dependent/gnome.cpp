@@ -23,11 +23,30 @@ void _Gnome::TryStartExtension() {
     sdbus::ObjectPath objPath{ "/org/gnome/shell/extensions/FocusedWindow" };
 
     _connection = sdbus::createSessionBusConnection();
-    // connection->enterEventLoopAsync(); // allow to use it with my poll
+    // _connection->enterEventLoopAsync(); // allow to use it with my poll
+
+    // Oh. We not connect to an signal, Idk what we do
+    // have to be like:
+    // std::string match = "type='signal',destination='org.gnome.Shell',path='/org/gnome/shell/extensions/FocusedWindow'";
+    // _connection->addMatch(match); // API name may be addMatch or addMatchRule
+    /*
+    _connection->registerMessageHandler(
+        [this](sdbus::Message& msg) {
+            // inspect message: type, interface, member (signal name)
+            auto type = msg.getMessageType();
+            if (type == sdbus::Message::Type::Signal) {
+                auto iface = msg.getInterface();
+                auto member = msg.getMember();
+                // read arguments as needed
+                dbusCallback(std::move(msg)); // or handle inline
+            }
+        }
+    );
+    */
 
     auto proxy = sdbus::createProxy( *_connection, std::move(servName), std::move(objPath) );
     sdbus::InterfaceName interface{ "org.gnome.shell.extensions.FocusedWindow" };
-    sdbus::SignalName methodName{ "Get" };
+    sdbus::SignalName methodName{ "FocusChanged" };
     proxy->registerSignalHandler( interface, methodName, 
             [this]( sdbus::Signal signal ){ dbusCallback( signal ); }
     );
