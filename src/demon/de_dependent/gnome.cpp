@@ -27,8 +27,13 @@ void _Gnome::TryStartExtension() {
 
     // Oh. We not connect to an signal, Idk what we do
     // have to be like:
-    // std::string match = "type='signal',destination='org.gnome.Shell',path='/org/gnome/shell/extensions/FocusedWindow'";
-    // _connection->addMatch(match); // API name may be addMatch or addMatchRule
+    std::string match = "type='signal',destination='org.gnome.Shell',path='/org/gnome/shell/extensions/FocusedWindow'";
+    // match works, callback doesn't ))))
+    _connection->addMatch(match, 
+            [this]( sdbus::Message msg ) {
+                dbusCallback( msg );
+            }
+    ); // API name may be addMatch or addMatchRule
     /*
     _connection->registerMessageHandler(
         [this](sdbus::Message& msg) {
@@ -42,7 +47,6 @@ void _Gnome::TryStartExtension() {
             }
         }
     );
-    */
 
     auto proxy = sdbus::createProxy( *_connection, std::move(servName), std::move(objPath) );
     sdbus::InterfaceName interface{ "org.gnome.shell.extensions.FocusedWindow" };
@@ -50,14 +54,15 @@ void _Gnome::TryStartExtension() {
     proxy->registerSignalHandler( interface, methodName, 
             [this]( sdbus::Signal signal ){ dbusCallback( signal ); }
     );
+    */
 
     renewPollData();
 }
 
-void _Gnome::dbusCallback( sdbus::Signal signal ) {
+void _Gnome::dbusCallback( sdbus::Message msg ) {
     logger.log(LogLvl::Info, "Gnome dbus callback triggered!");
     std::string rawData;
-    signal >> rawData;
+    msg >> rawData;
 
     auto json = nlohmann::json::parse( std::move(rawData) );
 
@@ -88,7 +93,8 @@ ProcessInfo _Gnome::getFocused() {
     _connection->processPendingEvent();
     renewPollData();
 
-    return *_processInfo;
+    logger.log(LogLvl::Info, "Trying to get process info after callback work");
+    return _processInfo ? *_processInfo : ProcessInfo{};
 }
 
 bool _Gnome::CastCondition() {

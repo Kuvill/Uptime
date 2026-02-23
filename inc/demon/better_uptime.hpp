@@ -109,7 +109,7 @@ class _Gnome final : public DesktopEnv {
 
     void renewPollData();
 
-    void dbusCallback( sdbus::Signal );
+    void dbusCallback( sdbus::Message );
 public:
     _Gnome();
     ~_Gnome() = default;

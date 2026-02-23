@@ -159,7 +159,7 @@ int main( int argc, char** argv ) {
 
             // env
             if( poll[env_id].revents & POLLIN ) {
-                timer.OnTrigger();
+                env->OnTrigger();
             }
 
             if( poll[env_id].revents & POLLHUP ) [[unlikely]] {
@@ -167,10 +167,12 @@ int main( int argc, char** argv ) {
             }
 
             if( poll[env_id].revents & POLLERR ) [[unlikely]] {
+                /*
                 int error;
                 socklen_t errlen = sizeof( error );
-                getsockopt(timer, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
-                logger.log(LogLvl::Error, strerror(error));
+                getsockopt(env, SOL_SOCKET, SO_ERROR, (void*)&error, &errlen );
+                */
+                logger.log(LogLvl::Error, strerror(1));
                 SigHandler(0);
             }
         }
