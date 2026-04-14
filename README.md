@@ -1,5 +1,8 @@
 # Uptimer
 
+## Freeze
+
+Probably i won't be working on this project until meson add modules support
 
 ## How do you spend your time?
 Uptimer (work title) - tools for recording some PC usage information (like on-screen (focused) window uptimes. Browser focused tab and media in future) and present it with GUI.
